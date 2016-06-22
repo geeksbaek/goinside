@@ -15,7 +15,7 @@ var (
 	categoryNoRe = regexp.MustCompile(`query \+= "&category_no=(.*)"`)
 )
 
-// Recommend 는 인자로 전달받은 글에 대해 추천을 보냅니다.
+// Recommend 함수는 인자로 전달받은 글에 대해 추천을 보냅니다.
 func (a *Auth) Recommend(at *Article) error {
 	form, err := a.commonRecommendForm(at)
 	if err != nil {
@@ -28,7 +28,7 @@ func (a *Auth) Recommend(at *Article) error {
 	return err
 }
 
-// Norecommend 는 인자로 전달받은 글에 대해 비추천을 보냅니다.
+// Norecommend 함수는 인자로 전달받은 글에 대해 비추천을 보냅니다.
 func (a *Auth) Norecommend(at *Article) error {
 	form, err := a.commonRecommendForm(at)
 	if err != nil {
