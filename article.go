@@ -17,7 +17,8 @@ var (
 	flDataRe  = regexp.MustCompile(`\('FL_DATA'\).value ?= ?'(.*)'`)
 	oflDataRe = regexp.MustCompile(`\('OFL_DATA'\).value ?= ?'(.*)'`)
 	urlRe     = regexp.MustCompile(`url="?(.*?)"?>`)
-	numberRe  = regexp.MustCompile(`no="?(.*)"?`)
+	idRe      = regexp.MustCompile(`id=([^&]*)`)
+	numberRe  = regexp.MustCompile(`no=(\d+)`)
 )
 
 // Article 구조체는 글 정보를 표현합니다.
@@ -83,11 +84,12 @@ func (a *Auth) WriteArticle(atw *ArticleWriter) (*Article, error) {
 		return nil, err
 	}
 	URL := urlRe.FindSubmatch(body)
+	gallID := idRe.FindSubmatch(body)
 	number := numberRe.FindSubmatch(body)
-	if len(URL) != 2 || len(number) != 2 {
+	if len(URL) != 2 || len(gallID) != 2 || len(number) != 2 {
 		return nil, errors.New("Write Article Fail")
 	}
-	ret.URL, ret.Number = string(URL[1]), string(number[1])
+	ret.URL, ret.GallID, ret.Number = string(URL[1]), string(gallID[1]), string(number[1])
 	return ret, nil
 }
 
@@ -113,7 +115,10 @@ func (a *Auth) DeleteArticle(at *Article) error {
 		"mode":     "board_del2",
 		"con_key":  authKey,
 	})
-	_, err = a.post(optionWrite, cookies, form, defaultContentType)
+	fmt.Println(at)
+	resp, err := a.post(optionWrite, cookies, form, defaultContentType)
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
 	return err
 }
 
