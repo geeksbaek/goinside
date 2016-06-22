@@ -68,7 +68,7 @@ func (a *Auth) DeleteComment(ct *Comment) error {
 	} else {
 		return errors.New("Need to login")
 	}
-	cookies, authKey, err := a.getCookiesAndAuthKey(m, comment)
+	cookies, authKey, err := a.getCookiesAndAuthKey(m, accessToken)
 	if err != nil {
 		return err
 	}
