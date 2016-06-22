@@ -64,7 +64,7 @@ func (a *Auth) DeleteComment(ct *Comment) error {
 	// get cookies and conkey
 	m := map[string]string{}
 	if a.nomember {
-		m["token_verify"] = "nonuser_del"
+		m["token_verify"] = "nonuser_com_del"
 	} else {
 		return errors.New("Need to login")
 	}
