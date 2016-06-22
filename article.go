@@ -30,11 +30,20 @@ type Article struct {
 
 // ArticleWriter 구조체는 글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
 type ArticleWriter struct {
-	Auth
 	GallID  string
 	Subject string
 	Content string
 	Images  []string
+}
+
+// NewArticle 함수는 새로운 NewArticleWriter 객체를 반환합니다.
+func NewArticle(gallID, subject, content string, images []string) *ArticleWriter {
+	return &ArticleWriter{
+		GallID:  gallID,
+		Subject: subject,
+		Content: content,
+		Images:  images,
+	}
 }
 
 // WriteArticle 함수는 리시버 Auth의 정보와 인자로 전달받은 ArticleWriter 구조체의 정보를 조합하여 글을 작성합니다.

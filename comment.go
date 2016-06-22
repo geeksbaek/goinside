@@ -18,10 +18,18 @@ type Comment struct {
 
 // CommentWriter 구조체는 댓글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
 type CommentWriter struct {
-	Auth
 	GallID  string
 	Number  string
 	Content string
+}
+
+// NewComment 함수는 새로운 CommentWriter 객체를 반환합니다.
+func NewComment(gallID, number, content string) *CommentWriter {
+	return &CommentWriter{
+		GallID:  gallID,
+		Number:  number,
+		Content: content,
+	}
 }
 
 // WriteComment 함수는 리시버 Auth의 정보와 인자로 전달받은 CommentWriter 구조체의 정보를 조합하여 댓글을 작성합니다.
