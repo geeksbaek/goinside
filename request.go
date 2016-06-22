@@ -10,6 +10,7 @@ var (
 	uploadImage = "http://upload.dcinside.com/upload_imgfree_mobile.php"
 	gWrite      = "http://upload.dcinside.com/g_write.php"
 	recommend   = "http://m.dcinside.com/_recommend_join.php"
+	norecommend = "http://m.dcinside.com/_nonrecommend_join.php"
 	comment     = "http://m.dcinside.com/_option_write.php"
 	accessToken = "http://m.dcinside.com/_access_token.php"
 
