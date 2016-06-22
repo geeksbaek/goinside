@@ -45,7 +45,7 @@ func (a *Auth) WriteArticle(atw *ArticleWriter) (*Article, error) {
 		"w_memo":    atw.Content,
 		"w_filter":  "1",
 		"mode":      "write_verify",
-	})
+	}, optionWrite)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (a *Auth) DeleteArticle(at *Article) error {
 	} else {
 		return errors.New("Need to login")
 	}
-	cookies, authKey, err := a.getCookiesAndAuthKey(m)
+	cookies, authKey, err := a.getCookiesAndAuthKey(m, accessToken)
 	if err != nil {
 		return err
 	}
@@ -158,11 +158,11 @@ func (a *Auth) UploadImages(images []string, gall string) (string, string, error
 	return string(fldata[1]), string(ofldata[1]), nil
 }
 
-func (a *Auth) getCookiesAndAuthKey(m map[string]string) ([]*http.Cookie, string, error) {
+func (a *Auth) getCookiesAndAuthKey(m map[string]string, URL string) ([]*http.Cookie, string, error) {
 	var cookies []*http.Cookie
 	var authKey string
 	form := form(m)
-	resp, err := a.post(optionWrite, nil, form, defaultContentType)
+	resp, err := a.post(URL, nil, form, defaultContentType)
 	if err != nil {
 		return nil, "", err
 	}
