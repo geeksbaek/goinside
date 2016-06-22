@@ -48,7 +48,7 @@ func NewArticle(gallID, subject, content string, images []string) *ArticleWriter
 
 // WriteArticle 함수는 리시버 Auth의 정보와 인자로 전달받은 ArticleWriter 구조체의 정보를 조합하여 글을 작성합니다.
 func (a *Auth) WriteArticle(atw *ArticleWriter) (*Article, error) {
-	// get cookies and blockkey
+	// get cookies and block key
 	cookies, authKey, err := a.getCookiesAndAuthKey(map[string]string{
 		"id":        "programming",
 		"w_subject": atw.Subject,
@@ -104,7 +104,7 @@ func (a *Auth) WriteArticle(atw *ArticleWriter) (*Article, error) {
 
 // DeleteArticle 함수는 리시버 Auth의 정보와 인자로 전달받은 ArticleWriter 구조체의 정보를 조합하여 글을 삭제합니다.
 func (a *Auth) DeleteArticle(at *Article) error {
-	// get cookies and conkey
+	// get cookies and con key
 	m := map[string]string{}
 	if a.nomember {
 		m["token_verify"] = "nonuser_del"
@@ -151,7 +151,7 @@ func (a *Auth) UploadImages(images []string, gall string) (string, string, error
 	form, contentType := multipartForm(images, map[string]string{
 		"imgId":   gall,
 		"mode":    "write",
-		"img_num": "11",
+		"img_num": "11", // ?
 	})
 	resp, err := a.post(uploadImage, nil, form, contentType)
 	if err != nil {

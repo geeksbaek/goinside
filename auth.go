@@ -5,6 +5,7 @@ import (
 	"net/url"
 )
 
+// Auth 구조체는 사용자의 세션을 위해 사용됩니다.
 type Auth struct {
 	id        string
 	pw        string
@@ -14,8 +15,8 @@ type Auth struct {
 	transport *http.Transport
 }
 
-// GetNomemberAuth 함수는 전달받은 ID, PASSWORD로 생성한 비회원 객체를 반환합니다.
-func GetNomemberAuth(id, pw string) *Auth {
+// Guest 함수는 전달받은 ID, PASSWORD로 생성한 비회원 객체를 반환합니다.
+func Guest(id, pw string) *Auth {
 	return &Auth{id: id, pw: pw, nomember: true}
 }
 

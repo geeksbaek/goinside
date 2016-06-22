@@ -61,7 +61,7 @@ func (a *Auth) WriteComment(cw *CommentWriter) (*Comment, error) {
 
 // DeleteComment 함수는 리시버 Auth의 정보와 인자로 전달받은 CommentWriter 구조체의 정보를 조합하여 댓글을 삭제합니다.
 func (a *Auth) DeleteComment(ct *Comment) error {
-	// get cookies and conkey
+	// get cookies and con key
 	m := map[string]string{}
 	if a.nomember {
 		m["token_verify"] = "nonuser_com_del"
