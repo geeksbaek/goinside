@@ -115,10 +115,7 @@ func (a *Auth) DeleteArticle(at *Article) error {
 		"mode":     "board_del2",
 		"con_key":  authKey,
 	})
-	fmt.Println(at)
-	resp, err := a.post(optionWrite, cookies, form, defaultContentType)
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
+	_, err = a.post(optionWrite, cookies, form, defaultContentType)
 	return err
 }
 
