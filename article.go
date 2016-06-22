@@ -82,8 +82,12 @@ func (a *Auth) WriteArticle(atw *ArticleWriter) (*Article, error) {
 	if err != nil {
 		return nil, err
 	}
-	ret.URL = string(urlRe.Find(body))
-	ret.Number = string(numberRe.Find(body))
+	URL := urlRe.FindSubmatch(body)
+	number := numberRe.FindSubmatch(body)
+	if len(URL) != 2 || len(number) != 2 {
+		return nil, errors.New("Write Article Fail")
+	}
+	ret.URL, ret.Number = string(URL[1]), string(number[1])
 	return ret, nil
 }
 
@@ -146,7 +150,12 @@ func (a *Auth) UploadImages(images []string, gall string) (string, string, error
 	if err != nil {
 		return "", "", err
 	}
-	return string(flDataRe.Find(body)), string(oflDataRe.Find(body)), nil
+	fldata := flDataRe.FindSubmatch(body)
+	ofldata := oflDataRe.FindSubmatch(body)
+	if len(fldata) != 2 || len(ofldata) != 2 {
+		return "", "", errors.New("Image Upload Fail")
+	}
+	return string(fldata[1]), string(ofldata[1]), nil
 }
 
 func (a *Auth) getCookiesAndAuthKey(m map[string]string) ([]*http.Cookie, string, error) {

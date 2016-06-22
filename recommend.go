@@ -1,6 +1,7 @@
 package goinside
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -50,17 +51,20 @@ func (a *Auth) commonRecommendForm(at *Article) (io.Reader, error) {
 	if err != nil {
 		return nil, err
 	}
-	koName := string(koNameRe.Find(body))
-	gServer := string(gServerRe.Find(body))
-	gNo := string(gNoRe.Find(body))
-	categoryNo := string(categoryNoRe.Find(body))
+	koName := koNameRe.FindSubmatch(body)
+	gServer := gServerRe.FindSubmatch(body)
+	gNo := gNoRe.FindSubmatch(body)
+	categoryNo := categoryNoRe.FindSubmatch(body)
+	if len(koName) != 2 || len(gServer) != 2 || len(gNo) != 2 || len(categoryNo) != 2 {
+		return nil, errors.New("Make Recommend Form Fail")
+	}
 	return form(map[string]string{
 		"no":          at.Number,
 		"gall_id":     at.GallID,
 		"ip":          a.ip,
-		"ko_name":     koName,
-		"gserver":     gServer,
-		"gno":         gNo,
-		"category_no": categoryNo,
+		"ko_name":     string(koName[1]),
+		"gserver":     string(gServer[1]),
+		"gno":         string(gNo[1]),
+		"category_no": string(categoryNo[1]),
 	}), nil
 }
