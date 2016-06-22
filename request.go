@@ -21,15 +21,15 @@ var (
 	}
 )
 
-func (a *Auth) Post(URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
-	return a.Do("POST", URL, cookies, form, contentType)
+func (a *Auth) post(URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
+	return a.do("POST", URL, cookies, form, contentType)
 }
 
-func (a *Auth) Get(URL string) (*http.Response, error) {
-	return a.Do("GET", URL, nil, nil, defaultContentType)
+func (a *Auth) get(URL string) (*http.Response, error) {
+	return a.do("GET", URL, nil, nil, defaultContentType)
 }
 
-func (a *Auth) Do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
+func (a *Auth) do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
 	req, err := http.NewRequest(method, URL, form)
 	if err != nil {
 		return nil, err

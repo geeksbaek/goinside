@@ -15,6 +15,7 @@ var (
 	categoryNoRe = regexp.MustCompile(`query \+= "&category_no=(.*)"`)
 )
 
+// Recommend 는 인자로 전달받은 글에 대해 추천을 보냅니다.
 func (a *Auth) Recommend(at *Article) error {
 	form, err := a.commonRecommendForm(at)
 	if err != nil {
@@ -23,10 +24,11 @@ func (a *Auth) Recommend(at *Article) error {
 	cookies := cookies(map[string]string{
 		fmt.Sprintf("%s_recomPrev_%s", at.GallID, at.Number): "done",
 	})
-	_, err = a.Post(recommend, cookies, form, defaultContentType)
+	_, err = a.post(recommend, cookies, form, defaultContentType)
 	return err
 }
 
+// Norecommend 는 인자로 전달받은 글에 대해 비추천을 보냅니다.
 func (a *Auth) Norecommend(at *Article) error {
 	form, err := a.commonRecommendForm(at)
 	if err != nil {
@@ -35,12 +37,12 @@ func (a *Auth) Norecommend(at *Article) error {
 	cookies := cookies(map[string]string{
 		fmt.Sprintf("%s_nonrecomPrev_%s", at.GallID, at.Number): "done",
 	})
-	_, err = a.Post(recommend, cookies, form, defaultContentType)
+	_, err = a.post(recommend, cookies, form, defaultContentType)
 	return err
 }
 
 func (a *Auth) commonRecommendForm(at *Article) (io.Reader, error) {
-	resp, err := a.Get(at.URL)
+	resp, err := a.get(at.URL)
 	if err != nil {
 		return nil, err
 	}

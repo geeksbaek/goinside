@@ -20,12 +20,14 @@ var (
 	numberRe  = regexp.MustCompile(`no="?(.*)"?`)
 )
 
+// Article 구조체는 글 정보를 표현합니다.
 type Article struct {
 	URL    string
 	GallID string
 	Number string
 }
 
+// ArticleWriter 구조체는 글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
 type ArticleWriter struct {
 	Auth
 	GallID  string
@@ -34,6 +36,7 @@ type ArticleWriter struct {
 	Images  []string
 }
 
+// WriteArticle 함수는 리시버 Auth의 정보와 인자로 전달받은 ArticleWriter 구조체의 정보를 조합하여 글을 작성합니다.
 func (a *Auth) WriteArticle(atw *ArticleWriter) (*Article, error) {
 	// get cookies and blockkey
 	cookies, authKey, err := a.getCookiesAndAuthKey(map[string]string{
@@ -71,7 +74,7 @@ func (a *Auth) WriteArticle(atw *ArticleWriter) (*Article, error) {
 		"Block_key":  authKey,
 		"filter":     "1",
 	})
-	resp, err := a.Post(gWrite, cookies, form, contentType)
+	resp, err := a.post(gWrite, cookies, form, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -84,6 +87,7 @@ func (a *Auth) WriteArticle(atw *ArticleWriter) (*Article, error) {
 	return ret, nil
 }
 
+// DeleteArticle 함수는 리시버 Auth의 정보와 인자로 전달받은 ArticleWriter 구조체의 정보를 조합하여 글을 삭제합니다.
 func (a *Auth) DeleteArticle(at *Article) error {
 	// get cookies and conkey
 	m := map[string]string{}
@@ -105,10 +109,11 @@ func (a *Auth) DeleteArticle(at *Article) error {
 		"mode":     "board_del2",
 		"con_key":  authKey,
 	})
-	_, err = a.Post(optionWrite, cookies, form, defaultContentType)
+	_, err = a.post(optionWrite, cookies, form, defaultContentType)
 	return err
 }
 
+// DeleteArticles 함수는 인자로 전달받은 여러 개의 댓글에 대해 동시적으로 DeleteArticle 함수를 호출합니다.
 func (a *Auth) DeleteArticles(ats []*Article) error {
 	done := make(chan error)
 	defer close(done)
@@ -126,13 +131,14 @@ func (a *Auth) DeleteArticles(ats []*Article) error {
 	return nil
 }
 
+// UploadImages 함수는 인자로 전달받은 이미지 파일들을 디시인사이드 서버에 업로드 한 뒤, 이미지에 대한 FL_DATA, OFL_DATA 값을 반환합니다.
 func (a *Auth) UploadImages(images []string, gall string) (string, string, error) {
 	form, contentType := multipartForm(images, map[string]string{
 		"imgId":   gall,
 		"mode":    "write",
 		"img_num": "11",
 	})
-	resp, err := a.Post(uploadImage, nil, form, contentType)
+	resp, err := a.post(uploadImage, nil, form, contentType)
 	if err != nil {
 		return "", "", err
 	}
@@ -147,7 +153,7 @@ func (a *Auth) getCookiesAndAuthKey(m map[string]string) ([]*http.Cookie, string
 	var cookies []*http.Cookie
 	var authKey string
 	form := form(m)
-	resp, err := a.Post(optionWrite, nil, form, defaultContentType)
+	resp, err := a.post(optionWrite, nil, form, defaultContentType)
 	if err != nil {
 		return nil, "", err
 	}

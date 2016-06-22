@@ -8,6 +8,7 @@ import (
 	"net/http"
 )
 
+// Comment 구조체는 댓글 정보를 표현합니다.
 type Comment struct {
 	URL     string
 	GallID  string
@@ -15,6 +16,7 @@ type Comment struct {
 	Cnumber string
 }
 
+// CommentWriter 구조체는 댓글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
 type CommentWriter struct {
 	Auth
 	GallID  string
@@ -22,6 +24,7 @@ type CommentWriter struct {
 	Content string
 }
 
+// WriteComment 함수는 리시버 Auth의 정보와 인자로 전달받은 CommentWriter 구조체의 정보를 조합하여 댓글을 작성합니다.
 func (a *Auth) WriteComment(cw *CommentWriter) (*Comment, error) {
 	form := form(map[string]string{
 		"id":           cw.GallID,
@@ -32,7 +35,7 @@ func (a *Auth) WriteComment(cw *CommentWriter) (*Comment, error) {
 		"comment_memo": cw.Content,
 		"mode":         "comment_nonmember",
 	})
-	resp, err := a.Post(comment, nil, form, defaultContentType)
+	resp, err := a.post(comment, nil, form, defaultContentType)
 	if err != nil {
 		return nil, err
 	}
@@ -41,13 +44,14 @@ func (a *Auth) WriteComment(cw *CommentWriter) (*Comment, error) {
 		return nil, err
 	}
 	return &Comment{
-		URL:    fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s", cw.GallID, cw.Number),
-		GallID: cw.GallID,
-		Number: cw.Number,
+		URL:     fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s", cw.GallID, cw.Number),
+		GallID:  cw.GallID,
+		Number:  cw.Number,
 		Cnumber: commentNumber,
 	}, nil
 }
 
+// DeleteComment 함수는 리시버 Auth의 정보와 인자로 전달받은 CommentWriter 구조체의 정보를 조합하여 댓글을 삭제합니다.
 func (a *Auth) DeleteComment(ct *Comment) error {
 	// get cookies and conkey
 	m := map[string]string{}
@@ -71,10 +75,11 @@ func (a *Auth) DeleteComment(ct *Comment) error {
 		"mode":       "comment_del",
 		"con_key":    authKey,
 	})
-	_, err = a.Post(optionWrite, cookies, form, defaultContentType)
+	_, err = a.post(optionWrite, cookies, form, defaultContentType)
 	return err
 }
 
+// DeleteComments 함수는 인자로 전달받은 여러 개의 댓글에 대해 동시적으로 DeleteComment 함수를 호출합니다.
 func (a *Auth) DeleteComments(cts []*Comment) error {
 	done := make(chan error)
 	defer close(done)
