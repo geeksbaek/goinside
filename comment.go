@@ -19,17 +19,15 @@ type Comment struct {
 // CommentWriter 구조체는 댓글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
 type CommentWriter struct {
 	*Session
-	GallID  string
-	Number  string
+	*Article
 	Content string
 }
 
 // NewComment 함수는 새로운 CommentWriter 객체를 반환합니다.
-func (s *Session) NewComment(gallID, number, content string) *CommentWriter {
+func (s *Session) NewComment(a *Article, content string) *CommentWriter {
 	return &CommentWriter{
 		Session: s,
-		GallID:  gallID,
-		Number:  number,
+		Article: a,
 		Content: content,
 	}
 }
