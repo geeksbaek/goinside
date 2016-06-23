@@ -62,7 +62,7 @@ type List struct {
 // ArticleWriter 구조체는 글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
 type ArticleWriter struct {
 	*Session
-	GallID  string
+	Gall    *GallInfo
 	Subject string
 	Content string
 	Images  []string

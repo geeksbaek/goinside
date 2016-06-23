@@ -6,16 +6,16 @@ import (
 )
 
 const (
-	UploadImageURL = "http://upload.dcinside.com/upload_imgfree_mobile.php"
-	GWriteURL      = "http://upload.dcinside.com/g_write.php"
-	OptionWriteURL = "http://m.dcinside.com/_option_write.php"
-	RecommendURL   = "http://m.dcinside.com/_recommend_join.php"
-	NorecommendURL = "http://m.dcinside.com/_nonrecommend_join.php"
-	CommentURL     = "http://m.dcinside.com/_option_write.php"
-	AccessTokenURL = "http://m.dcinside.com/_access_token.php"
-	GallTotalURL   = "http://m.dcinside.com/category_gall_total.html"
+	uploadImageURL = "http://upload.dcinside.com/upload_imgfree_mobile.php"
+	gWriteURL      = "http://upload.dcinside.com/g_write.php"
+	optionWriteURL = "http://m.dcinside.com/_option_write.php"
+	recommendURL   = "http://m.dcinside.com/_recommend_join.php"
+	norecommendURL = "http://m.dcinside.com/_nonrecommend_join.php"
+	commentURL     = "http://m.dcinside.com/_option_write.php"
+	accessTokenURL = "http://m.dcinside.com/_access_token.php"
+	gallTotalURL   = "http://m.dcinside.com/category_gall_total.html"
 
-	DefaultContentType = "application/x-www-form-urlencoded; charset=UTF-8"
+	defaultContentType = "application/x-www-form-urlencoded; charset=UTF-8"
 )
 
 var (
@@ -31,7 +31,7 @@ func (s *Session) post(URL string, cookies []*http.Cookie, form io.Reader, conte
 }
 
 func (s *Session) get(URL string) (*http.Response, error) {
-	return s.do("GET", URL, nil, nil, DefaultContentType)
+	return s.do("GET", URL, nil, nil, defaultContentType)
 }
 
 func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
