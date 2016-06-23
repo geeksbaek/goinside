@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-// Comment 구조체는 댓글 정보를 표현합니다.
+// Comment 구조체는 작성된 댓글에 대한 정보를 표현합니다.
 type Comment struct {
 	URL     string
 	GallID  string
@@ -32,7 +32,7 @@ func (s *Session) NewComment(a *Article, content string) *CommentWriter {
 	}
 }
 
-// WriteComment 함수는 리시버 Auth의 정보와 인자로 전달받은 CommentWriter 구조체의 정보를 조합하여 댓글을 작성합니다.
+// WriteComment 함수는 CommentWriter의 정보를 가지고 댓글을 작성합니다.
 func (c *CommentWriter) Write() (*Comment, error) {
 	form := form(map[string]string{
 		"id":           c.GallID,
@@ -59,7 +59,7 @@ func (c *CommentWriter) Write() (*Comment, error) {
 	}, nil
 }
 
-// DeleteComment 함수는 리시버 Auth의 정보와 인자로 전달받은 CommentWriter 구조체의 정보를 조합하여 댓글을 삭제합니다.
+// DeleteComment 함수는 인자로 주어진 댓글을 삭제합니다.
 func (s *Session) DeleteComment(c *Comment) error {
 	// get cookies and con key
 	m := map[string]string{}
@@ -87,7 +87,7 @@ func (s *Session) DeleteComment(c *Comment) error {
 	return err
 }
 
-// DeleteComments 함수는 인자로 전달받은 여러 개의 댓글에 대해 동시적으로 DeleteComment 함수를 호출합니다.
+// DeleteComments 함수는 인자로 주어진 여러 개의 댓글을 동시에 삭제합니다.
 func (s *Session) DeleteComments(cs []*Comment) error {
 	done := make(chan error)
 	defer close(done)

@@ -21,7 +21,7 @@ var (
 	numberRe  = regexp.MustCompile(`no=(\d+)`)
 )
 
-// Article 구조체는 글 정보를 표현합니다.
+// Article 구조체는 작성된 글에 대한 정보를 표현합니다. 댓글을 달거나 추천, 비추천 할 때 사용합니다.
 type Article struct {
 	URL    string
 	GallID string
@@ -48,6 +48,7 @@ func (s *Session) NewArticle(gallID, subject, content string, images ...string) 
 	}
 }
 
+// Write 함수는 ArticleWriter의 정보를 가지고 글을 작성합니다.
 func (a *ArticleWriter) Write() (*Article, error) {
 	// get cookies and block key
 	cookies, authKey, err := a.getCookiesAndAuthKey(map[string]string{
@@ -103,7 +104,7 @@ func (a *ArticleWriter) Write() (*Article, error) {
 	return ret, nil
 }
 
-// DeleteArticle 함수는 리시버 Auth의 정보와 인자로 전달받은 ArticleWriter 구조체의 정보를 조합하여 글을 삭제합니다.
+// DeleteArticle 함수는 인자로 주어진 글을 삭제합니다.
 func (s *Session) DeleteArticle(a *Article) error {
 	// get cookies and con key
 	m := map[string]string{}
@@ -129,7 +130,7 @@ func (s *Session) DeleteArticle(a *Article) error {
 	return err
 }
 
-// DeleteArticles 함수는 인자로 전달받은 여러 개의 댓글에 대해 동시적으로 DeleteArticle 함수를 호출합니다.
+// DeleteArticles 함수는 인자로 주어진 여러 개의 글을 동시에 삭제합니다.
 func (s *Session) DeleteArticles(as []*Article) error {
 	done := make(chan error)
 	defer close(done)
