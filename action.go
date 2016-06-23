@@ -25,7 +25,7 @@ func (s *Session) ThumbsUp(a *Article) error {
 	cookies := cookies(map[string]string{
 		fmt.Sprintf("%s_recomPrev_%s", a.Gall.ID, a.Number): "done",
 	})
-	_, err = s.post(recommendURL, cookies, form, DefaultContentType)
+	_, err = s.post(recommendURL, cookies, form, defaultContentType)
 	return err
 }
 
@@ -38,7 +38,7 @@ func (s *Session) ThumbsDown(a *Article) error {
 	cookies := cookies(map[string]string{
 		fmt.Sprintf("%s_nonrecomPrev_%s", a.Gall.ID, a.Number): "done",
 	})
-	_, err = s.post(norecommendURL, cookies, form, DefaultContentType)
+	_, err = s.post(norecommendURL, cookies, form, defaultContentType)
 	return err
 }
 
