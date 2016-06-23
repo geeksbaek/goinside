@@ -56,7 +56,7 @@ func (a *ArticleWriter) Write() (*Article, error) {
 	}
 
 	// wrtie article
-	ret := &Article{}
+	ret := &Article{Gall: &GallInfo{}}
 	form, contentType := multipartForm(nil, map[string]string{
 		"name":       a.id,
 		"password":   a.pw,

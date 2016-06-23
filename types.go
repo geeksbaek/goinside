@@ -30,7 +30,7 @@ type GallInfo struct {
 
 // Comment 구조체는 작성된 댓글에 대한 정보를 표현합니다.
 type Comment struct {
-	AuthorInfo
+	*AuthorInfo
 	Gall    *GallInfo
 	Parents *Article
 	Number  string
@@ -41,7 +41,7 @@ type Comment struct {
 // Article 구조체는 작성된 글에 대한 정보를 표현합니다.
 // 댓글을 달거나 추천, 비추천 할 때 사용합니다.
 type Article struct {
-	AuthorInfo
+	*AuthorInfo
 	Gall       *GallInfo
 	URL        string
 	Number     string
@@ -55,7 +55,7 @@ type Article struct {
 
 // List 구조체는 특정 갤러리의 글 묶음입니다.
 type List struct {
-	GallInfo
+	*GallInfo
 	Articles []*Article
 }
 
