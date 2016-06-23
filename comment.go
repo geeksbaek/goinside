@@ -18,14 +18,16 @@ type Comment struct {
 
 // CommentWriter 구조체는 댓글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
 type CommentWriter struct {
+	*Session
 	GallID  string
 	Number  string
 	Content string
 }
 
 // NewComment 함수는 새로운 CommentWriter 객체를 반환합니다.
-func NewComment(gallID, number, content string) *CommentWriter {
+func (s *Session) NewComment(gallID, number, content string) *CommentWriter {
 	return &CommentWriter{
+		Session: s,
 		GallID:  gallID,
 		Number:  number,
 		Content: content,
@@ -33,17 +35,17 @@ func NewComment(gallID, number, content string) *CommentWriter {
 }
 
 // WriteComment 함수는 리시버 Auth의 정보와 인자로 전달받은 CommentWriter 구조체의 정보를 조합하여 댓글을 작성합니다.
-func (a *Auth) WriteComment(cw *CommentWriter) (*Comment, error) {
+func (c *CommentWriter) Write() (*Comment, error) {
 	form := form(map[string]string{
-		"id":           cw.GallID,
-		"no":           cw.Number,
-		"ip":           a.ip,
-		"comment_nick": a.id,
-		"comment_pw":   a.pw,
-		"comment_memo": cw.Content,
+		"id":           c.GallID,
+		"no":           c.Number,
+		"ip":           c.ip,
+		"comment_nick": c.id,
+		"comment_pw":   c.pw,
+		"comment_memo": c.Content,
 		"mode":         "comment_nonmember",
 	})
-	resp, err := a.post(comment, nil, form, defaultContentType)
+	resp, err := c.post(comment, nil, form, defaultContentType)
 	if err != nil {
 		return nil, err
 	}
@@ -52,52 +54,52 @@ func (a *Auth) WriteComment(cw *CommentWriter) (*Comment, error) {
 		return nil, err
 	}
 	return &Comment{
-		URL:     fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s", cw.GallID, cw.Number),
-		GallID:  cw.GallID,
-		Number:  cw.Number,
+		URL:     fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s", c.GallID, c.Number),
+		GallID:  c.GallID,
+		Number:  c.Number,
 		Cnumber: commentNumber,
 	}, nil
 }
 
 // DeleteComment 함수는 리시버 Auth의 정보와 인자로 전달받은 CommentWriter 구조체의 정보를 조합하여 댓글을 삭제합니다.
-func (a *Auth) DeleteComment(ct *Comment) error {
+func (s *Session) DeleteComment(c *Comment) error {
 	// get cookies and con key
 	m := map[string]string{}
-	if a.nomember {
+	if s.nomember {
 		m["token_verify"] = "nonuser_com_del"
 	} else {
 		return errors.New("Need to login")
 	}
-	cookies, authKey, err := a.getCookiesAndAuthKey(m, accessToken)
+	cookies, authKey, err := s.getCookiesAndAuthKey(m, accessToken)
 	if err != nil {
 		return err
 	}
 
 	// delete comment
 	form := form(map[string]string{
-		"id":         ct.GallID,
-		"no":         ct.Number,
-		"iNo":        ct.Cnumber,
-		"comment_pw": a.pw,
+		"id":         c.GallID,
+		"no":         c.Number,
+		"iNo":        c.Cnumber,
+		"comment_pw": s.pw,
 		"user_no":    "nonmember",
 		"mode":       "comment_del",
 		"con_key":    authKey,
 	})
-	_, err = a.post(optionWrite, cookies, form, defaultContentType)
+	_, err = s.post(optionWrite, cookies, form, defaultContentType)
 	return err
 }
 
 // DeleteComments 함수는 인자로 전달받은 여러 개의 댓글에 대해 동시적으로 DeleteComment 함수를 호출합니다.
-func (a *Auth) DeleteComments(cts []*Comment) error {
+func (s *Session) DeleteComments(cs []*Comment) error {
 	done := make(chan error)
 	defer close(done)
-	for _, ct := range cts {
-		ct := ct
+	for _, c := range cs {
+		c := c
 		go func() {
-			done <- a.DeleteComment(ct)
+			done <- s.DeleteComment(c)
 		}()
 	}
-	for _ = range cts {
+	for _ = range cs {
 		if err := <-done; err != nil {
 			return err
 		}

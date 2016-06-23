@@ -30,6 +30,7 @@ type Article struct {
 
 // ArticleWriter 구조체는 글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
 type ArticleWriter struct {
+	*Session
 	GallID  string
 	Subject string
 	Content string
@@ -37,8 +38,9 @@ type ArticleWriter struct {
 }
 
 // NewArticle 함수는 새로운 NewArticleWriter 객체를 반환합니다.
-func NewArticle(gallID, subject, content string, images []string) *ArticleWriter {
+func (s *Session) NewArticle(gallID, subject, content string, images ...string) *ArticleWriter {
 	return &ArticleWriter{
+		Session: s,
 		GallID:  gallID,
 		Subject: subject,
 		Content: content,
@@ -46,13 +48,12 @@ func NewArticle(gallID, subject, content string, images []string) *ArticleWriter
 	}
 }
 
-// WriteArticle 함수는 리시버 Auth의 정보와 인자로 전달받은 ArticleWriter 구조체의 정보를 조합하여 글을 작성합니다.
-func (a *Auth) WriteArticle(atw *ArticleWriter) (*Article, error) {
+func (a *ArticleWriter) Write() (*Article, error) {
 	// get cookies and block key
 	cookies, authKey, err := a.getCookiesAndAuthKey(map[string]string{
 		"id":        "programming",
-		"w_subject": atw.Subject,
-		"w_memo":    atw.Content,
+		"w_subject": a.Subject,
+		"w_memo":    a.Content,
 		"w_filter":  "1",
 		"mode":      "write_verify",
 	}, optionWrite)
@@ -62,8 +63,8 @@ func (a *Auth) WriteArticle(atw *ArticleWriter) (*Article, error) {
 
 	// upload images and get FL_DATA, OFL_DATA string
 	var flData, oflData string
-	if len(atw.Images) > 0 {
-		flData, oflData, err = a.UploadImages(atw.Images, atw.GallID)
+	if len(a.Images) > 0 {
+		flData, oflData, err = a.UploadImages(a.GallID, a.Images)
 		if err != nil {
 			return nil, err
 		}
@@ -74,10 +75,10 @@ func (a *Auth) WriteArticle(atw *ArticleWriter) (*Article, error) {
 	form, contentType := multipartForm(nil, map[string]string{
 		"name":       a.id,
 		"password":   a.pw,
-		"subject":    atw.Subject,
-		"memo":       atw.Content,
+		"subject":    a.Subject,
+		"memo":       a.Content,
 		"mode":       "write",
-		"id":         atw.GallID,
+		"id":         a.GallID,
 		"mobile_key": "mobile_nomember",
 		"FL_DATA":    flData,
 		"OFL_DATA":   oflData,
@@ -103,42 +104,42 @@ func (a *Auth) WriteArticle(atw *ArticleWriter) (*Article, error) {
 }
 
 // DeleteArticle 함수는 리시버 Auth의 정보와 인자로 전달받은 ArticleWriter 구조체의 정보를 조합하여 글을 삭제합니다.
-func (a *Auth) DeleteArticle(at *Article) error {
+func (s *Session) DeleteArticle(a *Article) error {
 	// get cookies and con key
 	m := map[string]string{}
-	if a.nomember {
+	if s.nomember {
 		m["token_verify"] = "nonuser_del"
 	} else {
 		return errors.New("Need to login")
 	}
-	cookies, authKey, err := a.getCookiesAndAuthKey(m, accessToken)
+	cookies, authKey, err := s.getCookiesAndAuthKey(m, accessToken)
 	if err != nil {
 		return err
 	}
 
 	// delete article
 	form := form(map[string]string{
-		"id":       at.GallID,
-		"write_pw": a.pw,
-		"no":       at.Number,
+		"id":       a.GallID,
+		"write_pw": s.pw,
+		"no":       a.Number,
 		"mode":     "board_del2",
 		"con_key":  authKey,
 	})
-	_, err = a.post(optionWrite, cookies, form, defaultContentType)
+	_, err = s.post(optionWrite, cookies, form, defaultContentType)
 	return err
 }
 
 // DeleteArticles 함수는 인자로 전달받은 여러 개의 댓글에 대해 동시적으로 DeleteArticle 함수를 호출합니다.
-func (a *Auth) DeleteArticles(ats []*Article) error {
+func (s *Session) DeleteArticles(as []*Article) error {
 	done := make(chan error)
 	defer close(done)
-	for _, at := range ats {
-		at := at
+	for _, a := range as {
+		a := a
 		go func() {
-			done <- a.DeleteArticle(at)
+			done <- s.DeleteArticle(a)
 		}()
 	}
-	for _ = range ats {
+	for _ = range as {
 		if err := <-done; err != nil {
 			return err
 		}
@@ -147,13 +148,13 @@ func (a *Auth) DeleteArticles(ats []*Article) error {
 }
 
 // UploadImages 함수는 인자로 전달받은 이미지 파일들을 디시인사이드 서버에 업로드 한 뒤, 이미지에 대한 FL_DATA, OFL_DATA 값을 반환합니다.
-func (a *Auth) UploadImages(images []string, gall string) (string, string, error) {
+func (s *Session) UploadImages(gall string, images []string) (string, string, error) {
 	form, contentType := multipartForm(images, map[string]string{
 		"imgId":   gall,
 		"mode":    "write",
 		"img_num": "11", // ?
 	})
-	resp, err := a.post(uploadImage, nil, form, contentType)
+	resp, err := s.post(uploadImage, nil, form, contentType)
 	if err != nil {
 		return "", "", err
 	}
@@ -169,11 +170,11 @@ func (a *Auth) UploadImages(images []string, gall string) (string, string, error
 	return string(fldata[1]), string(ofldata[1]), nil
 }
 
-func (a *Auth) getCookiesAndAuthKey(m map[string]string, URL string) ([]*http.Cookie, string, error) {
+func (s *Session) getCookiesAndAuthKey(m map[string]string, URL string) ([]*http.Cookie, string, error) {
 	var cookies []*http.Cookie
 	var authKey string
 	form := form(m)
-	resp, err := a.post(URL, nil, form, defaultContentType)
+	resp, err := s.post(URL, nil, form, defaultContentType)
 	if err != nil {
 		return nil, "", err
 	}

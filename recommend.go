@@ -17,33 +17,33 @@ var (
 )
 
 // Recommend 함수는 인자로 전달받은 글에 대해 추천을 보냅니다.
-func (a *Auth) Recommend(at *Article) error {
-	form, err := a.commonRecommendForm(at)
+func (s *Session) Recommend(a *Article) error {
+	form, err := s.commonRecommendForm(a)
 	if err != nil {
 		return err
 	}
 	cookies := cookies(map[string]string{
-		fmt.Sprintf("%s_recomPrev_%s", at.GallID, at.Number): "done",
+		fmt.Sprintf("%s_recomPrev_%s", a.GallID, a.Number): "done",
 	})
-	_, err = a.post(recommend, cookies, form, defaultContentType)
+	_, err = s.post(recommend, cookies, form, defaultContentType)
 	return err
 }
 
 // Norecommend 함수는 인자로 전달받은 글에 대해 비추천을 보냅니다.
-func (a *Auth) Norecommend(at *Article) error {
-	form, err := a.commonRecommendForm(at)
+func (s *Session) Norecommend(a *Article) error {
+	form, err := s.commonRecommendForm(a)
 	if err != nil {
 		return err
 	}
 	cookies := cookies(map[string]string{
-		fmt.Sprintf("%s_nonrecomPrev_%s", at.GallID, at.Number): "done",
+		fmt.Sprintf("%s_nonrecomPrev_%s", a.GallID, a.Number): "done",
 	})
-	_, err = a.post(norecommend, cookies, form, defaultContentType)
+	_, err = s.post(norecommend, cookies, form, defaultContentType)
 	return err
 }
 
-func (a *Auth) commonRecommendForm(at *Article) (io.Reader, error) {
-	resp, err := a.get(at.URL)
+func (s *Session) commonRecommendForm(a *Article) (io.Reader, error) {
+	resp, err := s.get(a.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +60,8 @@ func (a *Auth) commonRecommendForm(at *Article) (io.Reader, error) {
 		return nil, errors.New("Make Recommend Form Fail")
 	}
 	return form(map[string]string{
-		"no":          at.Number,
-		"gall_id":     at.GallID,
+		"no":          a.Number,
+		"gall_id":     a.GallID,
 		"ip":          string(ip[1]),
 		"ko_name":     string(koName[1]),
 		"gserver":     string(gServer[1]),

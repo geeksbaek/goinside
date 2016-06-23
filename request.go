@@ -22,15 +22,15 @@ var (
 	}
 )
 
-func (a *Auth) post(URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
-	return a.do("POST", URL, cookies, form, contentType)
+func (s *Session) post(URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
+	return s.do("POST", URL, cookies, form, contentType)
 }
 
-func (a *Auth) get(URL string) (*http.Response, error) {
-	return a.do("GET", URL, nil, nil, defaultContentType)
+func (s *Session) get(URL string) (*http.Response, error) {
+	return s.do("GET", URL, nil, nil, defaultContentType)
 }
 
-func (a *Auth) do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
+func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
 	req, err := http.NewRequest(method, URL, form)
 	if err != nil {
 		return nil, err
@@ -43,8 +43,8 @@ func (a *Auth) do(method, URL string, cookies []*http.Cookie, form io.Reader, co
 	}
 	req.Header.Set("Content-Type", contentType)
 	client := func() *http.Client {
-		if a.transport != nil {
-			return &http.Client{Transport: a.transport}
+		if s.transport != nil {
+			return &http.Client{Transport: s.transport}
 		}
 		return &http.Client{}
 	}()
