@@ -65,7 +65,7 @@ func (a *ArticleWriter) Write() (*Article, error) {
 	// upload images and get FL_DATA, OFL_DATA string
 	var flData, oflData string
 	if len(a.Images) > 0 {
-		flData, oflData, err = a.UploadImages(a.GallID, a.Images)
+		flData, oflData, err = a.uploadImages(a.GallID, a.Images)
 		if err != nil {
 			return nil, err
 		}
@@ -148,8 +148,8 @@ func (s *Session) DeleteArticles(as []*Article) error {
 	return nil
 }
 
-// UploadImages 함수는 인자로 전달받은 이미지 파일들을 디시인사이드 서버에 업로드 한 뒤, 이미지에 대한 FL_DATA, OFL_DATA 값을 반환합니다.
-func (s *Session) UploadImages(gall string, images []string) (string, string, error) {
+// uploadImages 함수는 인자로 전달받은 이미지 파일들을 디시인사이드 서버에 업로드 한 뒤, 이미지에 대한 FL_DATA, OFL_DATA 값을 반환합니다.
+func (s *Session) uploadImages(gall string, images []string) (string, string, error) {
 	form, contentType := multipartForm(images, map[string]string{
 		"imgId":   gall,
 		"mode":    "write",
