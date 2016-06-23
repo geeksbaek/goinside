@@ -21,7 +21,8 @@ var (
 	numberRe  = regexp.MustCompile(`no=(\d+)`)
 )
 
-// Article 구조체는 작성된 글에 대한 정보를 표현합니다. 댓글을 달거나 추천, 비추천 할 때 사용합니다.
+// Article 구조체는 작성된 글에 대한 정보를 표현합니다.
+// 댓글을 달거나 추천, 비추천 할 때 사용합니다.
 type Article struct {
 	URL    string
 	GallID string
@@ -148,7 +149,6 @@ func (s *Session) DeleteArticles(as []*Article) error {
 	return nil
 }
 
-// uploadImages 함수는 인자로 전달받은 이미지 파일들을 디시인사이드 서버에 업로드 한 뒤, 이미지에 대한 FL_DATA, OFL_DATA 값을 반환합니다.
 func (s *Session) uploadImages(gall string, images []string) (string, string, error) {
 	form, contentType := multipartForm(images, map[string]string{
 		"imgId":   gall,
