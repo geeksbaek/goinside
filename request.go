@@ -5,16 +5,19 @@ import (
 	"net/http"
 )
 
-var (
-	optionWrite = "http://m.dcinside.com/_option_write.php"
-	uploadImage = "http://upload.dcinside.com/upload_imgfree_mobile.php"
-	gWrite      = "http://upload.dcinside.com/g_write.php"
-	recommend   = "http://m.dcinside.com/_recommend_join.php"
-	norecommend = "http://m.dcinside.com/_nonrecommend_join.php"
-	comment     = "http://m.dcinside.com/_option_write.php"
-	accessToken = "http://m.dcinside.com/_access_token.php"
+const (
+	OptionWriteURL = "http://m.dcinside.com/_option_write.php"
+	UploadImageURL = "http://upload.dcinside.com/upload_imgfree_mobile.php"
+	GWriteURL      = "http://upload.dcinside.com/g_write.php"
+	RecommendURL   = "http://m.dcinside.com/_recommend_join.php"
+	NorecommendURL = "http://m.dcinside.com/_nonrecommend_join.php"
+	CommentURL     = "http://m.dcinside.com/_option_write.php"
+	AccessTokenURL = "http://m.dcinside.com/_access_token.php"
 
-	defaultContentType   = "application/x-www-form-urlencoded; charset=UTF-8"
+	defaultContentType = "application/x-www-form-urlencoded; charset=UTF-8"
+)
+
+var (
 	defaultRequestHeader = map[string]string{
 		"User-Agent":       "Linux Android",
 		"Referer":          "http://m.dcinside.com",

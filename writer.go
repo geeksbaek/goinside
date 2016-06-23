@@ -58,7 +58,7 @@ func (a *ArticleWriter) Write() (*Article, error) {
 		"w_memo":    a.Content,
 		"w_filter":  "1",
 		"mode":      "write_verify",
-	}, optionWrite)
+	}, OptionWriteURL)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (a *ArticleWriter) Write() (*Article, error) {
 		"Block_key":  authKey,
 		"filter":     "1",
 	})
-	resp, err := a.post(gWrite, cookies, form, contentType)
+	resp, err := a.post(GWriteURL, cookies, form, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (s *Session) DeleteArticle(a *Article) error {
 	} else {
 		return errors.New("Need to login")
 	}
-	cookies, authKey, err := s.getCookiesAndAuthKey(m, accessToken)
+	cookies, authKey, err := s.getCookiesAndAuthKey(m, AccessTokenURL)
 	if err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func (s *Session) DeleteArticle(a *Article) error {
 		"mode":     "board_del2",
 		"con_key":  authKey,
 	})
-	_, err = s.post(optionWrite, cookies, form, defaultContentType)
+	_, err = s.post(OptionWriteURL, cookies, form, defaultContentType)
 	return err
 }
 
@@ -155,7 +155,7 @@ func (s *Session) uploadImages(gall string, images []string) (string, string, er
 		"mode":    "write",
 		"img_num": "11", // ?
 	})
-	resp, err := s.post(uploadImage, nil, form, contentType)
+	resp, err := s.post(UploadImageURL, nil, form, contentType)
 	if err != nil {
 		return "", "", err
 	}
@@ -180,14 +180,14 @@ func (s *Session) getCookiesAndAuthKey(m map[string]string, URL string) ([]*http
 		return nil, "", err
 	}
 	cookies = resp.Cookies()
-	authKey, err = parseAuthkKey(resp)
+	authKey, err = parseAuthKey(resp)
 	if err != nil {
 		return nil, "", err
 	}
 	return cookies, authKey, nil
 }
 
-func parseAuthkKey(resp *http.Response) (string, error) {
+func parseAuthKey(resp *http.Response) (string, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
@@ -275,7 +275,7 @@ func (c *CommentWriter) Write() (*Comment, error) {
 		"comment_memo": c.Content,
 		"mode":         "comment_nonmember",
 	})
-	resp, err := c.post(comment, nil, form, defaultContentType)
+	resp, err := c.post(CommentURL, nil, form, defaultContentType)
 	if err != nil {
 		return nil, err
 	}
@@ -300,7 +300,7 @@ func (s *Session) DeleteComment(c *Comment) error {
 	} else {
 		return errors.New("Need to login")
 	}
-	cookies, authKey, err := s.getCookiesAndAuthKey(m, accessToken)
+	cookies, authKey, err := s.getCookiesAndAuthKey(m, AccessTokenURL)
 	if err != nil {
 		return err
 	}
@@ -315,7 +315,7 @@ func (s *Session) DeleteComment(c *Comment) error {
 		"mode":       "comment_del",
 		"con_key":    authKey,
 	})
-	_, err = s.post(optionWrite, cookies, form, defaultContentType)
+	_, err = s.post(OptionWriteURL, cookies, form, defaultContentType)
 	return err
 }
 

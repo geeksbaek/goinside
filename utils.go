@@ -7,19 +7,24 @@ import (
 	"strings"
 )
 
-var iconURLsMap = map[string]string{
-	"ico_p_y": "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_picture.png",
-	"ico_t":   "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_text.png",
-	"ico_p_c": "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_picture_b.png",
-	"ico_t_c": "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_text_b.png",
-	"ico_mv":  "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_movie.png",
-	"ico_sc":  "http://nstatic.dcinside.com/dgn/gallery/images/update/sec_icon.png",
-}
+const (
+	iconURLPrefix = "http://nstatic.dcinside.com/dgn/gallery/images/update/"
+)
 
-var gallogIconURLsMap = map[string]string{
-	"fixed": "http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",
-	"flow":  "http://wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif",
-}
+var (
+	iconURLsMap = map[string]string{
+		"ico_p_y": iconURLPrefix + "icon_picture.png",
+		"ico_t":   iconURLPrefix + "icon_text.png",
+		"ico_p_c": iconURLPrefix + "icon_picture_b.png",
+		"ico_t_c": iconURLPrefix + "icon_text_b.png",
+		"ico_mv":  iconURLPrefix + "icon_movie.png",
+		"ico_sc":  iconURLPrefix + "sec_icon.png",
+	}
+	gallogIconURLsMap = map[string]string{
+		"fixed": "http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",
+		"flow":  "http://wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif",
+	}
+)
 
 // func newDocument(url string, header map[string]string) *goquery.Document {
 // 	doc, err := goquery.NewDocumentFromResponse(get(url, header))

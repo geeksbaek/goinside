@@ -16,8 +16,8 @@ var (
 	categoryNoRe = regexp.MustCompile(`query \+= "&category_no=(.*)"`)
 )
 
-// Recommend 함수는 인자로 전달받은 글에 대해 추천을 보냅니다.
-func (s *Session) Recommend(a *Article) error {
+// ThumbsUp 함수는 인자로 전달받은 글에 대해 추천을 보냅니다.
+func (s *Session) ThumbsUp(a *Article) error {
 	form, err := s.commonRecommendForm(a)
 	if err != nil {
 		return err
@@ -25,12 +25,12 @@ func (s *Session) Recommend(a *Article) error {
 	cookies := cookies(map[string]string{
 		fmt.Sprintf("%s_recomPrev_%s", a.GallID, a.Number): "done",
 	})
-	_, err = s.post(recommend, cookies, form, defaultContentType)
+	_, err = s.post(RecommendURL, cookies, form, defaultContentType)
 	return err
 }
 
-// Norecommend 함수는 인자로 전달받은 글에 대해 비추천을 보냅니다.
-func (s *Session) Norecommend(a *Article) error {
+// ThumbsDown 함수는 인자로 전달받은 글에 대해 비추천을 보냅니다.
+func (s *Session) ThumbsDown(a *Article) error {
 	form, err := s.commonRecommendForm(a)
 	if err != nil {
 		return err
@@ -38,7 +38,7 @@ func (s *Session) Norecommend(a *Article) error {
 	cookies := cookies(map[string]string{
 		fmt.Sprintf("%s_nonrecomPrev_%s", a.GallID, a.Number): "done",
 	})
-	_, err = s.post(norecommend, cookies, form, defaultContentType)
+	_, err = s.post(NorecommendURL, cookies, form, defaultContentType)
 	return err
 }
 
