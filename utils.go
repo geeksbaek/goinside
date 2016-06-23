@@ -50,15 +50,6 @@ var (
 // 	return substr[1], substr[2]
 // }
 
-// func respToString(resp *http.Response) string {
-// 	body, err := ioutil.ReadAll(resp.Body)
-// 	defer resp.Body.Close()
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	return string(body)
-// }
-
 func form(m map[string]string) io.Reader {
 	data := url.Values{}
 	for k, v := range m {

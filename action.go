@@ -23,9 +23,9 @@ func (s *Session) ThumbsUp(a *Article) error {
 		return err
 	}
 	cookies := cookies(map[string]string{
-		fmt.Sprintf("%s_recomPrev_%s", a.GallID, a.Number): "done",
+		fmt.Sprintf("%s_recomPrev_%s", a.Gall.ID, a.Number): "done",
 	})
-	_, err = s.post(RecommendURL, cookies, form, defaultContentType)
+	_, err = s.post(RecommendURL, cookies, form, DefaultContentType)
 	return err
 }
 
@@ -36,14 +36,14 @@ func (s *Session) ThumbsDown(a *Article) error {
 		return err
 	}
 	cookies := cookies(map[string]string{
-		fmt.Sprintf("%s_nonrecomPrev_%s", a.GallID, a.Number): "done",
+		fmt.Sprintf("%s_nonrecomPrev_%s", a.Gall.ID, a.Number): "done",
 	})
-	_, err = s.post(NorecommendURL, cookies, form, defaultContentType)
+	_, err = s.post(NorecommendURL, cookies, form, DefaultContentType)
 	return err
 }
 
 func (s *Session) commonRecommendForm(a *Article) (io.Reader, error) {
-	resp, err := s.get(a.URL)
+	resp, err := s.get(a.Gall.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (s *Session) commonRecommendForm(a *Article) (io.Reader, error) {
 	}
 	return form(map[string]string{
 		"no":          a.Number,
-		"gall_id":     a.GallID,
+		"gall_id":     a.Gall.ID,
 		"ip":          string(ip[1]),
 		"ko_name":     string(koName[1]),
 		"gserver":     string(gServer[1]),

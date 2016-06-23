@@ -21,23 +21,6 @@ var (
 	numberRe  = regexp.MustCompile(`no=(\d+)`)
 )
 
-// Article 구조체는 작성된 글에 대한 정보를 표현합니다.
-// 댓글을 달거나 추천, 비추천 할 때 사용합니다.
-type Article struct {
-	URL    string
-	GallID string
-	Number string
-}
-
-// ArticleWriter 구조체는 글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
-type ArticleWriter struct {
-	*Session
-	GallID  string
-	Subject string
-	Content string
-	Images  []string
-}
-
 // NewArticle 함수는 새로운 NewArticleWriter 객체를 반환합니다.
 func (s *Session) NewArticle(gallID, subject, content string, images ...string) *ArticleWriter {
 	return &ArticleWriter{
@@ -91,17 +74,18 @@ func (a *ArticleWriter) Write() (*Article, error) {
 	if err != nil {
 		return nil, err
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	URL := urlRe.FindSubmatch(body)
-	gallID := idRe.FindSubmatch(body)
-	number := numberRe.FindSubmatch(body)
+	body := string(bodyBytes)
+	URL := urlRe.FindStringSubmatch(body)
+	gallID := idRe.FindStringSubmatch(body)
+	number := numberRe.FindStringSubmatch(body)
 	if len(URL) != 2 || len(gallID) != 2 || len(number) != 2 {
 		return nil, errors.New("Write Article Fail")
 	}
-	ret.URL, ret.GallID, ret.Number = string(URL[1]), string(gallID[1]), string(number[1])
+	ret.Gall.URL, ret.Gall.ID, ret.Number = URL[1], gallID[1], number[1]
 	return ret, nil
 }
 
@@ -121,18 +105,18 @@ func (s *Session) DeleteArticle(a *Article) error {
 
 	// delete article
 	form := form(map[string]string{
-		"id":       a.GallID,
+		"id":       a.Gall.ID,
 		"write_pw": s.pw,
 		"no":       a.Number,
 		"mode":     "board_del2",
 		"con_key":  authKey,
 	})
-	_, err = s.post(OptionWriteURL, cookies, form, defaultContentType)
+	_, err = s.post(OptionWriteURL, cookies, form, DefaultContentType)
 	return err
 }
 
-// DeleteArticles 함수는 인자로 주어진 여러 개의 글을 동시에 삭제합니다.
-func (s *Session) DeleteArticles(as []*Article) error {
+// DeleteArticleAll 함수는 인자로 주어진 여러 개의 글을 동시에 삭제합니다.
+func (s *Session) DeleteArticleAll(as []*Article) error {
 	done := make(chan error)
 	defer close(done)
 	for _, a := range as {
@@ -159,23 +143,24 @@ func (s *Session) uploadImages(gall string, images []string) (string, string, er
 	if err != nil {
 		return "", "", err
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", "", err
 	}
-	fldata := flDataRe.FindSubmatch(body)
-	ofldata := oflDataRe.FindSubmatch(body)
+	body := string(bodyBytes)
+	fldata := flDataRe.FindStringSubmatch(body)
+	ofldata := oflDataRe.FindStringSubmatch(body)
 	if len(fldata) != 2 || len(ofldata) != 2 {
 		return "", "", errors.New("Image Upload Fail")
 	}
-	return string(fldata[1]), string(ofldata[1]), nil
+	return fldata[1], ofldata[1], nil
 }
 
 func (s *Session) getCookiesAndAuthKey(m map[string]string, URL string) ([]*http.Cookie, string, error) {
 	var cookies []*http.Cookie
 	var authKey string
 	form := form(m)
-	resp, err := s.post(URL, nil, form, defaultContentType)
+	resp, err := s.post(URL, nil, form, DefaultContentType)
 	if err != nil {
 		return nil, "", err
 	}
@@ -240,21 +225,6 @@ func multipartOthers(w *multipart.Writer, m map[string]string) {
 	}
 }
 
-// Comment 구조체는 작성된 댓글에 대한 정보를 표현합니다.
-type Comment struct {
-	URL     string
-	GallID  string
-	Number  string
-	Cnumber string
-}
-
-// CommentWriter 구조체는 댓글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
-type CommentWriter struct {
-	*Session
-	*Article
-	Content string
-}
-
 // NewComment 함수는 새로운 CommentWriter 객체를 반환합니다.
 func (s *Session) NewComment(a *Article, content string) *CommentWriter {
 	return &CommentWriter{
@@ -267,7 +237,7 @@ func (s *Session) NewComment(a *Article, content string) *CommentWriter {
 // WriteComment 함수는 CommentWriter의 정보를 가지고 댓글을 작성합니다.
 func (c *CommentWriter) Write() (*Comment, error) {
 	form := form(map[string]string{
-		"id":           c.GallID,
+		"id":           c.Gall.ID,
 		"no":           c.Number,
 		"ip":           c.ip,
 		"comment_nick": c.id,
@@ -275,7 +245,7 @@ func (c *CommentWriter) Write() (*Comment, error) {
 		"comment_memo": c.Content,
 		"mode":         "comment_nonmember",
 	})
-	resp, err := c.post(CommentURL, nil, form, defaultContentType)
+	resp, err := c.post(CommentURL, nil, form, DefaultContentType)
 	if err != nil {
 		return nil, err
 	}
@@ -283,11 +253,12 @@ func (c *CommentWriter) Write() (*Comment, error) {
 	if err != nil {
 		return nil, err
 	}
+	URL := fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s",
+		c.Gall.ID, c.Number)
 	return &Comment{
-		URL:     fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s", c.GallID, c.Number),
-		GallID:  c.GallID,
-		Number:  c.Number,
-		Cnumber: commentNumber,
+		Gall:    &GallInfo{URL: URL, ID: c.Gall.ID},
+		Parents: &Article{Number: c.Number},
+		Number:  commentNumber,
 	}, nil
 }
 
@@ -307,20 +278,20 @@ func (s *Session) DeleteComment(c *Comment) error {
 
 	// delete comment
 	form := form(map[string]string{
-		"id":         c.GallID,
-		"no":         c.Number,
-		"iNo":        c.Cnumber,
+		"id":         c.Gall.ID,
+		"no":         c.Parents.Number,
+		"iNo":        c.Number,
 		"comment_pw": s.pw,
 		"user_no":    "nonmember",
 		"mode":       "comment_del",
 		"con_key":    authKey,
 	})
-	_, err = s.post(OptionWriteURL, cookies, form, defaultContentType)
+	_, err = s.post(OptionWriteURL, cookies, form, DefaultContentType)
 	return err
 }
 
-// DeleteComments 함수는 인자로 주어진 여러 개의 댓글을 동시에 삭제합니다.
-func (s *Session) DeleteComments(cs []*Comment) error {
+// DeleteCommentAll 함수는 인자로 주어진 여러 개의 댓글을 동시에 삭제합니다.
+func (s *Session) DeleteCommentAll(cs []*Comment) error {
 	done := make(chan error)
 	defer close(done)
 	for _, c := range cs {
