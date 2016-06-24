@@ -17,6 +17,7 @@ type AuthorInfo struct {
 	Name       string
 	IP         string
 	IsGuest    bool
+	GallogID   string
 	GallogURL  string
 	GallogIcon string
 }

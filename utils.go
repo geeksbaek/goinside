@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 const (
@@ -64,4 +66,12 @@ func cookies(m map[string]string) []*http.Cookie {
 		cookies = append(cookies, &http.Cookie{Name: k, Value: v})
 	}
 	return cookies
+}
+
+func newMobileDoc(URL string) (*goquery.Document, error) {
+	resp, err := (&Session{}).get(URL)
+	if err != nil {
+		return nil, err
+	}
+	return goquery.NewDocumentFromResponse(resp)
 }

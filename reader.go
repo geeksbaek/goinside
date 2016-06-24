@@ -30,294 +30,315 @@ func GetAllGall() ([]*GallInfo, error) {
 
 // GetList 함수는 해당 갤러리의 해당 페이지에 있는 모든 글의 목록을 가져옵니다.
 func GetList(gallURL string, page int) (*List, error) {
-	resp, err := (&Session{}).get(gallURL)
-	if err != nil {
-		return nil, err
-	}
-	doc, err := goquery.NewDocumentFromResponse(resp)
+	doc, err := newMobileDoc(gallURL)
 	if err != nil {
 		return nil, err
 	}
 
 	list := &List{}
-	fnGetURL := func(s *goquery.Selection) string {
-		href, _ := s.Find("span > a").Attr("href")
-		return href
-	}
-	fnGetNumber := func(s *goquery.Selection) string {
-		re := regexp.MustCompile(`no=(\d+)`)
-		matched := re.FindStringSubmatch(fnGetURL(s))
-		if len(matched) == 2 {
-			return matched[1]
-		}
-		return ""
-	}
-	fnGetArticleIcon := func(s *goquery.Selection) string {
-		iconElement := s.Find(".ico_pic")
-		for key := range iconURLMap {
-			if iconElement.HasClass(key) {
-				return key
-			}
-		}
-		return ""
-	}
-	fnGetGallogIcon := func(s *goquery.Selection) string {
-		iconElement := s.Find(".nick_comm")
-		for key := range gallogIconURLMap {
-			if iconElement.HasClass(key) {
-				return key
-			}
-		}
-		return ""
-	}
-	fnGetSubject := func(s *goquery.Selection) string {
-		return s.Find(".txt").Text()
-	}
-	fnGetName := func(s *goquery.Selection) string {
-		return s.Find(".name").Text()
-	}
-	fnGetDate := func(s *goquery.Selection) string {
-		return s.Find(".name + span").Text()
-	}
-	fnGetHit := func(s *goquery.Selection) int {
-		hit, _ := strconv.Atoi(s.Find(".info > .bar + span > span").Text())
-		return hit
-	}
-	fnGetCommentCount := func(s *goquery.Selection) int {
-		r := strings.NewReplacer("[", "", "]", "")
-		hit, _ := strconv.Atoi(r.Replace(s.Find(".txt_num").Text()))
-		return hit
-	}
-	fnGetRecommend := func(s *goquery.Selection) int {
-		recommend, _ := strconv.Atoi(s.Find(".info > span:last-of-type > span").Text())
-		return recommend
-	}
-	fnIsGuest := func(s *goquery.Selection) bool {
-		return !s.Find(".nick_comm").HasClass("nick_comm")
-	}
+
 	fnEachList := func(i int, s *goquery.Selection) {
 		newArticle := &Article{
 			AuthorInfo: &AuthorInfo{
-				Name: fnGetName(s),
-				// IP:         "",
-				IsGuest: fnIsGuest(s),
-				// GallogURL:  "",
-				GallogIcon: fnGetGallogIcon(s),
+				Name:       fnListGetAuthorName(s),
+				IsGuest:    fnListIsAuthorGuest(s),
+				GallogIcon: fnListGetAuthorGallogIcon(s),
 			},
 			Gall: &GallInfo{
 				URL: gallURL,
 			},
-			Icon:    fnGetArticleIcon(s),
-			URL:     fnGetURL(s),
-			Number:  fnGetNumber(s),
-			Subject: fnGetSubject(s),
-			// Content:    "",
-			Hit:      fnGetHit(s),
-			ThumbsUp: fnGetRecommend(s),
-			// ThumbsDown: 0,
-			Date: fnGetDate(s),
-			// Comments:   nil,
-			CommentCount: fnGetCommentCount(s),
+			Icon:         fnListGetArticleIcon(s),
+			URL:          fnListGetGallURL(s),
+			Number:       fnListGetArticleNumber(s),
+			Subject:      fnListGetArticleSubject(s),
+			Hit:          fnListGetHit(s),
+			ThumbsUp:     fnListGetThumbsUp(s),
+			Date:         fnListGetArticleDate(s),
+			CommentCount: fnListGetCommentCount(s),
 		}
 		list.Articles = append(list.Articles, newArticle)
 	}
+
 	doc.Find(".article_list > .list_best > li").Each(fnEachList)
 	return list, nil
 }
 
-// import (
-// 	"strconv"
-// 	"strings"
+// GetArticle 함수는 해당 글의 정보를 가져옵니다.
+func GetArticle(articleURL string) (*Article, error) {
+	doc, err := newMobileDoc(articleURL)
+	if err != nil {
+		return nil, err
+	}
 
-// 	"github.com/PuerkitoBio/goquery"
-// )
+	s := doc.Find(`body`)
 
-// type ArticleReader struct {
-// 	Subject       string
-// 	Content       string
-// 	Ip            string
-// 	Date          string
-// 	Name          string
-// 	GallogURL     string
-// 	GallogIconURL string
-// 	Hit           int
-// 	Comment       int
-// 	Recommend     int
-// 	Norecommend   int
-// 	IsGoJungNick  bool
-// 	IsMobile      bool
-// }
+	gallInfo := &GallInfo{
+		URL:  fnArticleGetGallURL(s),
+		ID:   fnArticleGetGallID(s),
+		Name: fnArticleGetGallName(s),
+	}
 
-// func ArticleParser(url string) (article ArticleReader) {
-// 	_getGallogIconURL := func(s *goquery.Selection) string {
-// 		iconElement := s.Find(".nick_comm")
-// 		for key, value := range gallogIconURLMap {
-// 			if iconElement.HasClass(key) {
-// 				return value
-// 			}
-// 		}
-// 		return ""
-// 	}
+	return &Article{
+		AuthorInfo: &AuthorInfo{
+			Name:       fnArticleGetAuthorName(s),
+			IP:         fnArticleGetAuthorIP(s),
+			IsGuest:    fnArticleIsAuthorGuest(s),
+			GallogID:   fnArticleGetAuthorGallogID(s),
+			GallogURL:  fnArticleGetAuthorGallogURL(s),
+			GallogIcon: fnArticleGetAuthorGallogIcon(s),
+		},
+		Gall:         gallInfo,
+		Icon:         fnArticleGetArticleIcon(s),
+		URL:          fnArticleGetArticleURL(s),
+		Number:       fnArticleGetArticleNumber(s),
+		Subject:      fnArticleGetArticleSubject(s),
+		Content:      fnArticleGetArticleContent(s),
+		Hit:          fnArticleGetArticleHit(s),
+		ThumbsUp:     fnArticleGetArticleThumbsUp(s),
+		ThumbsDown:   fnArticleGetArticleThumbsDown(s),
+		Date:         fnArticleGetArticleDate(s),
+		Comments:     fnArticleGetArticleComments(s, gallInfo),
+		CommentCount: fnArticleGetArticleCommentCount(s),
+	}, nil
+}
 
-// 	_getGallogURL := func(s *goquery.Selection) string {
-// 		href, _ := s.Find(".btn.btn_gall").Attr("href")
-// 		return href
-// 	}
+// for List Functions
+func fnListGetAuthorName(s *goquery.Selection) string {
+	q := `.name`
+	return s.Find(q).Text()
+}
 
-// 	_getSubject := func(s *goquery.Selection) string {
-// 		return strings.TrimSpace(s.Find(".tit_view").Text())
-// 	}
+func fnListIsAuthorGuest(s *goquery.Selection) bool {
+	q := `.nick_comm`
+	return !s.Find(q).HasClass("nick_comm")
+}
 
-// 	_getName := func(s *goquery.Selection) string {
-// 		return s.Find(".info_edit > span > span:first-of-type").Text()
-// 	}
+func fnListGetAuthorGallogIcon(s *goquery.Selection) string {
+	q := `.nick_comm`
+	iconElement := s.Find(q)
+	for key := range gallogIconURLMap {
+		if iconElement.HasClass(key) {
+			return key
+		}
+	}
+	return ""
+}
 
-// 	_getDate := func(s *goquery.Selection) string {
-// 		return s.Find(".info_edit > span > span:last-of-type").Text()
-// 	}
+func fnListGetArticleIcon(s *goquery.Selection) string {
+	q := `.ico_pic`
+	iconElement := s.Find(q)
+	for key := range iconURLMap {
+		if iconElement.HasClass(key) {
+			return key
+		}
+	}
+	return ""
+}
 
-// 	_getIP := func(s *goquery.Selection) string {
-// 		return s.Find(".ip").Text()
-// 	}
+func fnListGetGallURL(s *goquery.Selection) string {
+	q := `span > a`
+	href, _ := s.Find(q).Attr("href")
+	return href
+}
 
-// 	_getContent := func(s *goquery.Selection) string {
-// 		html, _ := s.Find(".view_main").Html()
-// 		return html
-// 	}
+func fnListGetArticleNumber(s *goquery.Selection) string {
+	re := regexp.MustCompile(`no=(\d+)`)
+	matched := re.FindStringSubmatch(fnListGetGallURL(s))
+	if len(matched) == 2 {
+		return matched[1]
+	}
+	return ""
+}
 
-// 	_getHit := func(s *goquery.Selection) int {
-// 		hit, _ := strconv.Atoi(s.Find("txt_info > .num:first-of-type").Text())
-// 		return hit
-// 	}
+func fnListGetArticleSubject(s *goquery.Selection) string {
+	return s.Find(".txt").Text()
+}
 
-// 	_getComment := func(s *goquery.Selection) int {
-// 		comment, _ := strconv.Atoi(s.Find(".comment_dirc").Text())
-// 		return comment
-// 	}
+func fnListGetHit(s *goquery.Selection) int {
+	q := `.info > .bar + span > span`
+	hit, _ := strconv.Atoi(s.Find(q).Text())
+	return hit
+}
 
-// 	_getRecommend := func(s *goquery.Selection) int {
-// 		recommend, _ := strconv.Atoi(s.Find("#recomm_btn").Text())
-// 		return recommend
-// 	}
+func fnListGetThumbsUp(s *goquery.Selection) int {
+	q := `.info > span:last-of-type > span`
+	thumbsUp, _ := strconv.Atoi(s.Find(q).Text())
+	return thumbsUp
+}
 
-// 	_getNorecommend := func(s *goquery.Selection) int {
-// 		norecommend, _ := strconv.Atoi(s.Find("#nonrecomm_btn").Text())
-// 		return norecommend
-// 	}
+func fnListGetArticleDate(s *goquery.Selection) string {
+	q := `.name + span`
+	return s.Find(q).Text()
+}
 
-// 	_getIsGoJungNick := func(s *goquery.Selection) bool {
-// 		return s.Find(".nick_comm").HasClass("nick_comm")
-// 	}
+func fnListGetCommentCount(s *goquery.Selection) int {
+	q := `.txt_num`
+	cnt, _ := strconv.Atoi(strings.Trim(s.Find(q).Text(), "[]"))
+	return cnt
+}
 
-// 	_getIsMobile := func(s *goquery.Selection) bool {
-// 		return s.Find(".ico_mobile").HasClass("ico_mobile")
-// 	}
+// for Article Functions
+func fnArticleGetAuthorName(s *goquery.Selection) string {
+	q := `.gall_content .info_edit > span:first-of-type > span:first-of-type`
+	return s.Find(q).Text()
+}
 
-// 	s := newDocument(url, nil).Find(".gall_content")
+func fnArticleGetAuthorIP(s *goquery.Selection) string {
+	q := `.gall_content .ip`
+	return s.Find(q).Text()
+}
 
-// 	article = ArticleReader{
-// 		GallogIconURL: _getGallogIconURL(s),
-// 		GallogURL:     _getGallogURL(s),
-// 		Subject:       _getSubject(s),
-// 		Name:          _getName(s),
-// 		Date:          _getDate(s),
-// 		Ip:            _getIP(s),
-// 		Content:       _getContent(s),
-// 		Hit:           _getHit(s),
-// 		Comment:       _getComment(s),
-// 		Recommend:     _getRecommend(s),
-// 		Norecommend:   _getNorecommend(s),
-// 		IsGoJungNick:  _getIsGoJungNick(s),
-// 		IsMobile:      _getIsMobile(s),
-// 	}
+func fnArticleIsAuthorGuest(s *goquery.Selection) bool {
+	q := `.gall_content .nick_comm`
+	return !s.Find(q).HasClass("nick_comm")
+}
 
-// 	return
-// }
+func fnArticleGetAuthorGallogID(s *goquery.Selection) string {
+	re := regexp.MustCompile(`id=(\w+)`)
+	matched := re.FindStringSubmatch(fnArticleGetAuthorGallogURL(s))
+	if len(matched) == 2 {
+		return matched[1]
+	}
+	return ""
+}
 
-// type Comment struct {
-// 	Name          string
-// 	Ip            string
-// 	Date          string
-// 	GallogURL     string
-// 	GallogIconURL string
-// 	Content       string
-// 	Dccon         string
-// 	IsGoJungNick  bool
-// 	IsDccon       bool
-// }
+func fnArticleGetAuthorGallogURL(s *goquery.Selection) string {
+	q := `.gall_content .btn.btn_gall`
+	href, _ := s.Find(q).Attr("href")
+	return href
+}
 
-// func CommentParser(url string) (comment []Comment) {
-// 	_getGallogIconURL := func(s *goquery.Selection) string {
-// 		iconElement := s.Find(".nick_comm")
-// 		for key, value := range gallogIconURLMap {
-// 			if iconElement.HasClass(key) {
-// 				return value
-// 			}
-// 		}
-// 		return ""
-// 	}
+func fnArticleGetAuthorGallogIcon(s *goquery.Selection) string {
+	q := `.gall_content .nick_comm`
+	iconElement := s.Find(q)
+	for key := range gallogIconURLMap {
+		if iconElement.HasClass(key) {
+			return key
+		}
+	}
+	return ""
+}
 
-// 	_getGallogURL := func(s *goquery.Selection) string {
-// 		href, _ := s.Find(".id").Attr("href")
-// 		return href
-// 	}
+func fnArticleGetGallURL(s *goquery.Selection) string {
+	q := `.section_info h3 > a`
+	href, _ := s.Find(q).Attr("href")
+	return href
+}
 
-// 	_getName := func(s *goquery.Selection) string {
-// 		name := s.Find("#id, .id").Text()
-// 		return name[1 : len(name)-1]
-// 	}
+func fnArticleGetGallID(s *goquery.Selection) string {
+	q := `input[name="gall_id"]`
+	name, _ := s.Find(q).Attr(`value`)
+	return name
+}
 
-// 	_getDate := func(s *goquery.Selection) string {
-// 		return s.Find(".date").Text()
-// 	}
+func fnArticleGetGallName(s *goquery.Selection) string {
+	q := `input[name="ko_name"]`
+	name, _ := s.Find(q).Attr(`value`)
+	return name
+}
 
-// 	_getIP := func(s *goquery.Selection) string {
-// 		return s.Find(".ip").Text()
-// 	}
+func fnArticleGetArticleIcon(s *goquery.Selection) string {
+	q := `.article_list .on .ico_pic`
+	iconElement := s.Find(q)
+	for key := range iconURLMap {
+		if iconElement.HasClass(key) {
+			return key
+		}
+	}
+	return ""
+}
 
-// 	_getContent := func(s *goquery.Selection) string {
-// 		return s.Find(".txt").Text()
-// 	}
+func fnArticleGetArticleURL(s *goquery.Selection) string {
+	q := `.article_list .on > a`
+	href, _ := s.Find(q).Attr("href")
+	return href
+}
 
-// 	_getDccon := func(s *goquery.Selection) string {
-// 		src, _ := s.Find(".written_dccon").Attr("src")
-// 		if isDcconURL(src) {
-// 			return src
-// 		}
-// 		return ""
-// 	}
+func fnArticleGetArticleNumber(s *goquery.Selection) string {
+	q := `input[name="content_no"]`
+	name, _ := s.Find(q).Attr(`value`)
+	return name
+}
 
-// 	_getIsGoJungNick := func(s *goquery.Selection) bool {
-// 		return s.Find(".nick_comm").HasClass("nick_comm")
-// 	}
+func fnArticleGetArticleSubject(s *goquery.Selection) string {
+	q := `.gall_content .tit_view`
+	return strings.TrimSpace(s.Find(q).Text())
+}
 
-// 	_getIsDccon := func(s *goquery.Selection) bool {
-// 		return s.Find(".written_dccon").HasClass("written_dccon")
-// 	}
+func fnArticleGetArticleContent(s *goquery.Selection) string {
+	q := `.gall_content .view_main`
+	html, _ := s.Find(q).Html()
+	return html
+}
 
-// 	_eachComment := func(i int, s *goquery.Selection) {
-// 		new := Comment{
-// 			GallogIconURL: _getGallogIconURL(s),
-// 			GallogURL:     _getGallogURL(s),
-// 			Name:          _getName(s),
-// 			Date:          _getDate(s),
-// 			Ip:            _getIP(s),
-// 			Content:       _getContent(s),
-// 			Dccon:         _getDccon(s),
-// 			IsGoJungNick:  _getIsGoJungNick(s),
-// 			IsDccon:       _getIsDccon(s),
-// 		}
+func fnArticleGetArticleHit(s *goquery.Selection) int {
+	q := `.gall_content .txt_info > .num:first-of-type`
+	hit, _ := strconv.Atoi(s.Find(q).Text())
+	return hit
+}
 
-// 		comment = append(comment, new)
-// 	}
+func fnArticleGetArticleThumbsUp(s *goquery.Selection) int {
+	q := `.gall_content #recomm_btn`
+	recommend, _ := strconv.Atoi(s.Find(q).Text())
+	return recommend
+}
 
-// 	newDocument(url, nil).Find(".wrap_list > .list_best > li").Each(_eachComment)
+func fnArticleGetArticleThumbsDown(s *goquery.Selection) int {
+	q := `.gall_content #nonrecomm_btn`
+	norecommend, _ := strconv.Atoi(s.Find(q).Text())
+	return norecommend
+}
 
-// 	return
-// }
+func fnArticleGetArticleDate(s *goquery.Selection) string {
+	q := `.gall_content .info_edit > span:first-of-type > span:last-of-type`
+	return s.Find(q).Text()
+}
 
-// func GetGallogMaximumPage(url string, header map[string]string) (ret int) {
-// 	text := newDocument(url, header).Find(".navia > .pg_btn1.pg_btn_prev + .pg_num_area1").Text()
-// 	ret, _ = strconv.Atoi(strings.Split(text, "/")[1])
-// 	return
-// }
+func fnArticleGetArticleComments(s *goquery.Selection, gallInfo *GallInfo) (cs []*Comment) {
+	q := `.list_best .inner_best`
+	s.Find(q).Each(func(i int, s *goquery.Selection) {
+		var gallogID, gallogURL, gallogIcon string
+		gallogURL, _ = s.Find(`a.id`).Attr(`href`)
+		idRe := regexp.MustCompile(`id=(\w+)`)
+		matchedGallogID := idRe.FindStringSubmatch(gallogURL)
+		if len(matchedGallogID) == 2 {
+			gallogID = matchedGallogID[1]
+		}
+		iconElement := s.Find(`.nick_comm`)
+		for key := range gallogIconURLMap {
+			if iconElement.HasClass(key) {
+				gallogIcon = key
+				break
+			}
+		}
+		var number, content string
+		delhref, _ := s.Find(`.btn_delete`).Attr(`href`)
+		numberRe := regexp.MustCompile(`\('(\d+)'`)
+		matchedNumber := numberRe.FindStringSubmatch(delhref)
+		if len(matchedNumber) == 2 {
+			number = matchedNumber[1]
+		}
+		content, _ = s.Find(`.txt`).Html()
+		cs = append(cs, &Comment{
+			AuthorInfo: &AuthorInfo{
+				Name:       strings.Trim(s.Find(`.id`).Text(), "[]"),
+				IP:         s.Find(`.ip`).Text(),
+				IsGuest:    s.Find(`.nick_comm`).Length() == 0,
+				GallogID:   gallogID,
+				GallogURL:  gallogURL,
+				GallogIcon: gallogIcon,
+			},
+			Gall:    gallInfo,
+			Number:  number,
+			Content: content,
+			Date:    s.Find(`.date`).Text(),
+		})
+	})
+	return
+}
+
+func fnArticleGetArticleCommentCount(s *goquery.Selection) int {
+	q := `.gall_content #comment_dirc`
+	hit, _ := strconv.Atoi(s.Find(q).Text())
+	return hit
+}
