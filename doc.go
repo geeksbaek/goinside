@@ -36,5 +36,4 @@ goinside는 기본적인 글, 댓글 작성, 삭제 및 추천, 비추천 기능
  ss.DeleteComment(comment) // 댓글 삭제
  ss.DeleteArticle(article) // 글 삭제
 */
-
 package goinside
