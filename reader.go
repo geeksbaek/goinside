@@ -1,12 +1,18 @@
 package goinside
 
-import "github.com/PuerkitoBio/goquery"
+import (
+	"regexp"
+	"strconv"
+	"strings"
+
+	"github.com/PuerkitoBio/goquery"
+)
 
 // GetAllGall 함수는 디시인사이드의 모든 갤러리의 정보를 가져옵니다.
 // 마이너 갤러리의 정보는 가져오지 않습니다.
 func GetAllGall() ([]*GallInfo, error) {
 	galls := []*GallInfo{}
-	doc, err := goquery.NewDocument(GallTotalURL) // This URL doesn't check mobile user-agent
+	doc, err := goquery.NewDocument(gallTotalURL) // This URL doesn't check mobile user-agent
 	if err != nil {
 		return nil, err
 	}
@@ -23,96 +29,101 @@ func GetAllGall() ([]*GallInfo, error) {
 }
 
 // GetList 함수는 해당 갤러리의 해당 페이지에 있는 모든 글의 목록을 가져옵니다.
-// func GetList(gallURL string, page int) ([]*Article, error) {
-// 	resp, err := (&Session{}).get(gallURL)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	doc, err := goquery.NewDocumentFromResponse(resp)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+func GetList(gallURL string, page int) (*List, error) {
+	resp, err := (&Session{}).get(gallURL)
+	if err != nil {
+		return nil, err
+	}
+	doc, err := goquery.NewDocumentFromResponse(resp)
+	if err != nil {
+		return nil, err
+	}
 
-// 	list := []List{}
-
-// 	_getURL := func(s *goquery.Selection) string {
-// 		href, _ := s.Find("span > a").Attr("href")
-// 		return href
-// 	}
-
-// 	_getPostIconURL := func(s *goquery.Selection) string {
-// 		iconElement := s.Find(".ico_pic")
-// 		for key, value := range iconURLsMap {
-// 			if iconElement.HasClass(key) {
-// 				return value
-// 			}
-// 		}
-// 		return ""
-// 	}
-
-// 	_getGallogIconURL := func(s *goquery.Selection) string {
-// 		iconElement := s.Find(".nick_comm")
-// 		for key, value := range gallogIconURLsMap {
-// 			if iconElement.HasClass(key) {
-// 				return value
-// 			}
-// 		}
-// 		return ""
-// 	}
-
-// 	_getSubject := func(s *goquery.Selection) string {
-// 		return s.Find(".txt").Text()
-// 	}
-
-// 	_getName := func(s *goquery.Selection) string {
-// 		return s.Find(".name").Text()
-// 	}
-
-// 	_getDate := func(s *goquery.Selection) string {
-// 		return s.Find(".name + span").Text()
-// 	}
-
-// 	_getHit := func(s *goquery.Selection) int {
-// 		hit, _ := strconv.Atoi(s.Find(".info > .bar + span > span").Text())
-// 		return hit
-// 	}
-
-// 	_getComment := func(s *goquery.Selection) int {
-// 		r := strings.NewReplacer("[", "", "]", "")
-// 		hit, _ := strconv.Atoi(r.Replace(s.Find(".txt_num").Text()))
-// 		return hit
-// 	}
-
-// 	_getRecommend := func(s *goquery.Selection) int {
-// 		recommend, _ := strconv.Atoi(s.Find(".info > span:last-of-type > span").Text())
-// 		return recommend
-// 	}
-
-// 	_getIsGoJungNick := func(s *goquery.Selection) bool {
-// 		return s.Find(".nick_comm").HasClass("nick_comm")
-// 	}
-
-// 	_eachList := func(i int, s *goquery.Selection) {
-// 		new := List{
-// 			URL:           _getURL(s),
-// 			PostIconURL:   _getPostIconURL(s),
-// 			GallogIconURL: _getGallogIconURL(s),
-// 			Subject:       _getSubject(s),
-// 			Name:          _getName(s),
-// 			Date:          _getDate(s),
-// 			Hit:           _getHit(s),
-// 			Comment:       _getComment(s),
-// 			Recommend:     _getRecommend(s),
-// 			IsGoJungNick:  _getIsGoJungNick(s),
-// 		}
-
-// 		list = append(list, new)
-// 	}
-
-// 	doc.Find(".article_list > .list_best > li").Each(_eachList)
-
-// 	return nil, nil
-// }
+	list := &List{}
+	fnGetURL := func(s *goquery.Selection) string {
+		href, _ := s.Find("span > a").Attr("href")
+		return href
+	}
+	fnGetNumber := func(s *goquery.Selection) string {
+		re := regexp.MustCompile(`no=(\d+)`)
+		matched := re.FindStringSubmatch(fnGetURL(s))
+		if len(matched) == 2 {
+			return matched[1]
+		}
+		return ""
+	}
+	fnGetArticleIcon := func(s *goquery.Selection) string {
+		iconElement := s.Find(".ico_pic")
+		for key := range iconURLMap {
+			if iconElement.HasClass(key) {
+				return key
+			}
+		}
+		return ""
+	}
+	fnGetGallogIcon := func(s *goquery.Selection) string {
+		iconElement := s.Find(".nick_comm")
+		for key := range gallogIconURLMap {
+			if iconElement.HasClass(key) {
+				return key
+			}
+		}
+		return ""
+	}
+	fnGetSubject := func(s *goquery.Selection) string {
+		return s.Find(".txt").Text()
+	}
+	fnGetName := func(s *goquery.Selection) string {
+		return s.Find(".name").Text()
+	}
+	fnGetDate := func(s *goquery.Selection) string {
+		return s.Find(".name + span").Text()
+	}
+	fnGetHit := func(s *goquery.Selection) int {
+		hit, _ := strconv.Atoi(s.Find(".info > .bar + span > span").Text())
+		return hit
+	}
+	fnGetCommentCount := func(s *goquery.Selection) int {
+		r := strings.NewReplacer("[", "", "]", "")
+		hit, _ := strconv.Atoi(r.Replace(s.Find(".txt_num").Text()))
+		return hit
+	}
+	fnGetRecommend := func(s *goquery.Selection) int {
+		recommend, _ := strconv.Atoi(s.Find(".info > span:last-of-type > span").Text())
+		return recommend
+	}
+	fnIsGuest := func(s *goquery.Selection) bool {
+		return !s.Find(".nick_comm").HasClass("nick_comm")
+	}
+	fnEachList := func(i int, s *goquery.Selection) {
+		newArticle := &Article{
+			AuthorInfo: &AuthorInfo{
+				Name: fnGetName(s),
+				// IP:         "",
+				IsGuest: fnIsGuest(s),
+				// GallogURL:  "",
+				GallogIcon: fnGetGallogIcon(s),
+			},
+			Gall: &GallInfo{
+				URL: gallURL,
+			},
+			Icon:    fnGetArticleIcon(s),
+			URL:     fnGetURL(s),
+			Number:  fnGetNumber(s),
+			Subject: fnGetSubject(s),
+			// Content:    "",
+			Hit:      fnGetHit(s),
+			ThumbsUp: fnGetRecommend(s),
+			// ThumbsDown: 0,
+			Date: fnGetDate(s),
+			// Comments:   nil,
+			CommentCount: fnGetCommentCount(s),
+		}
+		list.Articles = append(list.Articles, newArticle)
+	}
+	doc.Find(".article_list > .list_best > li").Each(fnEachList)
+	return list, nil
+}
 
 // import (
 // 	"strconv"
@@ -140,7 +151,7 @@ func GetAllGall() ([]*GallInfo, error) {
 // func ArticleParser(url string) (article ArticleReader) {
 // 	_getGallogIconURL := func(s *goquery.Selection) string {
 // 		iconElement := s.Find(".nick_comm")
-// 		for key, value := range gallogIconURLsMap {
+// 		for key, value := range gallogIconURLMap {
 // 			if iconElement.HasClass(key) {
 // 				return value
 // 			}
@@ -238,7 +249,7 @@ func GetAllGall() ([]*GallInfo, error) {
 // func CommentParser(url string) (comment []Comment) {
 // 	_getGallogIconURL := func(s *goquery.Selection) string {
 // 		iconElement := s.Find(".nick_comm")
-// 		for key, value := range gallogIconURLsMap {
+// 		for key, value := range gallogIconURLMap {
 // 			if iconElement.HasClass(key) {
 // 				return value
 // 			}

@@ -42,15 +42,18 @@ type Comment struct {
 // 댓글을 달거나 추천, 비추천 할 때 사용합니다.
 type Article struct {
 	*AuthorInfo
-	Gall       *GallInfo
-	URL        string
-	Number     string
-	Content    string
-	Hit        int
-	ThumbsUp   int
-	ThumbsDown int
-	Date       string
-	Comments   []*Comment
+	Gall         *GallInfo
+	Icon         string
+	URL          string
+	Number       string
+	Subject      string
+	Content      string
+	Hit          int
+	ThumbsUp     int
+	ThumbsDown   int
+	Date         string
+	Comments     []*Comment
+	CommentCount int
 }
 
 // List 구조체는 특정 갤러리의 글 묶음입니다.

@@ -12,7 +12,7 @@ const (
 )
 
 var (
-	iconURLsMap = map[string]string{
+	iconURLMap = map[string]string{
 		"ico_p_y": iconURLPrefix + "icon_picture.png",
 		"ico_t":   iconURLPrefix + "icon_text.png",
 		"ico_p_c": iconURLPrefix + "icon_picture_b.png",
@@ -20,7 +20,7 @@ var (
 		"ico_mv":  iconURLPrefix + "icon_movie.png",
 		"ico_sc":  iconURLPrefix + "sec_icon.png",
 	}
-	gallogIconURLsMap = map[string]string{
+	gallogIconURLMap = map[string]string{
 		"fixed": "http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",
 		"flow":  "http://wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif",
 	}
