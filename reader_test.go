@@ -33,20 +33,16 @@ func TestGetArticle(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// fmt.Printf("%#v\n", article.AuthorInfo)
-	// fmt.Printf("%#v\n", article.Gall)
-	// fmt.Printf("%#v\n", article.Number)
+	fmt.Printf("%#v\n", article.AuthorInfo)
+	fmt.Printf("%#v\n", article.Gall)
+	fmt.Printf("%#v\n", article.Content)
 	for _, comment := range article.Comments {
+		fmt.Printf("%#v ", comment.AuthorInfo)
+		fmt.Printf("%#v ", comment.Gall)
 		fmt.Println(
-			// comment.AuthorInfo.Name,
-			// comment.AuthorInfo.IP,
-			// comment.AuthorInfo.IsGuest,
-			// comment.AuthorInfo.GallogID,
-			// comment.AuthorInfo.GallogURL,
-			// comment.AuthorInfo.GallogIcon,
-			// comment.Gall.URL,
-			// comment.Gall.ID,
-			// comment.Gall.Name,
+			comment.Gall.URL,
+			comment.Gall.ID,
+			comment.Gall.Name,
 			comment.Number,
 			comment.Content,
 			comment.Date,
