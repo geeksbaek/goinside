@@ -1,5 +1,5 @@
 /*
-Package goinside는 비공식 dcinside API 입니다.
+Package goinside 는 비공식 dcinside API 입니다.
 
 goinside는 기본적인 글, 댓글 작성, 삭제 및 추천, 비추천 기능을 제공하며,
 갤러리나 글의 정보를 가져오는 기능을 제공합니다.
