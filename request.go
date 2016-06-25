@@ -39,11 +39,11 @@ func (s *Session) get(URL string) (*http.Response, error) {
 
 func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
 	if matched := desktopURLRe.FindStringSubmatch(URL); len(matched) > 0 {
-		switch len(matched) {
-		case 2:
+		switch {
+		case len(matched) == 2:
 			URL = fmt.Sprintf("http://m.dcinside.com/list.php?id=%s",
 				matched[1])
-		case 3:
+		case len(matched) >= 3:
 			URL = fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s",
 				matched[1], matched[2])
 		}
