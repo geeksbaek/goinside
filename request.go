@@ -1,8 +1,10 @@
 package goinside
 
 import (
+	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 )
 
 const (
@@ -24,6 +26,7 @@ var (
 		"Referer":          "http://m.dcinside.com",
 		"X-Requested-With": "XMLHttpRequest",
 	}
+	desktopURLRe = regexp.MustCompile(`(?:http:\/\/)?gall\.dcinside\.com.*id=([^&]+)&no=(\d+)`)
 )
 
 func (s *Session) post(URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
@@ -35,6 +38,16 @@ func (s *Session) get(URL string) (*http.Response, error) {
 }
 
 func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
+	if matched := desktopURLRe.FindStringSubmatch(URL); len(matched) > 0 {
+		switch len(matched) {
+		case 2:
+			URL = fmt.Sprintf("http://m.dcinside.com/list.php?id=%s",
+				matched[1])
+		case 3:
+			URL = fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s",
+				matched[1], matched[2])
+		}
+	}
 	req, err := http.NewRequest(method, URL, form)
 	if err != nil {
 		return nil, err
