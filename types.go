@@ -64,17 +64,17 @@ type List struct {
 }
 
 // ArticleWriter 구조체는 글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
-type ArticleWriter struct {
+type articleWriter struct {
 	*Session
-	Gall    *GallInfo
-	Subject string
-	Content string
-	Images  []string
+	gall    *GallInfo
+	subject string
+	content string
+	images  []string
 }
 
 // CommentWriter 구조체는 댓글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
-type CommentWriter struct {
+type commentWriter struct {
 	*Session
 	*Article
-	Content string
+	content string
 }

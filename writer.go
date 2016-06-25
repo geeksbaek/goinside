@@ -21,24 +21,23 @@ var (
 	numberRe  = regexp.MustCompile(`no=(\d+)`)
 )
 
-// NewArticle 함수는 새로운 NewArticleWriter 객체를 반환합니다.
-func (s *Session) NewArticle(gallID, subject, content string, images ...string) *ArticleWriter {
-	return &ArticleWriter{
+// WriteArticle 함수는 글을 작성합니다.
+func (s *Session) WriteArticle(gallID, subject, content string, images ...string) (*Article, error) {
+	return (&articleWriter{
 		Session: s,
-		Gall:    &GallInfo{ID: gallID},
-		Subject: subject,
-		Content: content,
-		Images:  images,
-	}
+		gall:    &GallInfo{ID: gallID},
+		subject: subject,
+		content: content,
+		images:  images,
+	}).write()
 }
 
-// Write 함수는 ArticleWriter의 정보를 가지고 글을 작성합니다.
-func (a *ArticleWriter) Write() (*Article, error) {
+func (a *articleWriter) write() (*Article, error) {
 	// get cookies and block key
 	cookies, authKey, err := a.getCookiesAndAuthKey(map[string]string{
 		"id":        "programming",
-		"w_subject": a.Subject,
-		"w_memo":    a.Content,
+		"w_subject": a.subject,
+		"w_memo":    a.content,
 		"w_filter":  "1",
 		"mode":      "write_verify",
 	}, optionWriteURL)
@@ -48,8 +47,8 @@ func (a *ArticleWriter) Write() (*Article, error) {
 
 	// upload images and get FL_DATA, OFL_DATA string
 	var flData, oflData string
-	if len(a.Images) > 0 {
-		flData, oflData, err = a.uploadImages(a.Gall.ID, a.Images)
+	if len(a.images) > 0 {
+		flData, oflData, err = a.uploadImages(a.gall.ID, a.images)
 		if err != nil {
 			return nil, err
 		}
@@ -60,10 +59,10 @@ func (a *ArticleWriter) Write() (*Article, error) {
 	form, contentType := multipartForm(nil, map[string]string{
 		"name":       a.id,
 		"password":   a.pw,
-		"subject":    a.Subject,
-		"memo":       a.Content,
+		"subject":    a.subject,
+		"memo":       a.content,
 		"mode":       "write",
-		"id":         a.Gall.ID,
+		"id":         a.gall.ID,
 		"mobile_key": "mobile_nomember",
 		"FL_DATA":    flData,
 		"OFL_DATA":   oflData,
@@ -225,17 +224,16 @@ func multipartOthers(w *multipart.Writer, m map[string]string) {
 	}
 }
 
-// NewComment 함수는 새로운 CommentWriter 객체를 반환합니다.
-func (s *Session) NewComment(a *Article, content string) *CommentWriter {
-	return &CommentWriter{
+// WriteComment 함수는 주어진 Article로 댓글을 작성합니다.
+func (s *Session) WriteComment(a *Article, content string) (*Comment, error) {
+	return (&commentWriter{
 		Session: s,
 		Article: a,
-		Content: content,
-	}
+		content: content,
+	}).write()
 }
 
-// WriteComment 함수는 CommentWriter의 정보를 가지고 댓글을 작성합니다.
-func (c *CommentWriter) Write() (*Comment, error) {
+func (c *commentWriter) write() (*Comment, error) {
 	form := form(map[string]string{
 		"id":           c.Gall.ID,
 		"no":           c.Number,
