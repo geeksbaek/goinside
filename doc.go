@@ -16,13 +16,13 @@ goinside는 비공식 dcinside API 로써, 기본적인 글-댓글의 작성-삭
  images := []string{"image1.jpg", "image2.gif"} // 이미지 첨부 파일
 
  // 글 작성
- article, err := ss.NewArticle(gall, subject, content, images...).Write()
+ article, err := ss.WriteArticle(gall, subject, content, images...)
  if err != nil {
     log.Fatal(err)
  }
 
  // 댓글 작성
- comment, err := ss.NewComment(article, "댓글 내용").Write()
+ comment, err := ss.WriteComment(article, "댓글 내용")
  if err != nil {
     log.Fatal(err)
  }
