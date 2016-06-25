@@ -89,7 +89,7 @@ func (a *articleWriter) write() (*Article, error) {
 }
 
 // DeleteArticle 함수는 인자로 주어진 글을 삭제합니다.
-func (s *Session) DeleteArticle(a *Article) error {
+func (a *Article) delete(s *Session) error {
 	// get cookies and con key
 	m := map[string]string{}
 	if s.nomember {
@@ -112,24 +112,6 @@ func (s *Session) DeleteArticle(a *Article) error {
 	})
 	_, err = s.post(optionWriteURL, cookies, form, defaultContentType)
 	return err
-}
-
-// DeleteArticleAll 함수는 인자로 주어진 여러 개의 글을 동시에 삭제합니다.
-func (s *Session) DeleteArticleAll(as []*Article) error {
-	done := make(chan error)
-	defer close(done)
-	for _, a := range as {
-		a := a
-		go func() {
-			done <- s.DeleteArticle(a)
-		}()
-	}
-	for _ = range as {
-		if err := <-done; err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func (s *Session) uploadImages(gall string, images []string) (string, string, error) {
@@ -228,7 +210,7 @@ func multipartOthers(w *multipart.Writer, m map[string]string) {
 func (s *Session) WriteComment(a *Article, content string) (*Comment, error) {
 	return (&commentWriter{
 		Session: s,
-		target: a,
+		target:  a,
 		content: content,
 	}).write()
 }
@@ -260,8 +242,7 @@ func (c *commentWriter) write() (*Comment, error) {
 	}, nil
 }
 
-// DeleteComment 함수는 인자로 주어진 댓글을 삭제합니다.
-func (s *Session) DeleteComment(c *Comment) error {
+func (c *Comment) delete(s *Session) error {
 	// get cookies and con key
 	m := map[string]string{}
 	if s.nomember {
@@ -288,24 +269,6 @@ func (s *Session) DeleteComment(c *Comment) error {
 	return err
 }
 
-// DeleteCommentAll 함수는 인자로 주어진 여러 개의 댓글을 동시에 삭제합니다.
-func (s *Session) DeleteCommentAll(cs []*Comment) error {
-	done := make(chan error)
-	defer close(done)
-	for _, c := range cs {
-		c := c
-		go func() {
-			done <- s.DeleteComment(c)
-		}()
-	}
-	for _ = range cs {
-		if err := <-done; err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func parseCommentNumber(resp *http.Response) (string, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -320,4 +283,27 @@ func parseCommentNumber(resp *http.Response) (string, error) {
 		return "", errors.New("Block Key Parse Fail")
 	}
 	return tempJSON.Data, nil
+}
+
+// Delete 함수는 인자로 주어진 글을 삭제합니다.
+func (s *Session) Delete(d deletable) error {
+	return d.delete(s)
+}
+
+// DeleteAll 함수는 인자로 주어진 여러 개의 글을 동시에 삭제합니다.
+func (s *Session) DeleteAll(ds []deletable) error {
+	done := make(chan error)
+	defer close(done)
+	for _, d := range ds {
+		d := d
+		go func() {
+			done <- d.delete(s)
+		}()
+	}
+	for _ = range ds {
+		if err := <-done; err != nil {
+			return err
+		}
+	}
+	return nil
 }

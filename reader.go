@@ -294,7 +294,7 @@ func fnArticleGetArticleDate(s *goquery.Selection) string {
 	return s.Find(q).Text()
 }
 
-func fnArticleGetArticleComments(s *goquery.Selection, gallInfo *GallInfo) (cs []*Comment) {
+func fnArticleGetArticleComments(s *goquery.Selection, gallInfo *GallInfo) (cs Comments) {
 	q := `.list_best .inner_best`
 	s.Find(q).Each(func(i int, s *goquery.Selection) {
 		var gallogID, gallogURL, gallogIcon string

@@ -39,6 +39,8 @@ type Comment struct {
 	Date    string
 }
 
+type Comments []*Comment
+
 // Article 구조체는 작성된 글에 대한 정보를 표현합니다.
 // 댓글을 달거나 추천, 비추천 할 때 사용합니다.
 type Article struct {
@@ -53,14 +55,16 @@ type Article struct {
 	ThumbsUp     int
 	ThumbsDown   int
 	Date         string
-	Comments     []*Comment
+	Comments     Comments
 	CommentCount int
 }
+
+type Articles []*Article
 
 // List 구조체는 특정 갤러리의 글 묶음입니다.
 type List struct {
 	*GallInfo
-	Articles []*Article
+	Articles Articles
 }
 
 // ArticleWriter 구조체는 글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
@@ -77,4 +81,8 @@ type commentWriter struct {
 	*Session
 	target  *Article
 	content string
+}
+
+type deletable interface {
+	delete(*Session) error
 }
