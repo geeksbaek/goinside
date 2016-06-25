@@ -43,7 +43,7 @@ func (s *Session) ThumbsDown(a *Article) error {
 }
 
 func (s *Session) commonRecommendForm(a *Article) (io.Reader, error) {
-	resp, err := s.get(a.Gall.URL)
+	resp, err := s.get(a.URL)
 	if err != nil {
 		return nil, err
 	}
