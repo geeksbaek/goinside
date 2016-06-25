@@ -33,9 +33,7 @@ func TestGetArticle(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, c := range a.Comments {
-		fmt.Println(c.Name, c.Content)
-	}
+	fmt.Println(a)
 	// fmt.Printf("%#v\n", article.AuthorInfo)
 	// fmt.Printf("%#v\n", article.Gall)
 	// fmt.Printf("%#v\n", article.Content)
