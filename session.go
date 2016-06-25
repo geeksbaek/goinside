@@ -17,7 +17,7 @@ func Guest(id, pw string) *Session {
 
 // SetTransport 함수는 해당 세션이 주어진 프록시를 통해 통신하도록 설정합니다.
 // 프록시 주소는 http://84.192.54.48:8080 와 같은 형식으로 전달합니다.
-func (a *Session) SetTransport(URL string) {
+func (s *Session) SetTransport(URL string) {
 	proxyURL, _ := url.Parse(URL)
-	a.transport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+	s.transport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
 }

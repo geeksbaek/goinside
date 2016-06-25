@@ -78,7 +78,7 @@ func GetArticle(articleURL string) (*Article, error) {
 		Name: fnArticleGetGallName(s),
 	}
 
-	return &Article{
+	article := &Article{
 		AuthorInfo: &AuthorInfo{
 			Name:       fnArticleGetAuthorName(s),
 			IP:         fnArticleGetAuthorIP(s),
@@ -97,9 +97,11 @@ func GetArticle(articleURL string) (*Article, error) {
 		ThumbsUp:     fnArticleGetArticleThumbsUp(s),
 		ThumbsDown:   fnArticleGetArticleThumbsDown(s),
 		Date:         fnArticleGetArticleDate(s),
-		Comments:     fnArticleGetArticleComments(s, gallInfo),
 		CommentCount: fnArticleGetArticleCommentCount(s),
-	}, nil
+	}
+
+	article.Comments = fnArticleGetArticleComments(s, gallInfo, article)
+	return article, nil
 }
 
 // for List Functions
@@ -294,7 +296,7 @@ func fnArticleGetArticleDate(s *goquery.Selection) string {
 	return s.Find(q).Text()
 }
 
-func fnArticleGetArticleComments(s *goquery.Selection, gallInfo *GallInfo) (cs Comments) {
+func fnArticleGetArticleComments(s *goquery.Selection, gallInfo *GallInfo, parents *Article) (cs Comments) {
 	q := `.list_best .inner_best`
 	s.Find(q).Each(func(i int, s *goquery.Selection) {
 		var gallogID, gallogURL, gallogIcon string
@@ -328,6 +330,7 @@ func fnArticleGetArticleComments(s *goquery.Selection, gallInfo *GallInfo) (cs C
 				GallogURL:  gallogURL,
 				GallogIcon: gallogIcon,
 			},
+			Parents: parents,
 			Gall:    gallInfo,
 			Number:  number,
 			Content: content,
