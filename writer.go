@@ -291,7 +291,7 @@ func (s *Session) Delete(d deletable) error {
 }
 
 // DeleteAll 함수는 인자로 주어진 여러 개의 글을 동시에 삭제합니다.
-func (s *Session) DeleteAll(ds []deletable) error {
+func (s *Session) DeleteAll(ds ...deletable) error {
 	done := make(chan error)
 	defer close(done)
 	for _, d := range ds {
