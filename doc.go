@@ -32,7 +32,7 @@ goinside는 비공식 dcinside API 로써, 기본적인 글-댓글의 작성-삭
 
  time.Sleep(time.Second * 5)
 
- ss.DeleteComment(comment) // 댓글 삭제
- ss.DeleteArticle(article) // 글 삭제
+ ss.Delete(comment) // 댓글 삭제
+ ss.Delete(article) // 글 삭제
 */
 package goinside
