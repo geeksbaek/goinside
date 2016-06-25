@@ -1,10 +1,12 @@
 package goinside
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -51,4 +53,21 @@ func newMobileDoc(URL string) (*goquery.Document, error) {
 		return nil, err
 	}
 	return goquery.NewDocumentFromResponse(resp)
+}
+
+func strToTime(s string) *time.Time {
+	if len(s) <= 5 {
+		now := time.Now()
+		s = fmt.Sprintf("%v.%v.%v %v", now.Year(), now.Month(), now.Day(), s)
+	}
+	if t, err := time.Parse("2006.June.02 3:04", s); err == nil {
+		return &t
+	}
+	if t, err := time.Parse("2006.01.02", s); err == nil {
+		return &t
+	}
+	if t, err := time.Parse("2006.01.02 3:04", s); err == nil {
+		return &t
+	}
+	return nil
 }

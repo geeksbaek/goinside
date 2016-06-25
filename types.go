@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 // Session 구조체는 사용자의 세션을 위해 사용됩니다.
@@ -53,7 +54,7 @@ type Comment struct {
 	Parents *Article
 	Number  string
 	Content string
-	Date    string
+	Date    *time.Time
 }
 
 func (c *Comment) String() string {
@@ -84,7 +85,7 @@ type Article struct {
 	Hit          int
 	ThumbsUp     int
 	ThumbsDown   int
-	Date         string
+	Date         *time.Time
 	Comments     Comments
 	CommentCount int
 }

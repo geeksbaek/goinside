@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -31,7 +32,7 @@ func GetAllGall() ([]*GallInfo, error) {
 
 // GetList 함수는 해당 갤러리의 해당 페이지에 있는 모든 글의 목록을 가져옵니다.
 func GetList(gallURL string, page int) (*List, error) {
-	doc, err := newMobileDoc(gallURL)
+	doc, err := newMobileDoc(fmt.Sprintf("%s&page=%d", gallURL, page))
 	if err != nil {
 		return nil, err
 	}
@@ -169,9 +170,14 @@ func fnListGetThumbsUp(s *goquery.Selection) int {
 	return thumbsUp
 }
 
-func fnListGetArticleDate(s *goquery.Selection) string {
-	q := `.name + span`
-	return s.Find(q).Text()
+func fnListGetArticleDate(s *goquery.Selection) *time.Time {
+	q1 := `.name + span`
+	q2 := `.nick_comm + span`
+	t := s.Find(q1).Text()
+	if t == "" {
+		t = s.Find(q2).Text()
+	}
+	return strToTime(t)
 }
 
 func fnListGetCommentCount(s *goquery.Selection) int {
@@ -292,9 +298,9 @@ func fnArticleGetArticleThumbsDown(s *goquery.Selection) int {
 	return norecommend
 }
 
-func fnArticleGetArticleDate(s *goquery.Selection) string {
+func fnArticleGetArticleDate(s *goquery.Selection) *time.Time {
 	q := `.gall_content .info_edit > span:first-of-type > span:last-of-type`
-	return s.Find(q).Text()
+	return strToTime(s.Find(q).Text())
 }
 
 func fnArticleGetArticleComments(s *goquery.Selection, gallInfo *GallInfo, parents *Article) (cs Comments) {
@@ -351,7 +357,7 @@ func fnArticleGetArticleComments(s *goquery.Selection, gallInfo *GallInfo, paren
 				Parents: parents,
 				Number:  number,
 				Content: content,
-				Date:    s.Find(`.date`).Text(),
+				Date:    strToTime(s.Find(`.date`).Text()),
 			})
 		})
 	}
