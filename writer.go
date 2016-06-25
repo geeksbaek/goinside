@@ -84,7 +84,7 @@ func (a *articleWriter) write() (*Article, error) {
 	if len(URL) != 2 || len(gallID) != 2 || len(number) != 2 {
 		return nil, errors.New("Write Article Fail")
 	}
-	ret.Gall.URL, ret.Gall.ID, ret.Number = URL[1], gallID[1], number[1]
+	ret.URL, ret.Gall.ID, ret.Number = URL[1], gallID[1], number[1]
 	return ret, nil
 }
 
