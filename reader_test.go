@@ -34,19 +34,4 @@ func TestGetArticle(t *testing.T) {
 		log.Fatal(err)
 	}
 	fmt.Println(a)
-	// fmt.Printf("%#v\n", article.AuthorInfo)
-	// fmt.Printf("%#v\n", article.Gall)
-	// fmt.Printf("%#v\n", article.Content)
-	// for _, comment := range article.Comments {
-	// 	fmt.Printf("%#v ", comment.AuthorInfo)
-	// 	fmt.Printf("%#v ", comment.Gall)
-	// 	fmt.Println(
-	// 		comment.Gall.URL,
-	// 		comment.Gall.ID,
-	// 		comment.Gall.Name,
-	// 		comment.Number,
-	// 		comment.Content,
-	// 		comment.Date,
-	// 	)
-	// }
 }

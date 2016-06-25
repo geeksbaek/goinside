@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	iconURLPrefix = "http://nstatic.dcinside.com/dgn/gallery/images/update/"
+	iconURLPrefix       = "http://nstatic.dcinside.com/dgn/gallery/images/update/"
+	gallogIconURLPrefix = "http://wstatic.dcinside.com/gallery/skin/gallog/"
 )
 
 var (
@@ -23,34 +24,10 @@ var (
 		"ico_sc":  iconURLPrefix + "sec_icon.png",
 	}
 	gallogIconURLMap = map[string]string{
-		"fixed": "http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",
-		"flow":  "http://wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif",
+		"fixed": gallogIconURLPrefix + "g_default.gif",
+		"flow":  gallogIconURLPrefix + "g_fix.gif",
 	}
 )
-
-// func newDocument(url string, header map[string]string) *goquery.Document {
-// 	doc, err := goquery.NewDocumentFromResponse(get(url, header))
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	return doc
-// }
-
-// func isMobileWeb(url string) bool {
-// 	re := regexp.MustCompile(`http(s)?:\/\/m\.*`)
-// 	return re.MatchString(url)
-// }
-
-// func isDcconURL(url string) bool {
-// 	re := regexp.MustCompile(`^http:\/\/dcimg1.dcinside.com\/dccon\.php\?no=\w+$`)
-// 	return re.MatchString(url)
-// }
-
-// func splitURL(url string) (string, string) {
-// 	re := regexp.MustCompile(`(\w+)\/\?(.*)`)
-// 	substr := re.FindStringSubmatch(url)
-// 	return substr[1], substr[2]
-// }
 
 func form(m map[string]string) io.Reader {
 	data := url.Values{}
