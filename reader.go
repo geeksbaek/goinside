@@ -1,6 +1,7 @@
 package goinside
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -297,46 +298,63 @@ func fnArticleGetArticleDate(s *goquery.Selection) string {
 }
 
 func fnArticleGetArticleComments(s *goquery.Selection, gallInfo *GallInfo, parents *Article) (cs Comments) {
+	ss := []*goquery.Selection{s}
 	q := `.list_best .inner_best`
-	s.Find(q).Each(func(i int, s *goquery.Selection) {
-		var gallogID, gallogURL, gallogIcon string
-		gallogURL, _ = s.Find(`a.id`).Attr(`href`)
-		idRe := regexp.MustCompile(`id=(\w+)`)
-		matchedGallogID := idRe.FindStringSubmatch(gallogURL)
-		if len(matchedGallogID) == 2 {
-			gallogID = matchedGallogID[1]
-		}
-		iconElement := s.Find(`.nick_comm`)
-		for key := range gallogIconURLMap {
-			if iconElement.HasClass(key) {
-				gallogIcon = key
-				break
+	maxPage := 1
+	page := s.Find(`p.paging_page`).Text()
+	splited := strings.Split(page, "/")
+	if len(splited) == 2 {
+		maxPage, _ = strconv.Atoi(strings.TrimSpace(splited[1]))
+		for i := 2; i <= maxPage; i++ {
+			URL := fmt.Sprintf(`%s?id=%s&no=%s&com_page=%d`, commentMoreURL, gallInfo.ID, parents.Number, i)
+			newS, err := newMobileDoc(URL)
+			if err != nil {
+				continue
 			}
+			ss = append(ss, newS.Find(`.total`))
 		}
-		var number, content string
-		delhref, _ := s.Find(`.btn_delete`).Attr(`href`)
-		numberRe := regexp.MustCompile(`\('(\d+)'`)
-		matchedNumber := numberRe.FindStringSubmatch(delhref)
-		if len(matchedNumber) == 2 {
-			number = matchedNumber[1]
-		}
-		content, _ = s.Find(`.txt`).Html()
-		cs = append(cs, &Comment{
-			AuthorInfo: &AuthorInfo{
-				Name:       strings.Trim(s.Find(`.id`).Text(), "[]"),
-				IP:         s.Find(`.ip`).Text(),
-				IsGuest:    s.Find(`.nick_comm`).Length() == 0,
-				GallogID:   gallogID,
-				GallogURL:  gallogURL,
-				GallogIcon: gallogIcon,
-			},
-			Parents: parents,
-			Gall:    gallInfo,
-			Number:  number,
-			Content: content,
-			Date:    s.Find(`.date`).Text(),
+	}
+	for _, s := range ss {
+		s.Find(q).Each(func(i int, s *goquery.Selection) {
+			var gallogID, gallogURL, gallogIcon string
+			gallogURL, _ = s.Find(`a.id`).Attr(`href`)
+			idRe := regexp.MustCompile(`id=(\w+)`)
+			matchedGallogID := idRe.FindStringSubmatch(gallogURL)
+			if len(matchedGallogID) == 2 {
+				gallogID = matchedGallogID[1]
+			}
+			iconElement := s.Find(`.nick_comm`)
+			for key := range gallogIconURLMap {
+				if iconElement.HasClass(key) {
+					gallogIcon = key
+					break
+				}
+			}
+			var number, content string
+			delhref, _ := s.Find(`.btn_delete`).Attr(`href`)
+			numberRe := regexp.MustCompile(`\('(\d+)'`)
+			matchedNumber := numberRe.FindStringSubmatch(delhref)
+			if len(matchedNumber) == 2 {
+				number = matchedNumber[1]
+			}
+			content, _ = s.Find(`.txt`).Html()
+			cs = append(cs, &Comment{
+				AuthorInfo: &AuthorInfo{
+					Name:       strings.Trim(s.Find(`.id`).Text(), "[]"),
+					IP:         s.Find(`.ip`).Text(),
+					IsGuest:    s.Find(`.nick_comm`).Length() == 0,
+					GallogID:   gallogID,
+					GallogURL:  gallogURL,
+					GallogIcon: gallogIcon,
+				},
+				Gall:    gallInfo,
+				Parents: parents,
+				Number:  number,
+				Content: content,
+				Date:    s.Find(`.date`).Text(),
+			})
 		})
-	})
+	}
 	return
 }
 

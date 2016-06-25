@@ -12,6 +12,8 @@ type Session struct {
 	transport *http.Transport
 }
 
+type Sessions []*Session
+
 // AuthorInfo 구조체는 글쓴이에 대한 정보를 표현합니다.
 type AuthorInfo struct {
 	Name       string
@@ -85,4 +87,8 @@ type commentWriter struct {
 
 type deletable interface {
 	delete(*Session) error
+}
+
+type delateAllable interface {
+	deleteAll(*Session) error
 }

@@ -16,6 +16,7 @@ const (
 	commentURL     = "http://m.dcinside.com/_option_write.php"
 	accessTokenURL = "http://m.dcinside.com/_access_token.php"
 	gallTotalURL   = "http://m.dcinside.com/category_gall_total.html"
+	commentMoreURL = "http://m.dcinside.com/comment_more_new.php"
 
 	defaultContentType = "application/x-www-form-urlencoded; charset=UTF-8"
 )

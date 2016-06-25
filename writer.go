@@ -114,6 +114,23 @@ func (a *Article) delete(s *Session) error {
 	return err
 }
 
+func (as Articles) deleteAll(s *Session) error {
+	done := make(chan error)
+	defer close(done)
+	for _, a := range as {
+		a := a
+		go func() {
+			done <- a.delete(s)
+		}()
+	}
+	for _ = range as {
+		if err := <-done; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (s *Session) uploadImages(gall string, images []string) (string, string, error) {
 	form, contentType := multipartForm(images, map[string]string{
 		"imgId":   gall,
@@ -269,6 +286,23 @@ func (c *Comment) delete(s *Session) error {
 	return err
 }
 
+func (cs Comments) deleteAll(s *Session) error {
+	done := make(chan error)
+	defer close(done)
+	for _, c := range cs {
+		c := c
+		go func() {
+			done <- c.delete(s)
+		}()
+	}
+	for _ = range cs {
+		if err := <-done; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func parseCommentNumber(resp *http.Response) (string, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -291,19 +325,6 @@ func (s *Session) Delete(d deletable) error {
 }
 
 // DeleteAll 함수는 인자로 주어진 여러 개의 글을 동시에 삭제합니다.
-func (s *Session) DeleteAll(ds ...deletable) error {
-	done := make(chan error)
-	defer close(done)
-	for _, d := range ds {
-		d := d
-		go func() {
-			done <- d.delete(s)
-		}()
-	}
-	for _ = range ds {
-		if err := <-done; err != nil {
-			return err
-		}
-	}
-	return nil
+func (s *Session) DeleteAll(d delateAllable) error {
+	return d.deleteAll(s)
 }

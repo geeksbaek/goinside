@@ -29,23 +29,26 @@ import (
 // }
 
 func TestGetArticle(t *testing.T) {
-	article, err := GetArticle("http://m.dcinside.com/view.php?id=baseball_new4&no=8109733&page=1&recommend=1")
+	a, err := GetArticle("http://m.dcinside.com/view.php?id=baseball_new4&no=8129734&page=1&exception_mode=recommend")
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%#v\n", article.AuthorInfo)
-	fmt.Printf("%#v\n", article.Gall)
-	fmt.Printf("%#v\n", article.Content)
-	for _, comment := range article.Comments {
-		fmt.Printf("%#v ", comment.AuthorInfo)
-		fmt.Printf("%#v ", comment.Gall)
-		fmt.Println(
-			comment.Gall.URL,
-			comment.Gall.ID,
-			comment.Gall.Name,
-			comment.Number,
-			comment.Content,
-			comment.Date,
-		)
+	for _, c := range a.Comments {
+		fmt.Println(c.Name, c.Content)
 	}
+	// fmt.Printf("%#v\n", article.AuthorInfo)
+	// fmt.Printf("%#v\n", article.Gall)
+	// fmt.Printf("%#v\n", article.Content)
+	// for _, comment := range article.Comments {
+	// 	fmt.Printf("%#v ", comment.AuthorInfo)
+	// 	fmt.Printf("%#v ", comment.Gall)
+	// 	fmt.Println(
+	// 		comment.Gall.URL,
+	// 		comment.Gall.ID,
+	// 		comment.Gall.Name,
+	// 		comment.Number,
+	// 		comment.Content,
+	// 		comment.Date,
+	// 	)
+	// }
 }
