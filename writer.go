@@ -228,19 +228,19 @@ func multipartOthers(w *multipart.Writer, m map[string]string) {
 func (s *Session) WriteComment(a *Article, content string) (*Comment, error) {
 	return (&commentWriter{
 		Session: s,
-		Article: a,
+		target: a,
 		content: content,
 	}).write()
 }
 
 func (c *commentWriter) write() (*Comment, error) {
 	form := form(map[string]string{
-		"id":           c.Gall.ID,
-		"no":           c.Number,
+		"id":           c.target.Gall.ID,
+		"no":           c.target.Number,
 		"ip":           c.ip,
 		"comment_nick": c.id,
 		"comment_pw":   c.pw,
-		"comment_memo": c.Content,
+		"comment_memo": c.content,
 		"mode":         "comment_nonmember",
 	})
 	resp, err := c.post(commentURL, nil, form, defaultContentType)
@@ -252,10 +252,10 @@ func (c *commentWriter) write() (*Comment, error) {
 		return nil, err
 	}
 	URL := fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s",
-		c.Gall.ID, c.Number)
+		c.target.Gall.ID, c.target.Number)
 	return &Comment{
-		Gall:    &GallInfo{URL: URL, ID: c.Gall.ID},
-		Parents: &Article{Number: c.Number},
+		Gall:    &GallInfo{URL: URL, ID: c.target.Gall.ID},
+		Parents: &Article{Number: c.target.Number},
 		Number:  commentNumber,
 	}, nil
 }

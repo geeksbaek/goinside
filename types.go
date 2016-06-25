@@ -75,6 +75,6 @@ type articleWriter struct {
 // CommentWriter 구조체는 댓글 작성에 필요한 정보를 전달하기 위한 구조체입니다.
 type commentWriter struct {
 	*Session
-	*Article
+	target  *Article
 	content string
 }
