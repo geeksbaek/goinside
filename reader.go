@@ -241,7 +241,7 @@ func fnArticleGetGallID(s *goquery.Selection) string {
 }
 
 func fnArticleGetGallName(s *goquery.Selection) string {
-	q := `input[name="ko_name"]`
+	q := `input:not([id])[name="ko_name"]`
 	name, _ := s.Find(q).Attr(`value`)
 	return name
 }

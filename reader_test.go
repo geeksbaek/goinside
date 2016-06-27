@@ -1,11 +1,5 @@
 package goinside
 
-import (
-	"fmt"
-	"log"
-	"testing"
-)
-
 // func TestGetAllGall(t *testing.T) {
 // 	galls, err := GetAllGall()
 // 	if err != nil {
@@ -21,13 +15,15 @@ import (
 // 	if err != nil {
 // 		log.Fatal(err)
 // 	}
-// 	fmt.Println(l)
+// 	for _, a := range l.Articles {
+// 		fmt.Println(a.URL)
+// 	}
 // }
 
-func TestGetArticle(t *testing.T) {
-	a, err := GetArticle("http://m.dcinside.com/view.php?id=baseball_new4&no=8129734&page=1&exception_mode=recommend")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(a)
-}
+// func TestGetArticle(t *testing.T) {
+// 	a, err := GetArticle("http://m.dcinside.com/view.php?id=baseball_new4&no=8129734&page=1&exception_mode=recommend")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	fmt.Println(a)
+// }

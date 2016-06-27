@@ -88,7 +88,6 @@ func (a *articleWriter) write() (*Article, error) {
 	return ret, nil
 }
 
-// DeleteArticle 함수는 인자로 주어진 글을 삭제합니다.
 func (a *Article) delete(s *Session) error {
 	// get cookies and con key
 	m := map[string]string{}

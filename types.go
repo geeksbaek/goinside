@@ -40,6 +40,11 @@ type GallInfo struct {
 	URL  string
 	ID   string
 	Name string
+
+	koName     string
+	gServer    string
+	gNo        string
+	categoryNo string
 }
 
 func (g *GallInfo) String() string {

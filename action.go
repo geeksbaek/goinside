@@ -12,8 +12,8 @@ var (
 	koNameRe     = regexp.MustCompile(`query \+= "&ko_name=(.*)"`)
 	gServerRe    = regexp.MustCompile(`query \+= "&gserver=(.*)"`)
 	gNoRe        = regexp.MustCompile(`query \+= "&gno=(.*)"`)
-	ipRe         = regexp.MustCompile(`query \+= "&ip=(.*)"`)
 	categoryNoRe = regexp.MustCompile(`query \+= "&category_no=(.*)"`)
+	gIPRe         = regexp.MustCompile(`query \+= "&ip=(.*)"`)
 )
 
 // ThumbsUp 함수는 인자로 전달받은 글에 대해 추천을 보냅니다.
@@ -43,29 +43,51 @@ func (s *Session) ThumbsDown(a *Article) error {
 }
 
 func (s *Session) commonRecommendForm(a *Article) (io.Reader, error) {
-	resp, err := s.get(a.URL)
-	if err != nil {
-		return nil, err
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	ip := ipRe.FindSubmatch(body)
-	koName := koNameRe.FindSubmatch(body)
-	gServer := gServerRe.FindSubmatch(body)
-	gNo := gNoRe.FindSubmatch(body)
-	categoryNo := categoryNoRe.FindSubmatch(body)
-	if len(ip) != 2 || len(koName) != 2 || len(gServer) != 2 || len(gNo) != 2 || len(categoryNo) != 2 {
-		return nil, errors.New("Make Recommend Form Fail")
+	if ok := a.Gall.IsThereDetail(); !ok {
+		a.Gall.PrefetchDetail(s, a)
 	}
 	return form(map[string]string{
 		"no":          a.Number,
 		"gall_id":     a.Gall.ID,
-		"ip":          string(ip[1]),
-		"ko_name":     string(koName[1]),
-		"gserver":     string(gServer[1]),
-		"gno":         string(gNo[1]),
-		"category_no": string(categoryNo[1]),
+		"ip":          s.ip,
+		"ko_name":     a.Gall.koName,
+		"gserver":     a.Gall.gServer,
+		"gno":         a.Gall.gNo,
+		"category_no": a.Gall.categoryNo,
 	}), nil
+}
+
+// IsThereDetail 함수는 추천, 비추천에 필요한 세부 값이 설정되어 있는지 확인합니다.
+func (g *GallInfo) IsThereDetail() bool {
+	if g.koName == "" || g.gServer == "" || g.gNo == "" || g.categoryNo == "" {
+		return false
+	}
+	return true
+}
+
+// PrefetchDetail 함수는 추천, 비추천에 필요한 세부 값을 미리 가져옵니다.
+func (g *GallInfo) PrefetchDetail(s *Session, a *Article) error {
+	resp, err := s.get(a.URL)
+	if err != nil {
+		return err
+	}
+	bytesBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	body := string(bytesBody)
+	koName := koNameRe.FindStringSubmatch(body)
+	gServer := gServerRe.FindStringSubmatch(body)
+	gNo := gNoRe.FindStringSubmatch(body)
+	categoryNo := categoryNoRe.FindStringSubmatch(body)
+	gIP := gIPRe.FindStringSubmatch(body)
+	if len(koName) != 2 || len(gServer) != 2 || len(gNo) != 2 || len(categoryNo) != 2 || len(gIP) != 2 {
+		return errors.New("Make Recommend Form Fail")
+	}
+	g.koName, g.gServer, g.gNo, g.categoryNo =
+		koName[1], gServer[1], gNo[1], categoryNo[1]
+	if s.ip == "" {
+		s.ip = gIP[1]
+	}
+	return nil
 }
