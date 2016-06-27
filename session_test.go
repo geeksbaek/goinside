@@ -18,13 +18,13 @@ func ExampleGuestSession() {
 	// 글 작성
 	article, err := s.WriteArticle(gall, subject, content, images...)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	// 댓글 작성
 	comment, err := s.WriteComment(article, "댓글 내용")
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	s.ThumbsUp(article)   // 추천
@@ -34,4 +34,7 @@ func ExampleGuestSession() {
 
 	s.Delete(comment) // 댓글 삭제
 	s.Delete(article) // 글 삭제
+
+	// Output:
+	// .
 }
