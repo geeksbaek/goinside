@@ -71,3 +71,24 @@ func strToTime(s string) *time.Time {
 	}
 	return nil
 }
+
+func convertToMobileDcinside(URL string) string {
+	if matched := desktopURLRe.FindStringSubmatch(URL); len(matched) > 0 {
+		switch {
+		case len(matched) == 2 || (len(matched) >= 3 && matched[2] == ""):
+			return fmt.Sprintf("http://m.dcinside.com/list.php?id=%s",
+				matched[1])
+		case len(matched) >= 3:
+			return fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s",
+				matched[1], matched[2])
+		}
+	}
+	return URL
+}
+
+func parseGallID(URL string) string {
+	if matched := desktopURLRe.FindStringSubmatch(URL); len(matched) > 2 {
+		return matched[1]
+	}
+	return ""
+}

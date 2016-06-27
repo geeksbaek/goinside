@@ -47,7 +47,8 @@ func GetList(gallURL string, page int) (*List, error) {
 				GallogIcon: fnListGetAuthorGallogIcon(s),
 			},
 			Gall: &GallInfo{
-				URL: gallURL,
+				URL: convertToMobileDcinside(gallURL),
+				ID: fnListGetGallID(gallURL),
 			},
 			Icon:         fnListGetArticleIcon(s),
 			URL:          fnListGetGallURL(s),
