@@ -7,7 +7,7 @@ import (
 	"github.com/geeksbaek/goinside"
 )
 
-func ExampleGuestSession() {
+func ExampleGuest() {
 	s := goinside.Guest("닉네임", "비밀번호")
 
 	gall := "programming"
