@@ -235,7 +235,6 @@ func (c *commentWriter) write() (*Comment, error) {
 	form := form(map[string]string{
 		"id":           c.target.Gall.ID,
 		"no":           c.target.Number,
-		"ip":           c.ip,
 		"comment_nick": c.id,
 		"comment_pw":   c.pw,
 		"comment_memo": c.content,

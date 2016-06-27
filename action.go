@@ -13,7 +13,7 @@ var (
 	gServerRe    = regexp.MustCompile(`query \+= "&gserver=(.*)"`)
 	gNoRe        = regexp.MustCompile(`query \+= "&gno=(.*)"`)
 	categoryNoRe = regexp.MustCompile(`query \+= "&category_no=(.*)"`)
-	gIPRe         = regexp.MustCompile(`query \+= "&ip=(.*)"`)
+	gIPRe        = regexp.MustCompile(`query \+= "&ip=(.*)"`)
 )
 
 // ThumbsUp 함수는 인자로 전달받은 글에 대해 추천을 보냅니다.
@@ -44,12 +44,16 @@ func (s *Session) ThumbsDown(a *Article) error {
 
 func (s *Session) commonRecommendForm(a *Article) (io.Reader, error) {
 	if ok := a.Gall.IsThereDetail(); !ok {
-		a.Gall.PrefetchDetail(s, a)
+		s.PrefetchDetail(a)
+	}
+	ip := a.Gall.ip
+	if s.ip != "" {
+		ip = s.ip
 	}
 	return form(map[string]string{
 		"no":          a.Number,
 		"gall_id":     a.Gall.ID,
-		"ip":          s.ip,
+		"ip":          ip,
 		"ko_name":     a.Gall.koName,
 		"gserver":     a.Gall.gServer,
 		"gno":         a.Gall.gNo,
@@ -59,14 +63,14 @@ func (s *Session) commonRecommendForm(a *Article) (io.Reader, error) {
 
 // IsThereDetail 함수는 추천, 비추천에 필요한 세부 값이 설정되어 있는지 확인합니다.
 func (g *GallInfo) IsThereDetail() bool {
-	if g.koName == "" || g.gServer == "" || g.gNo == "" || g.categoryNo == "" {
+	if g.koName == "" || g.gServer == "" || g.gNo == "" || g.categoryNo == "" || g.ip == "" {
 		return false
 	}
 	return true
 }
 
 // PrefetchDetail 함수는 추천, 비추천에 필요한 세부 값을 미리 가져옵니다.
-func (g *GallInfo) PrefetchDetail(s *Session, a *Article) error {
+func (s *Session) PrefetchDetail(a *Article) error {
 	resp, err := s.get(a.URL)
 	if err != nil {
 		return err
@@ -84,10 +88,7 @@ func (g *GallInfo) PrefetchDetail(s *Session, a *Article) error {
 	if len(koName) != 2 || len(gServer) != 2 || len(gNo) != 2 || len(categoryNo) != 2 || len(gIP) != 2 {
 		return errors.New("Make Recommend Form Fail")
 	}
-	g.koName, g.gServer, g.gNo, g.categoryNo =
-		koName[1], gServer[1], gNo[1], categoryNo[1]
-	if s.ip == "" {
-		s.ip = gIP[1]
-	}
+	a.Gall.koName, a.Gall.gServer, a.Gall.gNo, a.Gall.categoryNo, a.Gall.ip =
+		koName[1], gServer[1], gNo[1], categoryNo[1], gIP[1]
 	return nil
 }

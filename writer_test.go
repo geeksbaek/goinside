@@ -1,6 +1,7 @@
 package goinside
 
 import (
+	"fmt"
 	"log"
 	"net/url"
 	"testing"
@@ -11,7 +12,7 @@ import (
 
 func TestWriter(t *testing.T) {
 	ss := Guest("이름", "비밀번호")
-	proxy, _ := url.Parse("http://209.41.67.169:80")
+	proxy, _ := url.Parse("http://104.200.129.174:80")
 	ss.SetTransport(proxy)
 
 	gall := "china"
@@ -33,8 +34,10 @@ func TestWriter(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	ss.ThumbsUp(article)   // 추천
-	ss.ThumbsDown(article) // 비추천
+    ss.PrefetchDetail(article)
+
+	fmt.Println(ss.ThumbsUp(article))
+	fmt.Println(ss.ThumbsDown(article))
 
 	time.Sleep(time.Second * 10)
 

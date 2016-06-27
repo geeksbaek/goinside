@@ -45,11 +45,14 @@ type GallInfo struct {
 	gServer    string
 	gNo        string
 	categoryNo string
+	ip         string
 }
 
 func (g *GallInfo) String() string {
-	f := "URL: %v, ID: %v, Name: %v"
-	return fmt.Sprintf(f, g.URL, g.ID, g.Name)
+	f := "URL: %v, ID: %v, Name: %v\n" +
+		"koName: %v, gServer: %v, gNo: %v, categoryNo: %v, ip: %v"
+	return fmt.Sprintf(f, g.URL, g.ID, g.Name,
+		g.koName, g.gServer, g.gNo, g.categoryNo, g.ip)
 }
 
 // Comment 구조체는 작성된 댓글에 대한 정보를 표현합니다.
