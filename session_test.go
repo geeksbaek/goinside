@@ -7,6 +7,10 @@ import (
 	"github.com/geeksbaek/goinside"
 )
 
+// ExampleGuest 함수는 비회원 세션을 사용하는 예제입니다.
+// 먼저 programming이라는 ID를 가진 갤러리에 글을 하나 작성합니다.
+// 그리고 바로 해당 글에 댓글을 하나 작성하고요. 추천과 비추천도 누릅니다.
+// 그리고 5초 뒤에 댓글과 글을 삭제합니다.
 func ExampleGuest() {
 	s := goinside.Guest("닉네임", "비밀번호")
 
@@ -34,7 +38,4 @@ func ExampleGuest() {
 
 	s.Delete(comment) // 댓글 삭제
 	s.Delete(article) // 글 삭제
-
-	// Output:
-	// .
 }
