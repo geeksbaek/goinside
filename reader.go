@@ -48,7 +48,7 @@ func GetList(gallURL string, page int) (*List, error) {
 			},
 			Gall: &GallInfo{
 				URL: convertToMobileDcinside(gallURL),
-				ID: fnListGetGallID(gallURL),
+				ID:  parseGallID(gallURL),
 			},
 			Icon:         fnListGetArticleIcon(s),
 			URL:          fnListGetGallURL(s),
