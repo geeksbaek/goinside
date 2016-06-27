@@ -1,4 +1,4 @@
-package goinside
+package goinside_test
 
 import (
 	"log"
