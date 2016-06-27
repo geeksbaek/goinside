@@ -1,7 +1,6 @@
 package goinside
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"regexp"
