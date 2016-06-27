@@ -15,11 +15,9 @@ func ExampleSession_ThumbsUp() {
 // 설정되어 있는지 확인한다. 
 // 추천과 비추천을 위해선 반드시 필요한 값들이므로 해당 값이 
 // 설정되어 있지 않다면 스스로 http request 과정을 거쳐 해당 값들을 fetch 한다. 
-
 // 그러나 아래 같이 ThumbsUp 함수가 병렬적으로 실행되는 경우,
 // 한 번만 fetch하면 될 gallInfoDetail를 불필요하게 여러번 fetch하는 일이
 // 일어날 수 있다. 
-
 // 따라서 PrefetchDetail 라는 메소드를 호출하여 병렬 실행이 
 // 일어나기 전에 한 번만 호출하여 낭비를 막는 것이 좋다.
 func ExampleSession_PrefetchDetail() {
