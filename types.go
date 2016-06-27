@@ -37,10 +37,18 @@ func (a *AuthorInfo) String() string {
 
 // GallInfo 구조체는 갤러리에 대한 정보를 표현합니다.
 type GallInfo struct {
-	URL  string
-	ID   string
-	Name string
+	URL    string
+	ID     string
+	Name   string
+	detail *gallInfoDetail
+}
 
+func (g *GallInfo) String() string {
+	f := "URL: %v, ID: %v, Name: %v\nDetail: {%v}"
+	return fmt.Sprintf(f, g.URL, g.ID, g.Name, g.detail)
+}
+
+type gallInfoDetail struct {
 	koName     string
 	gServer    string
 	gNo        string
@@ -48,11 +56,9 @@ type GallInfo struct {
 	ip         string
 }
 
-func (g *GallInfo) String() string {
-	f := "URL: %v, ID: %v, Name: %v\n" +
-		"koName: %v, gServer: %v, gNo: %v, categoryNo: %v, ip: %v"
-	return fmt.Sprintf(f, g.URL, g.ID, g.Name,
-		g.koName, g.gServer, g.gNo, g.categoryNo, g.ip)
+func (g *gallInfoDetail) String() string {
+	f := "koName: %v, gServer: %v, gNo: %v, categoryNo: %v, ip: %v"
+	return fmt.Sprintf(f, g.koName, g.gServer, g.gNo, g.categoryNo, g.ip)
 }
 
 // Comment 구조체는 작성된 댓글에 대한 정보를 표현합니다.
