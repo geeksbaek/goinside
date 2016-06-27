@@ -27,7 +27,7 @@ var (
 		"Referer":          "http://m.dcinside.com",
 		"X-Requested-With": "XMLHttpRequest",
 	}
-	desktopURLRe = regexp.MustCompile(`(?:http:\/\/)?gall\.dcinside\.com.*id=([^&]+)&no=(\d+)`)
+	desktopURLRe = regexp.MustCompile(`(?:http:\/\/)?gall\.dcinside\.com.*id=([^&]+)(?:&no=(\d+))?`)
 )
 
 func (s *Session) post(URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
@@ -41,7 +41,7 @@ func (s *Session) get(URL string) (*http.Response, error) {
 func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
 	if matched := desktopURLRe.FindStringSubmatch(URL); len(matched) > 0 {
 		switch {
-		case len(matched) == 2:
+		case len(matched) == 2 || (len(matched) >= 3 && matched[2] == ""):
 			URL = fmt.Sprintf("http://m.dcinside.com/list.php?id=%s",
 				matched[1])
 		case len(matched) >= 3:
