@@ -1,29 +1,25 @@
-package goinside
+package goinside_test
 
-// func TestGetAllGall(t *testing.T) {
-// 	galls, err := GetAllGall()
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	for _, v := range galls {
-// 		fmt.Println(v)
-// 	}
-// }
+import "github.com/geeksbaek/goinside"
 
-// func TestGetList(t *testing.T) {
-// 	l, err := GetList("http://m.dcinside.com/list.php?id=baseball_new4", 200)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	for _, a := range l.Articles {
-// 		fmt.Println(a.URL)
-// 	}
-// }
+func ExampleGetAllGall() {
+	galls := goinside.GetAllGall()
+}
 
-// func TestGetArticle(t *testing.T) {
-// 	a, err := GetArticle("http://m.dcinside.com/view.php?id=baseball_new4&no=8129734&page=1&exception_mode=recommend")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println(a)
-// }
+// 프로그래밍 갤러리의 첫 번째 페이지의 글들을 가져온다.
+// URL은 데스크톱 버전이든 모바일 버전이든 상관없다.
+func ExampleGetList() {
+	list := goinside.GetList("http://gall.dcinside.com/board/lists/?id=programming", 1)
+    for _, article := list.Articles {
+        // ...
+    }
+}
+
+// 해당 URL의 글 정보를 가져온다. 마찬가지로 URL은 데스크톱 버전이든
+// 모바일 버전이든 상관없다. 해당 글에 달려있는 댓글들까지 모두 가져온다.
+func ExampleGetArticle() {
+    article := goinside.GetArticle("http://gall.dcinside.com/board/view/?id=programming&no=603814&page=1&exception_mode=recommend")
+    for _, comment := range article.Comments {
+        // ...
+    }
+}

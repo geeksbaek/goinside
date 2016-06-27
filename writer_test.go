@@ -1,36 +1,38 @@
-package goinside
+package goinside_test
 
-// func TestWriter(t *testing.T) {
-// 	ss := Guest("이름", "비밀번호")
-// 	proxy, _ := url.Parse("http://104.200.129.174:80")
-// 	ss.SetTransport(proxy)
+import (
+	"log"
 
-// 	gall := "china"
-// 	subject := "글 제목"
-// 	content := "글 내용"
-// 	// images := []string{"image1.jpg", "image2.gif"} // 이미지 첨부 파일
+	"github.com/geeksbaek/goinside"
+)
 
-// 	// 글 작성
-// 	article, err := ss.WriteArticle(gall, subject, content)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+func ExampleSession_WriteArticle() {
+	s := goinside.Guest("닉네임", "비밀번호")
 
-// 	browser.OpenURL(article.URL)
+	gall := "programming"
+	subject := "글 제목"
+	content := "글 내용"
+	images := []string{"첨부파일1.jpg", "첨부파일2.gif"}
 
-// 	// 댓글 작성
-// 	comment, err := ss.WriteComment(article, "댓글 내용")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+	// 글 작성
+	article, err := s.WriteArticle(gall, subject, content, images...)
+	if err != nil {
+		log.Panic(err)
+	}
+	s.Delete(article) // 글 삭제
+}
 
-//     ss.PrefetchDetail(article)
+func ExampleSession_WriteComment() {
+	comment, err := s.WriteComment(article, "댓글 내용")
+	if err != nil {
+		log.Panic(err)
+	}
+	s.Delete(comment) // 댓글 삭제
+}
 
-// 	fmt.Println(ss.ThumbsUp(article))
-// 	fmt.Println(ss.ThumbsDown(article))
-
-// 	time.Sleep(time.Second * 10)
-
-// 	ss.Delete(comment) // 댓글 삭제
-// 	ss.Delete(article) // 글 삭제
-// }
+// DeleteAll은 삭제 가능한 인자(글, 댓글)들을 가변 인자로 받아
+// 동시적으로 삭제하는 함수이다.
+func ExampleSession_DeleteAll() {
+    s.DeleteAll(articleSlice, commentSlice...)
+    s.DeleteAll(article1, article2, comment1, comment2)
+}
