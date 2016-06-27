@@ -13,7 +13,7 @@ type Session struct {
 	pw        string
 	ip        string
 	cookies   []*http.Cookie
-	nomember  bool
+	isGuest   bool
 	transport *http.Transport
 }
 

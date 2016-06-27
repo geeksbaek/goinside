@@ -7,17 +7,22 @@ import (
 )
 
 const (
-	uploadImageURL = "http://upload.dcinside.com/upload_imgfree_mobile.php"
-	gWriteURL      = "http://upload.dcinside.com/g_write.php"
-	optionWriteURL = "http://m.dcinside.com/_option_write.php"
-	recommendURL   = "http://m.dcinside.com/_recommend_join.php"
-	norecommendURL = "http://m.dcinside.com/_nonrecommend_join.php"
-	commentURL     = "http://m.dcinside.com/_option_write.php"
-	accessTokenURL = "http://m.dcinside.com/_access_token.php"
-	gallTotalURL   = "http://m.dcinside.com/category_gall_total.html"
-	commentMoreURL = "http://m.dcinside.com/comment_more_new.php"
+	uploadImageURL  = "http://upload.dcinside.com/upload_imgfree_mobile.php"
+	gWriteURL       = "http://upload.dcinside.com/g_write.php"
+	optionWriteURL  = "http://m.dcinside.com/_option_write.php"
+	recommendURL    = "http://m.dcinside.com/_recommend_join.php"
+	norecommendURL  = "http://m.dcinside.com/_nonrecommend_join.php"
+	commentURL      = "http://m.dcinside.com/_option_write.php"
+	accessTokenURL  = "http://m.dcinside.com/_access_token.php"
+	gallTotalURL    = "http://m.dcinside.com/category_gall_total.html"
+	commentMoreURL  = "http://m.dcinside.com/comment_more_new.php"
+	loginPageURL    = "http://m.dcinside.com/login.php"
+	mobileLoginURL  = "https://dcid.dcinside.com/join/mobile_login_ok.php"
+	logoutURL       = "http://m.dcinside.com/logout.php"
+	gallogPrefixURL = "http://m.dcinside.com/gallog/home.php"
 
-	defaultContentType = "application/x-www-form-urlencoded; charset=UTF-8"
+	defaultContentType    = "application/x-www-form-urlencoded; charset=UTF-8"
+	nonCharsetContentType = "application/x-www-form-urlencoded"
 )
 
 var (
@@ -43,6 +48,7 @@ func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader,
 	if err != nil {
 		return nil, err
 	}
+	cookies = append(cookies, s.cookies...)
 	for _, cookie := range cookies {
 		req.AddCookie(cookie)
 	}

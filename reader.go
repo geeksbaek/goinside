@@ -66,48 +66,6 @@ func GetList(gallURL string, page int) (*List, error) {
 	return list, nil
 }
 
-// GetArticle 함수는 해당 글의 정보를 가져옵니다.
-func GetArticle(articleURL string) (*Article, error) {
-	doc, err := newMobileDoc(articleURL)
-	if err != nil {
-		return nil, err
-	}
-
-	s := doc.Find(`body`)
-
-	gallInfo := &GallInfo{
-		URL:  fnArticleGetGallURL(s),
-		ID:   fnArticleGetGallID(s),
-		Name: fnArticleGetGallName(s),
-	}
-
-	article := &Article{
-		AuthorInfo: &AuthorInfo{
-			Name:       fnArticleGetAuthorName(s),
-			IP:         fnArticleGetAuthorIP(s),
-			IsGuest:    fnArticleIsAuthorGuest(s),
-			GallogID:   fnArticleGetAuthorGallogID(s),
-			GallogURL:  fnArticleGetAuthorGallogURL(s),
-			GallogIcon: fnArticleGetAuthorGallogIcon(s),
-		},
-		Gall:         gallInfo,
-		Icon:         fnArticleGetArticleIcon(s),
-		URL:          fnArticleGetArticleURL(s),
-		Number:       fnArticleGetArticleNumber(s),
-		Subject:      fnArticleGetArticleSubject(s),
-		Content:      fnArticleGetArticleContent(s),
-		Hit:          fnArticleGetArticleHit(s),
-		ThumbsUp:     fnArticleGetArticleThumbsUp(s),
-		ThumbsDown:   fnArticleGetArticleThumbsDown(s),
-		Date:         fnArticleGetArticleDate(s),
-		CommentCount: fnArticleGetArticleCommentCount(s),
-	}
-
-	article.Comments = fnArticleGetArticleComments(s, gallInfo, article)
-	return article, nil
-}
-
-// for List Functions
 func fnListGetAuthorName(s *goquery.Selection) string {
 	q := `.name`
 	return s.Find(q).Text()
@@ -187,7 +145,47 @@ func fnListGetCommentCount(s *goquery.Selection) int {
 	return cnt
 }
 
-// for Article Functions
+// GetArticle 함수는 해당 글의 정보를 가져옵니다.
+func GetArticle(articleURL string) (*Article, error) {
+	doc, err := newMobileDoc(articleURL)
+	if err != nil {
+		return nil, err
+	}
+
+	s := doc.Find(`body`)
+
+	gallInfo := &GallInfo{
+		URL:  fnArticleGetGallURL(s),
+		ID:   fnArticleGetGallID(s),
+		Name: fnArticleGetGallName(s),
+	}
+
+	article := &Article{
+		AuthorInfo: &AuthorInfo{
+			Name:       fnArticleGetAuthorName(s),
+			IP:         fnArticleGetAuthorIP(s),
+			IsGuest:    fnArticleIsAuthorGuest(s),
+			GallogID:   fnArticleGetAuthorGallogID(s),
+			GallogURL:  fnArticleGetAuthorGallogURL(s),
+			GallogIcon: fnArticleGetAuthorGallogIcon(s),
+		},
+		Gall:         gallInfo,
+		Icon:         fnArticleGetArticleIcon(s),
+		URL:          fnArticleGetArticleURL(s),
+		Number:       fnArticleGetArticleNumber(s),
+		Subject:      fnArticleGetArticleSubject(s),
+		Content:      fnArticleGetArticleContent(s),
+		Hit:          fnArticleGetArticleHit(s),
+		ThumbsUp:     fnArticleGetArticleThumbsUp(s),
+		ThumbsDown:   fnArticleGetArticleThumbsDown(s),
+		Date:         fnArticleGetArticleDate(s),
+		CommentCount: fnArticleGetArticleCommentCount(s),
+	}
+
+	article.Comments = fnArticleGetArticleComments(s, gallInfo, article)
+	return article, nil
+}
+
 func fnArticleGetAuthorName(s *goquery.Selection) string {
 	q := `.gall_content .info_edit > span:first-of-type > span:first-of-type`
 	return s.Find(q).Text()
@@ -370,3 +368,52 @@ func fnArticleGetArticleCommentCount(s *goquery.Selection) int {
 	hit, _ := strconv.Atoi(s.Find(q).Text())
 	return hit
 }
+
+// for Login Function
+// func fnLoginGetConKeyFromLoginPage(URL string) (string, error) {
+// 	q := `#con_key`
+// 	s, err := newMobileDoc(URL)
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	conKey, _ := s.Find(q).Attr(`value`)
+// 	return conKey, nil
+// }
+
+// GetGallogData 함수는 해당 세션의 갤로그에 있는 모든 글과 댓글을 가져옵니다.
+// func (s *Session) GetGallogData() (Articles, Comments, error) {
+// 	URL := fmt.Sprintf(`%v?g_id=%v&page=%v`, gallogPrefixURL, s.id, 1)
+// 	resp, err := s.get(URL)
+// 	if err != nil {
+// 		return nil, nil, err
+// 	}
+// 	doc, err := goquery.NewDocumentFromResponse(resp)
+// 	if err != nil {
+// 		return nil, nil, err
+// 	}
+
+// 	articles := Articles{}
+// 	comments := Comments{}
+
+// 	fnEachList := func(i int, se *goquery.Selection) {
+// 		href, _ := se.Find(`.list_picture_a`).Attr(`href`)
+// 		if se.Find(`.list_pic_reply`).Length() == 0 {
+// 			fmt.Println("글", href)
+// 			// 글
+// 			// articles = append(articles, &Article{
+// 			// 	URL:
+// 			// })
+// 		} else {
+// 			s.post()
+// 			fmt.Println("댓글", href)
+// 			// 댓글
+// 			// comments = append(comments, &Comment{
+
+// 			// })
+// 		}
+// 	}
+
+// 	doc.Find(`.list_picture > li`).Each(fnEachList)
+
+// 	return articles, comments, nil
+// }

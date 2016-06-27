@@ -63,7 +63,7 @@ func (a *articleWriter) write() (*Article, error) {
 		"memo":       a.content,
 		"mode":       "write",
 		"id":         a.gall.ID,
-		"mobile_key": "mobile_nomember",
+		"mobile_key": "mobile_isGuest",
 		"FL_DATA":    flData,
 		"OFL_DATA":   oflData,
 		"Block_key":  authKey,
@@ -91,7 +91,7 @@ func (a *articleWriter) write() (*Article, error) {
 func (a *Article) delete(s *Session) error {
 	// get cookies and con key
 	m := map[string]string{}
-	if s.nomember {
+	if s.isGuest {
 		m["token_verify"] = "nonuser_del"
 	} else {
 		return errors.New("Need to login")
@@ -260,7 +260,7 @@ func (c *commentWriter) write() (*Comment, error) {
 func (c *Comment) delete(s *Session) error {
 	// get cookies and con key
 	m := map[string]string{}
-	if s.nomember {
+	if s.isGuest {
 		m["token_verify"] = "nonuser_com_del"
 	} else {
 		return errors.New("Need to login")
