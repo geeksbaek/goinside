@@ -154,7 +154,3 @@ type commentWriter struct {
 type deletable interface {
 	delete(*Session) error
 }
-
-type delateAllable interface {
-	deleteAll(*Session) error
-}
