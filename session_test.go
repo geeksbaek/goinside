@@ -8,7 +8,10 @@ import (
 )
 
 func ExampleGuest() {
-	s, _ := goinside.Guest("닉네임", "비밀번호")
+	s, err := goinside.Guest("닉네임", "비밀번호")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func ExampleSession_SetTransport() {
