@@ -18,7 +18,7 @@ func ExampleSession_ThumbsUp() {
 // 한 번만 fetch하면 될 gallInfoDetail를 불필요하게 여러번 fetch하는 일이
 // 발생할 수 있다. PrefetchDetail를 미리 호출하면 이런 상황을 방지할 수 있다.
 func ExampleSession_PrefetchDetail() {
-	s := goinside.Guest("닉네임", "비밀번호")
+	s, _ := goinside.Guest("닉네임", "비밀번호")
 	proxys := []*url.URL{} // 프록시의 슬라이스가 있다고 가정
 
     s.PrefetchDetail(article)

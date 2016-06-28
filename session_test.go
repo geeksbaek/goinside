@@ -8,7 +8,7 @@ import (
 )
 
 func ExampleGuest() {
-	s := goinside.Guest("닉네임", "비밀번호")
+	s, _ := goinside.Guest("닉네임", "비밀번호")
 }
 
 func ExampleSession_SetTransport() {
@@ -17,7 +17,7 @@ func ExampleSession_SetTransport() {
 		log.Fatal(err)
 	}
 
-	s := goinside.Guest("닉네임", "비밀번호")
+	s, _ := goinside.Guest("닉네임", "비밀번호")
 	s.SetTransport(proxy)
 
 	// ...

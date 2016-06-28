@@ -7,7 +7,7 @@ import (
 )
 
 func ExampleSession_WriteArticle() {
-	s := goinside.Guest("닉네임", "비밀번호")
+	s, _ := goinside.Guest("닉네임", "비밀번호")
 
 	gall := "programming"
 	subject := "글 제목"
@@ -23,6 +23,7 @@ func ExampleSession_WriteArticle() {
 }
 
 func ExampleSession_WriteComment() {
+	s, _ := goinside.Guest("닉네임", "비밀번호")
 	comment, err := s.WriteComment(article, "댓글 내용")
 	if err != nil {
 		log.Panic(err)

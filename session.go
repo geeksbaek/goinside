@@ -1,6 +1,7 @@
 package goinside
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -11,8 +12,11 @@ var (
 )
 
 // Guest 함수는 전달받은 ID, PASSWORD로 생성한 비회원 세션을 반환합니다.
-func Guest(id, pw string) *Session {
-	return &Session{id: id, pw: pw, isGuest: true}
+func Guest(id, pw string) (*Session, error) {
+	if id == "" || pw == "" {
+		return nil, errors.New("Invaild ID or PW")
+	}
+	return &Session{id: id, pw: pw, isGuest: true}, nil
 }
 
 // Login 함수는 전달받은 ID, PASSWORD로 로그인한 뒤 해당 세션을 반환합니다.
