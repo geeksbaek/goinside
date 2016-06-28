@@ -18,8 +18,7 @@ func ExampleSession_ThumbsUp() {
 // 그러나 아래 같이 ThumbsUp 함수가 병렬적으로 실행되는 경우,
 // 한 번만 fetch하면 될 gallInfoDetail를 불필요하게 여러번 fetch하는 일이
 // 일어날 수 있다. 
-// 따라서 PrefetchDetail 라는 메소드를 호출하여 병렬 실행이 
-// 일어나기 전에 한 번만 호출하여 낭비를 막는 것이 좋다.
+// PrefetchDetail를 미리 호출하면 이런 상황을 방지할 수 있다.
 func ExampleSession_PrefetchDetail() {
 	s := goinside.Guest("닉네임", "비밀번호")
 	proxys := []*url.URL{} // 프록시의 슬라이스가 있다고 가정
