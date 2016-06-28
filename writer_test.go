@@ -32,8 +32,8 @@ func ExampleSession_WriteComment() {
 
 // Delete는 삭제 가능한 인자(글, 댓글)들을 가변 인자로 받아
 // 동시적으로 삭제하는 함수이다.
-func ExampleSession_Delete() {
-	s.Delete(article)
-    s.Delete(articleSlice...)
-    s.Delete(article1, comment1, article2, comment2)
-}
+// func ExampleSession_Delete() {
+// 	s.Delete(article)
+//     s.Delete(articleSlice...)
+//     s.Delete(article1, comment1, article2, comment2)
+// }

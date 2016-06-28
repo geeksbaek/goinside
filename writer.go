@@ -284,19 +284,20 @@ func parseCommentNumber(resp *http.Response) (string, error) {
 }
 
 // Delete 함수는 인자로 주어진 글을 삭제합니다.
-func (s *Session) Delete(ds ...deletable) error {
-	done := make(chan error)
-	defer close(done)
-	for _, d := range ds {
-		d := d
-		go func() {
-			done <- d.delete(s)
-		}()
-	}
-	for _ = range ds {
-		if err := <-done; err != nil {
-			return err
-		}
-	}
-	return nil
+func (s *Session) Delete(ds deletable) error {
+	// done := make(chan error)
+	// defer close(done)
+	// for _, d := range ds {
+	// 	d := d
+	// 	go func() {
+	// 		done <- d.delete(s)
+	// 	}()
+	// }
+	// for _ = range ds {
+	// 	if err := <-done; err != nil {
+	// 		return err
+	// 	}
+	// }
+	// return nil
+	return ds.delete(s)
 }
