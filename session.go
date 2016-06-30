@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"time"
 )
 
 var (
@@ -74,4 +75,9 @@ func (s *Session) SetTransport(proxy *url.URL) {
 	if len(ip) == 2 {
 		s.ip = ip[1]
 	}
+}
+
+// SetTimeout 함수는 해당 세션의 통신에 timeout 값을 설정합니다.
+func (s *Session) SetTimeout(time *time.Duration) {
+	s.timeout = time
 }

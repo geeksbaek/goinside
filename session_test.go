@@ -3,6 +3,7 @@ package goinside_test
 import (
 	"log"
 	"net/url"
+	"time"
 
 	"github.com/geeksbaek/goinside"
 )
@@ -24,4 +25,9 @@ func ExampleSession_SetTransport() {
 	s.SetTransport(proxy)
 
 	// ...
+}
+
+func ExampleSession_SetTimeout() {
+	s, _ := goinside.Guest("닉네임", "비밀번호")
+	s.SetTimeout(time.Second * 10)
 }
