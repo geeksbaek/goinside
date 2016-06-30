@@ -58,7 +58,7 @@ func (a *articleWriter) write(flData, oflData string) (*Article, error) {
 
 	// upload images and get FL_DATA, OFL_DATA string
 	// var flData, oflData string
-	if len(a.images) > 0 || (flData != "" && oflData != "") {
+	if len(a.images) > 0 && (flData == "" && oflData == "") {
 		flData, oflData, err = a.UploadImages(a.gall.ID, a.images)
 		if err != nil {
 			return nil, err
