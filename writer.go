@@ -29,10 +29,21 @@ func (s *Session) WriteArticle(gallID, subject, content string, images ...string
 		subject: subject,
 		content: content,
 		images:  images,
-	}).write()
+	}).write("", "")
 }
 
-func (a *articleWriter) write() (*Article, error) {
+// WriteArticleWithPreloadedImages 함수는 flData, oflData 값을
+// 인자로 받아 이미지로 사용합니다.
+func (s *Session) WriteArticleWithPreloadedImages(gallID, subject, content, flData, oflData string) (*Article, error) {
+	return (&articleWriter{
+		Session: s,
+		gall:    &GallInfo{ID: gallID},
+		subject: subject,
+		content: content,
+	}).write(flData, oflData)
+}
+
+func (a *articleWriter) write(flData, oflData string) (*Article, error) {
 	// get cookies and block key
 	cookies, authKey, err := a.getCookiesAndAuthKey(map[string]string{
 		"id":        "programming",
@@ -46,9 +57,9 @@ func (a *articleWriter) write() (*Article, error) {
 	}
 
 	// upload images and get FL_DATA, OFL_DATA string
-	var flData, oflData string
-	if len(a.images) > 0 {
-		flData, oflData, err = a.uploadImages(a.gall.ID, a.images)
+	// var flData, oflData string
+	if len(a.images) > 0 || (flData != "" && oflData != "") {
+		flData, oflData, err = a.UploadImages(a.gall.ID, a.images)
 		if err != nil {
 			return nil, err
 		}
@@ -113,7 +124,8 @@ func (a *Article) delete(s *Session) error {
 	return err
 }
 
-func (s *Session) uploadImages(gall string, images []string) (string, string, error) {
+// UploadImages 함수는 이미지를 업로드 한 뒤 fldata, ofldata 값을 반환합니다.
+func (s *Session) UploadImages(gall string, images []string) (string, string, error) {
 	form, contentType := multipartForm(images, map[string]string{
 		"imgId":   gall,
 		"mode":    "write",
