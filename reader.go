@@ -32,7 +32,7 @@ func GetAllGall() ([]*GallInfo, error) {
 
 // GetList 함수는 해당 갤러리의 해당 페이지에 있는 모든 글의 목록을 가져옵니다.
 func GetList(gallURL string, page int) (*List, error) {
-	doc, err := newMobileDoc(fmt.Sprintf("%s&page=%d", gallURL, page))
+	doc, err := newMobileDoc(fmt.Sprintf("http://gall.dcinside.com/board/lists/?id=%s&page=%d", parseGallID(gallURL), page))
 	if err != nil {
 		return nil, err
 	}
