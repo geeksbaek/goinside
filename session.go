@@ -78,6 +78,6 @@ func (s *Session) SetTransport(proxy *url.URL) {
 }
 
 // SetTimeout 함수는 해당 세션의 통신에 timeout 값을 설정합니다.
-func (s *Session) SetTimeout(time *time.Duration) {
+func (s *Session) SetTimeout(time time.Duration) {
 	s.timeout = time
 }

@@ -15,7 +15,7 @@ type Session struct {
 	cookies   []*http.Cookie
 	isGuest   bool
 	transport *http.Transport
-	timeout   *time.Duration
+	timeout   time.Duration
 }
 
 type Sessions []*Session

@@ -62,8 +62,8 @@ func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader,
 		}
 		return &http.Client{}
 	}()
-	if s.timeout != nil {
-		client.Timeout = *s.timeout
+	if s.timeout != 0 {
+		client.Timeout = s.timeout
 	}
 	return client.Do(req)
 }
