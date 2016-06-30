@@ -88,7 +88,7 @@ func convertToMobileDcinside(URL string) string {
 
 func parseGallID(URL string) string {
 	if matched := desktopURLRe.FindStringSubmatch(URL); len(matched) > 2 {
-		return matched[1]
+		return strings.TrimSpace(matched[1])
 	}
 	return ""
 }
