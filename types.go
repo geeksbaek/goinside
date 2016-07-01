@@ -4,18 +4,19 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 )
 
 // Session 구조체는 사용자의 세션을 위해 사용됩니다.
 type Session struct {
-	id        string
-	pw        string
-	ip        string
-	cookies   []*http.Cookie
-	isGuest   bool
-	transport *http.Transport
-	timeout   time.Duration
+	id      string
+	pw      string
+	ip      string
+	cookies []*http.Cookie
+	isGuest bool
+	proxy   func(*http.Request) (*url.URL, error)
+	timeout time.Duration
 }
 
 type Sessions []*Session

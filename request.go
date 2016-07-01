@@ -57,8 +57,8 @@ func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader,
 	}
 	req.Header.Set("Content-Type", contentType)
 	client := func() *http.Client {
-		if s.transport != nil {
-			return &http.Client{Transport: s.transport}
+		if s.proxy != nil {
+			return &http.Client{Transport: &http.Transport{Proxy: s.proxy}}
 		}
 		return &http.Client{}
 	}()
