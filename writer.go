@@ -35,7 +35,7 @@ func (s *Session) WriteArticle(gallID, subject, content string, images ...string
 func (a *articleWriter) write() (*Article, error) {
 	// get cookies and block key
 	cookies, authKey, err := a.getCookiesAndAuthKey(map[string]string{
-		"id":        "programming",
+		"id":        a.gall.ID,
 		"w_subject": a.subject,
 		"w_memo":    a.content,
 		"w_filter":  "1",
