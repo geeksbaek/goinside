@@ -23,8 +23,11 @@ func ExampleSession_PrefetchDetail() {
 
     s.PrefetchDetail(article)
     for _, proxy := range proxys {
-        dummy, _ := goinside.Guest(".", ".")
-        dummy.SetTransport(proxy)
-        go dummy.ThumbsUp(article)
+        proxy := proxy
+        go func() {
+            dummy, _ := goinside.Guest(".", ".")
+            dummy.SetTransport(proxy)
+            dummy.ThumbsUp(article)
+        }()
     }
 }
