@@ -117,7 +117,7 @@ func (s *Session) uploadImages(gall string, images []string) (string, string, er
 	form, contentType := multipartForm(images, map[string]string{
 		"imgId":   gall,
 		"mode":    "write",
-		"img_num": "11", // ?
+		"img_num": fmt.Sprint(len(images)),
 	})
 	resp, err := s.post(uploadImageURL, nil, form, contentType)
 	if err != nil {
