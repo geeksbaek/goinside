@@ -2,6 +2,7 @@ package goinside_test
 
 import (
 	"log"
+	"testing"
 
 	"github.com/geeksbaek/goinside"
 )

@@ -21,11 +21,19 @@ const (
 	logoutURL       = "http://m.dcinside.com/logout.php"
 	gallogPrefixURL = "http://m.dcinside.com/gallog/home.php"
 
+	AppID               = "blM1T09mWjRhQXlZbE1ML21xbkM3QT09"
+	gallArticleWriteAPI = "http://upload.dcinside.com/_app_write_api.php"
+
 	defaultContentType    = "application/x-www-form-urlencoded; charset=UTF-8"
 	nonCharsetContentType = "application/x-www-form-urlencoded"
 )
 
 var (
+	apiRequestHeader = map[string]string{
+		"User-Agent": "dcinside.app",
+		"Referer":    "http://m.dcinside.com",
+		"Host":       "m.dcinside.com",
+	}
 	defaultRequestHeader = map[string]string{
 		"User-Agent":       "Linux Android",
 		"Referer":          "http://m.dcinside.com",
@@ -35,14 +43,18 @@ var (
 )
 
 func (s *Session) post(URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
-	return s.do("POST", URL, cookies, form, contentType)
+	return s.do("POST", URL, cookies, form, contentType, defaultRequestHeader)
 }
 
 func (s *Session) get(URL string) (*http.Response, error) {
-	return s.do("GET", URL, nil, nil, defaultContentType)
+	return s.do("GET", URL, nil, nil, defaultContentType, defaultRequestHeader)
 }
 
-func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
+func (s *Session) api(URL string, form io.Reader, contentType string) (*http.Response, error) {
+	return s.do("POST", URL, nil, form, contentType, apiRequestHeader)
+}
+
+func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string, reqHdr map[string]string) (*http.Response, error) {
 	URL = convertToMobileDcinside(URL)
 	req, err := http.NewRequest(method, URL, form)
 	if err != nil {
@@ -52,7 +64,7 @@ func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader,
 	for _, cookie := range cookies {
 		req.AddCookie(cookie)
 	}
-	for k, v := range defaultRequestHeader {
+	for k, v := range reqHdr {
 		req.Header.Set(k, v)
 	}
 	req.Header.Set("Content-Type", contentType)
