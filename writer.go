@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
-	"net/textproto"
 	"os"
 	"regexp"
 )
