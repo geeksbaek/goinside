@@ -21,6 +21,7 @@ var (
 	urlRe     = regexp.MustCompile(`url="?(.*?)"?>`)
 	idRe      = regexp.MustCompile(`id=([^&]*)`)
 	numberRe  = regexp.MustCompile(`no=(\d+)`)
+	scriptRe  = regexp.MustCompile(`(?s)<script.*>(.+?)<\/script>`)
 )
 
 // WriteArticle 함수는 글을 작성합니다.
@@ -29,7 +30,7 @@ func (s *Session) WriteArticle(gallID, subject, content string, images ...string
 		Session: s,
 		gall:    &GallInfo{ID: gallID},
 		subject: subject,
-		content: content,
+		content: trimContent(scriptRe.ReplaceAllString(content, "")),
 		images:  images,
 	}).writeAPI()
 }

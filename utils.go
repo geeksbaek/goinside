@@ -92,3 +92,11 @@ func parseGallID(URL string) string {
 	}
 	return ""
 }
+
+func trimContent(content string) string {
+	out := ""
+	for _, v := range strings.Split(content, "\n") {
+		out += strings.TrimSpace(v)
+	}
+	return strings.TrimSpace(out)
+}
