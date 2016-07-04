@@ -12,6 +12,7 @@ import (
 	"net/textproto"
 	"os"
 	"regexp"
+	"strings"
 )
 
 var (
@@ -56,6 +57,7 @@ func (a *articleWriter) writeAPI() (*Article, error) {
 		Cause  string
 		ID     string
 	}
+	body = []byte(strings.Trim(string(body), "[]"))
 	json.Unmarshal(body, &respJSON)
 	if respJSON.Result == false {
 		return nil, errors.New("writeAPI: json.Unmarshal fail")
@@ -64,8 +66,10 @@ func (a *articleWriter) writeAPI() (*Article, error) {
 		Gall: &GallInfo{
 			ID: respJSON.ID, // same a.gall.ID
 		},
-		URL:    fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%d", respJSON.ID, respJSON.Cause),
-		Number: respJSON.Cause,
+		URL:     fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%d", respJSON.ID, respJSON.Cause),
+		Number:  respJSON.Cause,
+		Subject: a.subject,
+		Content: a.content,
 	}, nil
 }
 
