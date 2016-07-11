@@ -58,15 +58,12 @@ func newMobileDoc(URL string) (*goquery.Document, error) {
 func strToTime(s string) *time.Time {
 	if len(s) <= 5 {
 		now := time.Now()
-		s = fmt.Sprintf("%v.%v.%v %v", now.Year(), now.Month(), now.Day(), s)
-	}
-	if t, err := time.Parse("2006.June.02 3:04", s); err == nil {
-		return &t
+		s = fmt.Sprintf("%04d.%02d.%02d %v", now.Year(), int(now.Month()), now.Day(), s)
 	}
 	if t, err := time.Parse("2006.01.02", s); err == nil {
 		return &t
 	}
-	if t, err := time.Parse("2006.01.02 3:04", s); err == nil {
+	if t, err := time.Parse("2006.01.02 15:04", s); err == nil {
 		return &t
 	}
 	return nil
