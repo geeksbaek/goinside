@@ -32,11 +32,11 @@ func (s *Session) WriteArticle(gallID, subject, content string, images ...string
 		subject: subject,
 		content: trimContent(scriptRe.ReplaceAllString(content, "")),
 		images:  images,
-	}).writeAPI()
+	}).writeAPI(false)
 }
 
-func (a *articleWriter) writeAPI() (*Article, error) {
-	f, contentType := multipartForm(a.images, map[string]string{
+func (a *articleWriter) writeAPI(isCaptcha bool) (*Article, error) {
+	m := map[string]string{
 		"app_id":   AppID,
 		"mode":     "write",
 		"name":     a.id,
@@ -44,7 +44,20 @@ func (a *articleWriter) writeAPI() (*Article, error) {
 		"id":       a.gall.ID,
 		"subject":  a.subject,
 		"content":  a.content,
-	})
+	}
+
+	if isCaptcha {
+		code := generateMD5()
+		URL := fmt.Sprintf("http://m.dcinside.com/code.php?id=%s&dccode=%s", a.gall.ID, code)
+		parsedCaptcha, err := ocr(a, URL)
+		if err != nil {
+			return nil, err
+		}
+		m["code"] = code
+		m["dcblock"] = parsedCaptcha
+	}
+
+	f, contentType := multipartForm(a.images, m)
 	resp, err := a.api(gallArticleWriteAPI, f, contentType)
 	if err != nil {
 		return nil, err
@@ -61,6 +74,12 @@ func (a *articleWriter) writeAPI() (*Article, error) {
 	body = []byte(strings.Trim(string(body), "[]"))
 	json.Unmarshal(body, &respJSON)
 	if respJSON.Result == false {
+		if respJSON.Cause != "" {
+			if regexp.MustCompile(`코드`).MatchString(respJSON.Cause) {
+				return a.writeAPI(true)
+			}
+			return nil, errors.New(respJSON.Cause)
+		}
 		return nil, errors.New("writeAPI: json.Unmarshal fail")
 	}
 	return &Article{
@@ -213,7 +232,7 @@ func parseAuthKey(resp *http.Response) (string, error) {
 func multipartForm(images []string, m map[string]string) (io.Reader, string) {
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
-	if images != nil {
+	if len(images) > 0 {
 		multipartImages(w, images)
 		for i := range images {
 			k := fmt.Sprintf("memo_block[%d]", i)

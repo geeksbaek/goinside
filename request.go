@@ -26,6 +26,7 @@ const (
 
 	defaultContentType    = "application/x-www-form-urlencoded; charset=UTF-8"
 	nonCharsetContentType = "application/x-www-form-urlencoded"
+	imagePngContentType   = "image/png"
 )
 
 var (
@@ -52,6 +53,10 @@ func (s *Session) get(URL string) (*http.Response, error) {
 
 func (s *Session) api(URL string, form io.Reader, contentType string) (*http.Response, error) {
 	return s.do("POST", URL, nil, form, contentType, apiRequestHeader)
+}
+
+func (s *Session) getCaptcha(URL string) (*http.Response, error) {
+	return s.do("GET", URL, nil, nil, imagePngContentType, apiRequestHeader)
 }
 
 func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string, reqHdr map[string]string) (*http.Response, error) {

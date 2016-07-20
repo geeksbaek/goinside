@@ -1,10 +1,18 @@
 package goinside
 
 import (
+	"bytes"
+	"crypto/md5"
+	"encoding/base64"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -96,4 +104,35 @@ func trimContent(content string) string {
 		out += strings.TrimSpace(v)
 	}
 	return strings.TrimSpace(out)
+}
+
+func generateMD5() (ret string) {
+	n := strconv.Itoa(rand.Intn(9999999-1000000) + 1000000)
+	for _, v := range md5.Sum([]byte(n)) {
+		ret += fmt.Sprintf("%02x", v&255)
+	}
+	return
+}
+
+func ocr(a *articleWriter, URL string) (string, error) {
+	resp, err := a.getCaptcha(URL)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	jsonStr := []byte(fmt.Sprintf(`{"base64": "%s", "trim": "\n", "whitelist": "123456789"}`, base64.StdEncoding.EncodeToString(body)))
+
+	resp, _ = http.Post("http://192.168.99.100:8080/base64", "text/plain;charset=UTF-8", bytes.NewBuffer(jsonStr))
+
+	body, _ = ioutil.ReadAll(resp.Body)
+	var respJSON struct {
+		Result string
+	}
+	json.Unmarshal(body, &respJSON)
+	if respJSON.Result == "" {
+		return "", errors.New("ocr: parsing fail")
+	}
+	return respJSON.Result, nil
 }
