@@ -232,7 +232,7 @@ func parseAuthKey(resp *http.Response) (string, error) {
 func multipartForm(images []string, m map[string]string) (io.Reader, string) {
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
-	if len(images) > 0 {
+	if images != nil {
 		multipartImages(w, images)
 		for i := range images {
 			k := fmt.Sprintf("memo_block[%d]", i)
