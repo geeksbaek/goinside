@@ -57,7 +57,7 @@ func (a *articleWriter) writeAPI(isCaptcha bool) (*Article, error) {
 		m["dcblock"] = parsedCaptcha
 	}
 
-	f, contentType := multipartForm(a.images, m)
+	f, contentType := multipartForm(m, a.images...)
 	resp, err := a.api(gallArticleWriteAPI, f, contentType)
 	if err != nil {
 		return nil, err
@@ -93,62 +93,6 @@ func (a *articleWriter) writeAPI(isCaptcha bool) (*Article, error) {
 	}, nil
 }
 
-// func (a *articleWriter) write() (*Article, error) {
-// 	// get cookies and block key
-// 	cookies, authKey, err := a.getCookiesAndAuthKey(map[string]string{
-// 		"id":        a.gall.ID,
-// 		"w_subject": a.subject,
-// 		"w_memo":    a.content,
-// 		"w_filter":  "1",
-// 		"mode":      "write_verify",
-// 	}, optionWriteURL)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	// upload images and get FL_DATA, OFL_DATA string
-// 	var flData, oflData string
-// 	if len(a.images) > 0 {
-// 		flData, oflData, err = a.uploadImages(a.gall.ID, a.images)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 	}
-
-// 	// wrtie article
-// 	ret := &Article{Gall: &GallInfo{}}
-// 	form, contentType := multipartForm(nil, map[string]string{
-// 		"name":       a.id,
-// 		"password":   a.pw,
-// 		"subject":    a.subject,
-// 		"memo":       a.content,
-// 		"mode":       "write",
-// 		"id":         a.gall.ID,
-// 		"mobile_key": "mobile_isGuest",
-// 		"FL_DATA":    flData,
-// 		"OFL_DATA":   oflData,
-// 		"Block_key":  authKey,
-// 		"filter":     "1",
-// 	})
-// 	resp, err := a.post(gWriteURL, cookies, form, contentType)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	bodyBytes, err := ioutil.ReadAll(resp.Body)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	body := string(bodyBytes)
-// 	URL := urlRe.FindStringSubmatch(body)
-// 	gallID := idRe.FindStringSubmatch(body)
-// 	number := numberRe.FindStringSubmatch(body)
-// 	if len(URL) != 2 || len(gallID) != 2 || len(number) != 2 {
-// 		return nil, errors.New("Write Article Fail")
-// 	}
-// 	ret.URL, ret.Gall.ID, ret.Number = URL[1], gallID[1], number[1]
-// 	return ret, nil
-// }
-
 func (a *Article) delete(s *Session) error {
 	// get cookies and con key
 	m := map[string]string{}
@@ -172,29 +116,6 @@ func (a *Article) delete(s *Session) error {
 	})
 	_, err = s.post(optionWriteURL, cookies, form, defaultContentType)
 	return err
-}
-
-func (s *Session) uploadImages(gall string, images []string) (string, string, error) {
-	form, contentType := multipartForm(images, map[string]string{
-		"imgId":   gall,
-		"mode":    "write",
-		"img_num": fmt.Sprint(len(images)),
-	})
-	resp, err := s.post(uploadImageURL, nil, form, contentType)
-	if err != nil {
-		return "", "", err
-	}
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", "", err
-	}
-	body := string(bodyBytes)
-	fldata := flDataRe.FindStringSubmatch(body)
-	ofldata := oflDataRe.FindStringSubmatch(body)
-	if len(fldata) != 2 || len(ofldata) != 2 {
-		return "", "", errors.New("Image Upload Fail")
-	}
-	return fldata[1], ofldata[1], nil
 }
 
 func (s *Session) getCookiesAndAuthKey(m map[string]string, URL string) ([]*http.Cookie, string, error) {
@@ -229,25 +150,24 @@ func parseAuthKey(resp *http.Response) (string, error) {
 	return tempJSON.Data, nil
 }
 
-func multipartForm(images []string, m map[string]string) (io.Reader, string) {
+func multipartForm(m map[string]string, images ...string) (io.Reader, string) {
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 	if images != nil {
-		multipartImages(w, images)
+		multipartImages(w, images...)
 		for i := range images {
 			k := fmt.Sprintf("memo_block[%d]", i)
 			m[k] = fmt.Sprintf("Dc_App_Img_%d", i+1)
 		}
 	}
-	content := m["content"]
-	delete(m, content)
 	k := fmt.Sprintf("memo_block[%d]", len(images))
-	m[k] = content
+	m[k] = m["content"]
+	delete(m, "content")
 	multipartOthers(w, m)
 	return &b, w.FormDataContentType()
 }
 
-func multipartImages(w *multipart.Writer, images []string) {
+func multipartImages(w *multipart.Writer, images ...string) {
 	for i, image := range images {
 		h := textproto.MIMEHeader{}
 		h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="upload[%d]"; filename="%s"`, i, image))
@@ -256,7 +176,6 @@ func multipartImages(w *multipart.Writer, images []string) {
 		if err != nil {
 			return
 		}
-
 		f, err := os.Open(image)
 		if err != nil {
 			return
@@ -276,43 +195,6 @@ func multipartOthers(w *multipart.Writer, m map[string]string) {
 		}
 	}
 }
-
-// func multipartForm(images []string, m map[string]string) (io.Reader, string) {
-// 	var b bytes.Buffer
-// 	w := multipart.NewWriter(&b)
-// 	if images != nil {
-// 		multipartImages(w, images)
-// 	}
-// 	multipartOthers(w, m)
-// 	return &b, w.FormDataContentType()
-// }
-
-// func multipartImages(w *multipart.Writer, images []string) {
-// 	for i, image := range images {
-// 		f, err := os.Open(image)
-// 		if err != nil {
-// 			return
-// 		}
-// 		defer f.Close()
-// 		fw, err := w.CreateFormFile(fmt.Sprintf("upload[%d]", i), image)
-// 		if err != nil {
-// 			return
-// 		}
-// 		if _, err = io.Copy(fw, f); err != nil {
-// 			return
-// 		}
-// 	}
-// }
-
-// func multipartOthers(w *multipart.Writer, m map[string]string) {
-// 	for k, v := range m {
-// 		if fw, err := w.CreateFormField(k); err != nil {
-// 			continue
-// 		} else if _, err := fw.Write([]byte(v)); err != nil {
-// 			continue
-// 		}
-// 	}
-// }
 
 // WriteComment 함수는 주어진 Article로 댓글을 작성합니다.
 func (s *Session) WriteComment(a *Article, content string) (*Comment, error) {
