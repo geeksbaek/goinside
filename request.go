@@ -21,8 +21,12 @@ const (
 	logoutURL       = "http://m.dcinside.com/logout.php"
 	gallogPrefixURL = "http://m.dcinside.com/gallog/home.php"
 
-	AppID               = "blM1T09mWjRhQXlZbE1ML21xbkM3QT09"
+	// AppID 는 디시인사이드 공식 API에 접근하기 위한 ID입니다.
+	AppID = "blM1T09mWjRhQXlZbE1ML21xbkM3QT09"
+
 	gallArticleWriteAPI = "http://upload.dcinside.com/_app_write_api.php"
+	recommendUpAPI      = "http://m.dcinside.com/api/_recommend_up.php"
+	recommendDownAPI    = "http://m.dcinside.com/api/_recommend_down.php"
 
 	defaultContentType    = "application/x-www-form-urlencoded; charset=UTF-8"
 	nonCharsetContentType = "application/x-www-form-urlencoded"

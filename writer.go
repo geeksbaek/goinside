@@ -32,10 +32,10 @@ func (s *Session) WriteArticle(gallID, subject, content string, images ...string
 		subject: subject,
 		content: trimContent(scriptRe.ReplaceAllString(content, "")),
 		images:  images,
-	}).writeAPI(false)
+	}).write(false)
 }
 
-func (a *articleWriter) writeAPI(isCaptcha bool) (*Article, error) {
+func (a *articleWriter) write(isCaptcha bool) (*Article, error) {
 	m := map[string]string{
 		"app_id":   AppID,
 		"mode":     "write",
@@ -76,7 +76,7 @@ func (a *articleWriter) writeAPI(isCaptcha bool) (*Article, error) {
 	if respJSON.Result == false {
 		if respJSON.Cause != "" {
 			if regexp.MustCompile(`코드`).MatchString(respJSON.Cause) {
-				return a.writeAPI(true)
+				return a.write(true)
 			}
 			return nil, errors.New(respJSON.Cause)
 		}
