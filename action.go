@@ -11,7 +11,7 @@ func (s *Session) ThumbsDown(a *Article) error {
 }
 
 func (s *Session) action(a *Article, URL string) error {
-	_, err := s.api(recommendUpAPI, form(map[string]string{
+	_, err := s.api(URL, form(map[string]string{
 		"app_id": AppID,
 		"id":     a.Gall.ID,
 		"no":     a.Number,
