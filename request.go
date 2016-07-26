@@ -27,6 +27,7 @@ const (
 	gallArticleWriteAPI = "http://upload.dcinside.com/_app_write_api.php"
 	recommendUpAPI      = "http://m.dcinside.com/api/_recommend_up.php"
 	recommendDownAPI    = "http://m.dcinside.com/api/_recommend_down.php"
+	reportAPI           = "http://m.dcinside.com/api/report_upload.php"
 
 	defaultContentType    = "application/x-www-form-urlencoded; charset=UTF-8"
 	nonCharsetContentType = "application/x-www-form-urlencoded"

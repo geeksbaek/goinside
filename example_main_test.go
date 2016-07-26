@@ -50,6 +50,12 @@ func Example() {
 		log.Fatal(err)
 	}
 
+	// 글 신고하기
+	err = s.Report(article.URL, "신고합니다.")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// 댓글 삭제하기
 	err = s.Delete(comment)
 	if err != nil {

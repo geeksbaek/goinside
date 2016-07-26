@@ -98,6 +98,13 @@ func parseGallID(URL string) string {
 	return ""
 }
 
+func parseArticleNumber(URL string) string {
+	if matched := desktopURLRe.FindStringSubmatch(URL); len(matched) > 2 {
+		return strings.TrimSpace(matched[2])
+	}
+	return ""
+}
+
 func trimContent(content string) string {
 	out := ""
 	for _, v := range strings.Split(content, "\n") {
