@@ -21,7 +21,6 @@ var (
 	urlRe     = regexp.MustCompile(`url="?(.*?)"?>`)
 	idRe      = regexp.MustCompile(`id=([^&]*)`)
 	numberRe  = regexp.MustCompile(`no=(\d+)`)
-	scriptRe  = regexp.MustCompile(`(?s)<script.*>(.+?)<\/script>`)
 )
 
 // WriteArticle 함수는 글을 작성합니다.
@@ -30,7 +29,7 @@ func (s *Session) WriteArticle(gallID, subject, content string, images ...string
 		Session: s,
 		gall:    &GallInfo{ID: gallID},
 		subject: subject,
-		content: trimContent(scriptRe.ReplaceAllString(content, "")),
+		content: content,
 		images:  images,
 	}).write(false)
 }
@@ -46,16 +45,16 @@ func (a *articleWriter) write(isCaptcha bool) (*Article, error) {
 		"content":  a.content,
 	}
 
-	if isCaptcha {
-		code := generateMD5()
-		URL := fmt.Sprintf("http://m.dcinside.com/code.php?id=%s&dccode=%s", a.gall.ID, code)
-		parsedCaptcha, err := ocr(a, URL)
-		if err != nil {
-			return nil, err
-		}
-		m["code"] = code
-		m["dcblock"] = parsedCaptcha
-	}
+	// if isCaptcha {
+	// 	code := generateMD5()
+	// 	URL := fmt.Sprintf("http://m.dcinside.com/code.php?id=%s&dccode=%s", a.gall.ID, code)
+	// 	parsedCaptcha, err := ocr(a, URL)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	m["code"] = code
+	// 	m["dcblock"] = parsedCaptcha
+	// }
 
 	f, contentType := multipartForm(m, a.images...)
 	resp, err := a.api(gallArticleWriteAPI, f, contentType)
@@ -66,18 +65,18 @@ func (a *articleWriter) write(isCaptcha bool) (*Article, error) {
 	if err != nil {
 		return nil, err
 	}
+	body = []byte(strings.Trim(string(body), "[]"))
 	var respJSON struct {
 		Result bool
 		Cause  string
 		ID     string
 	}
-	body = []byte(strings.Trim(string(body), "[]"))
 	json.Unmarshal(body, &respJSON)
 	if respJSON.Result == false {
 		if respJSON.Cause != "" {
-			if regexp.MustCompile(`코드`).MatchString(respJSON.Cause) {
-				return a.write(true)
-			}
+			// if regexp.MustCompile(`코드`).MatchString(respJSON.Cause) {
+			// 	return a.write(true)
+			// }
 			return nil, errors.New(respJSON.Cause)
 		}
 		return nil, errors.New("writeAPI: json.Unmarshal fail")
