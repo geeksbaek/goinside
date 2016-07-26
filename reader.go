@@ -371,15 +371,15 @@ func fnArticleGetArticleCommentCount(s *goquery.Selection) int {
 }
 
 // for Login Function
-// func fnLoginGetConKeyFromLoginPage(URL string) (string, error) {
-// 	q := `#con_key`
-// 	s, err := newMobileDoc(URL)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	conKey, _ := s.Find(q).Attr(`value`)
-// 	return conKey, nil
-// }
+func fnLoginGetConKeyFromLoginPage(URL string) (string, error) {
+	q := `#con_key`
+	s, err := newMobileDoc(URL)
+	if err != nil {
+		return "", err
+	}
+	conKey, _ := s.Find(q).Attr(`value`)
+	return conKey, nil
+}
 
 // GetGallogData 함수는 해당 세션의 갤로그에 있는 모든 글과 댓글을 가져옵니다.
 // func (s *Session) GetGallogData() (Articles, Comments, error) {
