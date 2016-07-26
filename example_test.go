@@ -32,12 +32,8 @@ func Example() {
 		log.Fatal(err)
 	}
 
-	var (
-		cContent = "댓글 내용"
-	)
-
 	// 댓글 작성하기
-	comment, err := s.WriteComment(article, cContent)
+	comment, err := s.WriteComment(article, "댓글 내용")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -86,7 +82,8 @@ func Example() {
 	}
 
 	// 특정 갤러리 글 목록 가져오기
-	list, err := goinside.GetList(galls[rand.Intn(len(galls))].URL, 1)
+	page := 1
+	list, err := goinside.GetList(galls[rand.Intn(len(galls))].URL, page)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,6 +97,6 @@ func Example() {
 		log.Fatal(err)
 	}
 	for _, comment := range article.Comments {
-		_ = comment
+		_ = comment // unused
 	}
 }
