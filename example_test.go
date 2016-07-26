@@ -17,17 +17,17 @@ func Example() {
 	}
 
 	var (
-		gallID   = "gallID" // ex) baseball_new4
-		aSubject = "글 제목"
-		aContent = "글 내용"
-		images   = []string{
+		gallID  = "gallID" // ex) baseball_new4
+		subject = "글 제목"
+		content = "글 내용"
+		images  = []string{ // 이미지 첨부파일
 			"example.jpg",
 			"example.gif",
 		}
 	)
 
 	// 글 작성하기
-	article, err := s.WriteArticle(gallID, aSubject, aContent, images...)
+	article, err := s.WriteArticle(gallID, subject, content, images...)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,14 +62,14 @@ func Example() {
 		log.Fatal(err)
 	}
 
-	// 프록시 설정하기
+	// Option: 프록시 설정하기
 	proxy, err := url.Parse("http://1.2.3.4:80")
 	if err != nil {
 		log.Fatal(err)
 	}
 	s.SetTransport(proxy)
 
-	// timeout 설정하기
+	// Option: timeout 설정하기
 	s.SetTimeout(time.Second * 10)
 
 	// 모든 갤러리 목록 가져오기
