@@ -116,20 +116,20 @@ func (a *Article) String() string {
 		a.Comments, a.CommentCount)
 }
 
-type Articles []*Article
+// type Articles []*Article
 
-func (as Articles) String() string {
-	var buf bytes.Buffer
-	for _, a := range as {
-		fmt.Fprintln(&buf, a)
-	}
-	return buf.String()
-}
+// func (as Articles) String() string {
+// 	var buf bytes.Buffer
+// 	for _, a := range as {
+// 		fmt.Fprintln(&buf, a)
+// 	}
+// 	return buf.String()
+// }
 
 // List 구조체는 특정 갤러리의 글 묶음입니다.
 type List struct {
 	Gall     *GallInfo
-	Articles Articles
+	Articles []*Article
 }
 
 func (l *List) String() string {
