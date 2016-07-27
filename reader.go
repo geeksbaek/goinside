@@ -120,7 +120,7 @@ func fnListGetArticleSubject(s *goquery.Selection) string {
 
 func fnListGetHit(s *goquery.Selection) int {
 	q := `.info > .bar + span > span`
-	hit, _ := strconv.Atoi(s.Find(q).Text())
+	hit, _ := strconv.Atoi(s.Find(q).First().Text())
 	return hit
 }
 
