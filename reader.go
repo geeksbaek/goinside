@@ -277,18 +277,21 @@ func fnArticleGetArticleSubject(s *goquery.Selection) string {
 }
 
 func fnArticleGetArticleContent(s *goquery.Selection) (ret string) {
-	q := `.gall_content .view_main #memo_img`
+	q := `.gall_content .view_main`
 	body, _ := s.Find(q).Html()
 	lineRe := regexp.MustCompile(`<p(?:\s|\S)*?>((?:\s|\S)*?)<\/p>|<div(?:\s|\S)*?>((?:\s|\S)*?)<\/div>`)
 	lines := lineRe.FindAllStringSubmatch(body, -1)
 	for _, line := range lines {
 		ret += html.UnescapeString(strings.Join(line[1:], "")) + `<br>`
 	}
-	return ret
+	if len(ret) == 0 {
+		ret = body
+	}
+	return
 }
 
 func fnArticleGetArticleImages(s *goquery.Selection) (images []string) {
-	q := `.gall_content .view_main #memo_img`
+	q := `.gall_content .view_main`
 	body, _ := s.Find(q).Html()
 	images = []string{}
 	lineRe := regexp.MustCompile(`<p(?:\s|\S)*?>((?:\s|\S)*?)<\/p>|<div(?:\s|\S)*?>((?:\s|\S)*?)<\/div>`)
