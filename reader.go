@@ -303,7 +303,7 @@ func fnArticleGetArticleDate(s *goquery.Selection) *time.Time {
 	return strToTime(s.Find(q).Text())
 }
 
-func fnArticleGetArticleComments(s *goquery.Selection, gallInfo *GallInfo, parents *Article) (cs Comments) {
+func fnArticleGetArticleComments(s *goquery.Selection, gallInfo *GallInfo, parents *Article) (cs []*Comment) {
 	ss := []*goquery.Selection{s}
 	q := `.list_best .inner_best`
 	maxPage := 1

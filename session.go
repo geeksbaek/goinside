@@ -15,7 +15,7 @@ var (
 // Guest 함수는 전달받은 ID, PASSWORD로 생성한 비회원 세션을 반환합니다.
 func Guest(id, pw string) (*Session, error) {
 	if id == "" || pw == "" {
-		return nil, errors.New("Invaild ID or PW")
+		return nil, errors.New("invalid ID or PW")
 	}
 	return &Session{id: id, pw: pw, isGuest: true}, nil
 }

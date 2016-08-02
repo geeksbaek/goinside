@@ -1,7 +1,6 @@
 package goinside
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -19,7 +18,7 @@ type Session struct {
 	timeout time.Duration
 }
 
-type Sessions []*Session
+// type Sessions []*Session
 
 // AuthorInfo 구조체는 글쓴이에 대한 정보를 표현합니다.
 type AuthorInfo struct {
@@ -78,15 +77,15 @@ func (c *Comment) String() string {
 	return fmt.Sprintf(f, c.AuthorInfo, c.Gall, c.Number, c.Content, c.Date)
 }
 
-type Comments []*Comment
+// type Comments []*Comment
 
-func (cs Comments) String() string {
-	var buf bytes.Buffer
-	for _, c := range cs {
-		fmt.Fprintln(&buf, c)
-	}
-	return buf.String()
-}
+// func (cs Comments) String() string {
+// 	var buf bytes.Buffer
+// 	for _, c := range cs {
+// 		fmt.Fprintln(&buf, c)
+// 	}
+// 	return buf.String()
+// }
 
 // Article 구조체는 작성된 글에 대한 정보를 표현합니다.
 // 댓글을 달거나 추천, 비추천 할 때 사용합니다.
@@ -102,7 +101,7 @@ type Article struct {
 	ThumbsUp     int
 	ThumbsDown   int
 	Date         *time.Time
-	Comments     Comments
+	Comments     []*Comment
 	CommentCount int
 }
 
