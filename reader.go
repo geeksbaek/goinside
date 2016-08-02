@@ -287,6 +287,7 @@ func fnArticleGetArticleContent(s *goquery.Selection) (ret string) {
 	if len(ret) == 0 {
 		ret = body
 	}
+	ret = strings.TrimSpace(ret)
 	return
 }
 
