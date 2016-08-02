@@ -279,23 +279,23 @@ func fnArticleGetArticleSubject(s *goquery.Selection) string {
 func fnArticleGetArticleContent(s *goquery.Selection) (ret string) {
 	q := `.gall_content .view_main #memo_img`
 	body, _ := s.Find(q).Html()
-	lineRe := regexp.MustCompile(`<p(?:\s|\S)*?>((?:\s|\S)*?)<\/p>`)
+	lineRe := regexp.MustCompile(`<p(?:\s|\S)*?>((?:\s|\S)*?)<\/p>|<div(?:\s|\S)*?>((?:\s|\S)*?)<\/div>`)
 	lines := lineRe.FindAllStringSubmatch(body, -1)
 	for _, line := range lines {
-		ret += html.UnescapeString(line[1]) + `<br>`
+		ret += html.UnescapeString(strings.Join(line[1:], "")) + `<br>`
 	}
-	return
+	return ret
 }
 
 func fnArticleGetArticleImages(s *goquery.Selection) (images []string) {
 	q := `.gall_content .view_main #memo_img`
 	body, _ := s.Find(q).Html()
 	images = []string{}
-	lineRe := regexp.MustCompile(`<p(?:\s|\S)*?>((?:\s|\S)*?)<\/p>`)
+	lineRe := regexp.MustCompile(`<p(?:\s|\S)*?>((?:\s|\S)*?)<\/p>|<div(?:\s|\S)*?>((?:\s|\S)*?)<\/div>`)
 	lines := lineRe.FindAllStringSubmatch(body, -1)
 	imageRe := regexp.MustCompile(`src="([^"]+)"`)
 	for _, line := range lines {
-		line := html.UnescapeString(line[1])
+		line := html.UnescapeString(strings.Join(line[1:], ""))
 		if matched := imageRe.FindStringSubmatch(line); len(matched) >= 2 {
 			images = append(images, matched[1])
 		}

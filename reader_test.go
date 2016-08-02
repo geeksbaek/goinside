@@ -13,7 +13,7 @@ func TestGetList(t *testing.T) {
 }
 
 func TestGetArticle(t *testing.T) {
-	article, _ := GetArticle("http://gall.dcinside.com/board/view/?id=programming&no=615863&page=1")
+	article, _ := GetArticle("http://gall.dcinside.com/board/view/?id=baseball_new4&no=9121357&page=3")
 	fmt.Println(article.Content)
 	fmt.Println(article.Images)
 }
