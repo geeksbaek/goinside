@@ -288,6 +288,7 @@ func fnArticleGetArticleContent(s *goquery.Selection) (ret string) {
 		ret = body
 	}
 	ret = strings.TrimSpace(ret)
+	ret = regexp.MustCompile(`<script(?:\s|\S)*?>((?:\s|\S)*?)<\/script>`).ReplaceAllString(ret, "")
 	return
 }
 
