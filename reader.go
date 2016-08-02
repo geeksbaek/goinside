@@ -2,6 +2,7 @@ package goinside
 
 import (
 	"fmt"
+	"html"
 	"regexp"
 	"strconv"
 	"strings"
@@ -176,6 +177,7 @@ func GetArticle(articleURL string) (*Article, error) {
 		Number:       fnArticleGetArticleNumber(s),
 		Subject:      fnArticleGetArticleSubject(s),
 		Content:      fnArticleGetArticleContent(s),
+		Images:       fnArticleGetArticleImages(s),
 		Hit:          fnArticleGetArticleHit(s),
 		ThumbsUp:     fnArticleGetArticleThumbsUp(s),
 		ThumbsDown:   fnArticleGetArticleThumbsDown(s),
@@ -274,10 +276,31 @@ func fnArticleGetArticleSubject(s *goquery.Selection) string {
 	return strings.TrimSpace(s.Find(q).Text())
 }
 
-func fnArticleGetArticleContent(s *goquery.Selection) string {
-	q := `.gall_content .view_main`
-	html, _ := s.Find(q).Html()
-	return html
+func fnArticleGetArticleContent(s *goquery.Selection) (ret string) {
+	q := `.gall_content .view_main #memo_img`
+	body, _ := s.Find(q).Html()
+	lineRe := regexp.MustCompile(`<p(?:\s|\S)*?>((?:\s|\S)*?)<\/p>`)
+	lines := lineRe.FindAllStringSubmatch(body, -1)
+	for _, line := range lines {
+		ret += html.UnescapeString(line[1]) + `<br>`
+	}
+	return
+}
+
+func fnArticleGetArticleImages(s *goquery.Selection) (images []string) {
+	q := `.gall_content .view_main #memo_img`
+	body, _ := s.Find(q).Html()
+	images = []string{}
+	lineRe := regexp.MustCompile(`<p(?:\s|\S)*?>((?:\s|\S)*?)<\/p>`)
+	lines := lineRe.FindAllStringSubmatch(body, -1)
+	imageRe := regexp.MustCompile(`src="([^"]+)"`)
+	for _, line := range lines {
+		line := html.UnescapeString(line[1])
+		if matched := imageRe.FindStringSubmatch(line); len(matched) >= 2 {
+			images = append(images, matched[1])
+		}
+	}
+	return
 }
 
 func fnArticleGetArticleHit(s *goquery.Selection) int {

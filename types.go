@@ -1,9 +1,11 @@
 package goinside
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -97,6 +99,7 @@ type Article struct {
 	Number       string
 	Subject      string
 	Content      string
+	Images       []string
 	Hit          int
 	ThumbsUp     int
 	ThumbsDown   int
@@ -113,6 +116,23 @@ func (a *Article) String() string {
 	return fmt.Sprintf(f, a.AuthorInfo, a.Gall, a.Icon, a.URL, a.Number,
 		a.Subject, a.Content, a.Hit, a.ThumbsUp, a.ThumbsDown, a.Date,
 		a.Comments, a.CommentCount)
+}
+
+// ArticleContent 구조체는 작성된 글의 Content를
+// 이미지와 텍스트로 구분하여 나타냅니다.
+type ArticleContent struct {
+	imageURLs []string
+	texts     []string
+}
+
+// HTML 메소드는 ArticleContent 구조체를 적절한 html 구문으로 변환합니다.
+func (ac *ArticleContent) HTML() string {
+	buf := bytes.Buffer{}
+	for _, imageURL := range ac.imageURLs {
+		fmt.Fprintf(&buf, `<img src="%s">`, imageURL)
+	}
+	fmt.Fprintf(&buf, strings.Join(ac.texts, `<br><br>`))
+	return buf.String()
 }
 
 // type Articles []*Article
