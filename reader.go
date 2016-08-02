@@ -53,6 +53,7 @@ func GetList(gallURL string, page int) (*List, error) {
 				ID:  parseGallID(gallURL),
 			},
 			Icon:         fnListGetArticleIcon(s),
+			HasImage:     fnListGetHasImage(s),
 			URL:          fnListGetGallURL(s),
 			Number:       fnListGetArticleNumber(s),
 			Subject:      fnListGetArticleSubject(s),
@@ -98,6 +99,13 @@ func fnListGetArticleIcon(s *goquery.Selection) string {
 		}
 	}
 	return ""
+}
+
+func fnListGetHasImage(s *goquery.Selection) bool {
+	if icon := fnListGetArticleIcon(s); strings.Contains(icon, "ico_p") {
+		return true
+	}
+	return false
 }
 
 func fnListGetGallURL(s *goquery.Selection) string {
@@ -173,6 +181,7 @@ func GetArticle(articleURL string) (*Article, error) {
 		},
 		Gall:         gallInfo,
 		Icon:         fnArticleGetArticleIcon(s),
+		HasImage:     fnArticleGetHasImage(s),
 		URL:          fnArticleGetArticleURL(s),
 		Number:       fnArticleGetArticleNumber(s),
 		Subject:      fnArticleGetArticleSubject(s),
@@ -257,6 +266,13 @@ func fnArticleGetArticleIcon(s *goquery.Selection) string {
 		}
 	}
 	return ""
+}
+
+func fnArticleGetHasImage(s *goquery.Selection) bool {
+	if icon := fnArticleGetArticleIcon(s); strings.Contains(icon, "ico_p") {
+		return true
+	}
+	return false
 }
 
 func fnArticleGetArticleURL(s *goquery.Selection) string {

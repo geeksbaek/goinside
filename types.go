@@ -95,6 +95,7 @@ type Article struct {
 	*AuthorInfo
 	Gall         *GallInfo
 	Icon         string
+	HasImage     bool
 	URL          string
 	Number       string
 	Subject      string

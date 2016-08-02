@@ -85,10 +85,11 @@ func (a *articleWriter) write(isCaptcha bool) (*Article, error) {
 		Gall: &GallInfo{
 			ID: respJSON.ID, // same a.gall.ID
 		},
-		URL:     fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s", respJSON.ID, respJSON.Cause),
-		Number:  respJSON.Cause,
-		Subject: a.subject,
-		Content: a.content,
+		URL:      fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s", respJSON.ID, respJSON.Cause),
+		Number:   respJSON.Cause,
+		Subject:  a.subject,
+		Content:  a.content,
+		HasImage: len(a.images) > 0,
 	}, nil
 }
 
