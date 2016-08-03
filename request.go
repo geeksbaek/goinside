@@ -64,7 +64,7 @@ func (s *Session) getCaptcha(URL string) (*http.Response, error) {
 	return s.do("GET", URL, nil, nil, imagePngContentType, apiRequestHeader)
 }
 
-func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string, reqHdr map[string]string) (*http.Response, error) {
+func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader, contentType string, requestHeader map[string]string) (*http.Response, error) {
 	URL = convertToMobileDcinside(URL)
 	req, err := http.NewRequest(method, URL, form)
 	if err != nil {
@@ -74,7 +74,7 @@ func (s *Session) do(method, URL string, cookies []*http.Cookie, form io.Reader,
 	for _, cookie := range cookies {
 		req.AddCookie(cookie)
 	}
-	for k, v := range reqHdr {
+	for k, v := range requestHeader {
 		req.Header.Set(k, v)
 	}
 	req.Header.Set("Content-Type", contentType)
