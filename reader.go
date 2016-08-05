@@ -2,6 +2,7 @@ package goinside
 
 import (
 	"fmt"
+	"html"
 	"regexp"
 	"strconv"
 	"strings"
@@ -300,6 +301,7 @@ func fnArticleGetArticleContent(s *goquery.Selection) string {
 func fnArticleGetArticleImages(s *goquery.Selection) (images []string) {
 	q := `.gall_content .view_main`
 	body, _ := s.Find(q).Html()
+	body = html.UnescapeString(body)
 	images = []string{}
 	imageRe := regexp.MustCompile(`src="([^"]+)"`)
 	allMatched := imageRe.FindAllStringSubmatch(body, -1)
