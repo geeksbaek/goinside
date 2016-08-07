@@ -32,7 +32,7 @@ func TestLogin(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(s.MemberSessionDetail)
+	fmt.Println(s.membersessionDetail)
 }
 
 func TestMemberArticleWrite(t *testing.T) {

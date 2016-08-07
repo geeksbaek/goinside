@@ -2,8 +2,7 @@ package goinside
 
 import "io"
 
-// Session 인터페이스는 세션이 필요로 하는 메소드들을 표현합니다.
-type Session interface {
+type session interface {
 	connection() *Connection
 	articleWriteForm(*ArticleDraft) (form io.Reader, contentType string)
 	articleDeleteForm(*Article) (form io.Reader, contentType string)

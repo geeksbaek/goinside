@@ -4,15 +4,15 @@ import "errors"
 
 var errReportResultFalseWithEmptyCause = errors.New("Report Result False With Empty Cause")
 
-func (a *Article) thumbsUp(s Session) error {
+func (a *Article) thumbsUp(s session) error {
 	return a.action(s, recommendUpAPI)
 }
 
-func (a *Article) thumbsDown(s Session) error {
+func (a *Article) thumbsDown(s session) error {
 	return a.action(s, recommendDownAPI)
 }
 
-func (a *Article) action(s Session, URL string) error {
+func (a *Article) action(s session, URL string) error {
 	form, contentType := s.actionForm(a)
 	resp, err := api(s, URL, form, contentType)
 	if err != nil {
@@ -21,7 +21,7 @@ func (a *Article) action(s Session, URL string) error {
 	return _CheckResponse(resp)
 }
 
-func (a *Article) report(s Session, memo string) error {
+func (a *Article) report(s session, memo string) error {
 	form, contentType := s.reportForm(a.URL, memo)
 	resp, err := api(s, reportAPI, form, contentType)
 	if err != nil {

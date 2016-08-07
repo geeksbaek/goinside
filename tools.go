@@ -68,14 +68,14 @@ func _MobileURL(URL string) string {
 	return URL
 }
 
-func _EmptySession() *GuestSession {
-	return &GuestSession{
+func _Emptysession() *Guestsession {
+	return &Guestsession{
 		conn: &Connection{},
 	}
 }
 
 func _NewMobiledDocument(URL string) (*goquery.Document, error) {
-	resp, err := get(_EmptySession(), URL)
+	resp, err := get(_Emptysession(), URL)
 	if err != nil {
 		return nil, err
 	}

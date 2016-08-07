@@ -37,19 +37,19 @@ var (
 	}
 )
 
-func post(s Session, URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
+func post(s session, URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
 	return do(s, "POST", URL, cookies, form, contentType, defaultRequestHeader)
 }
 
-func get(s Session, URL string) (*http.Response, error) {
+func get(s session, URL string) (*http.Response, error) {
 	return do(s, "GET", URL, nil, nil, defaultContentType, defaultRequestHeader)
 }
 
-func api(s Session, URL string, form io.Reader, contentType string) (*http.Response, error) {
+func api(s session, URL string, form io.Reader, contentType string) (*http.Response, error) {
 	return do(s, "POST", URL, nil, form, contentType, apiRequestHeader)
 }
 
-func do(s Session, method, URL string, cookies []*http.Cookie, form io.Reader, contentType string, requestHeader map[string]string) (*http.Response, error) {
+func do(s session, method, URL string, cookies []*http.Cookie, form io.Reader, contentType string, requestHeader map[string]string) (*http.Response, error) {
 	URL = _MobileURL(URL)
 	req, err := http.NewRequest(method, URL, form)
 	if err != nil {

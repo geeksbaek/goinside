@@ -2,8 +2,8 @@ package goinside
 
 import "time"
 
-type Writable interface {
-	write(s Session) error
+type writable interface {
+	write(s session) error
 }
 
 type ArticleDraft struct {
@@ -41,7 +41,7 @@ type ArticleDetail struct {
 	Comments   []*Comment
 }
 
-func (ad *ArticleDraft) write(s Session) error {
+func (ad *ArticleDraft) write(s session) error {
 	form, contentType := s.articleWriteForm(ad)
 	resp, err := api(s, articleWriteAPI, form, contentType)
 	if err != nil {
@@ -69,7 +69,7 @@ type Comment struct {
 	Date    time.Time
 }
 
-func (cd *CommentDraft) write(s Session) error {
+func (cd *CommentDraft) write(s session) error {
 	form, contentType := s.commentWriteForm(cd)
 	resp, err := api(s, commentWriteAPI, form, contentType)
 	if err != nil {
