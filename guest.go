@@ -10,14 +10,14 @@ var (
 	errInvalidIDorPW = errors.New("invalid ID or PW")
 )
 
-// GuestSession 구조체는 유동닉의 세션을 위해 사용됩니다.
+// GuestSession 구조체는 유동닉 세션을 표현합니다.
 type GuestSession struct {
 	id   string
 	pw   string
 	conn *Connection
 }
 
-// Guest 함수는 전달받은 ID, PASSWORD로 생성한 유동닉 세션을 반환합니다.
+// Guest 함수는 유동닉 세션을 반환합니다.
 func Guest(id, pw string) (gs *GuestSession, err error) {
 	if len(id) == 0 || len(pw) == 0 {
 		err = errInvalidIDorPW

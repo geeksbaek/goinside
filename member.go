@@ -5,7 +5,7 @@ import (
 	"net/url"
 )
 
-// MemberSession 구조체는 고정닉의 세션을 위해 사용됩니다.
+// MemberSession 구조체는 고정닉의 세션을 표현합니다.
 type MemberSession struct {
 	id   string
 	pw   string
@@ -22,27 +22,26 @@ type memberSessionDetail struct {
 	// IsDormancy bool   `json:"is_dormancy"`
 }
 
-// Login 함수는 전달받은 ID, PASSWORD로 생성한 고정닉 세션을 반환합니다.
+// Login 함수는 고정닉 세션을 반환합니다.
 func Login(id, pw string) (ms *MemberSession, err error) {
 	form := _Form(map[string]string{
 		"user_id": id,
 		"user_pw": pw,
 	})
-	MemberSession := &MemberSession{
+	tempMS := &MemberSession{
 		id:   id,
 		pw:   pw,
 		conn: &Connection{},
 	}
-	resp, err := api(MemberSession, loginAPI, form, defaultContentType)
+	resp, err := api(tempMS, loginAPI, form, defaultContentType)
 	if err != nil {
 		return
 	}
-	memberSessionDetail := &memberSessionDetail{}
-	if err = _ResponseUnmarshal(memberSessionDetail, resp); err != nil {
+	tempMS.memberSessionDetail = &memberSessionDetail{}
+	if err = _ResponseUnmarshal(tempMS.memberSessionDetail, resp); err != nil {
 		return
 	}
-	ms = MemberSession
-	ms.memberSessionDetail = memberSessionDetail
+	ms = tempMS
 	return
 }
 
