@@ -68,8 +68,8 @@ func _MobileURL(URL string) string {
 	return URL
 }
 
-func _Emptysession() *Guestsession {
-	return &Guestsession{
+func _Emptysession() *GuestSession {
+	return &GuestSession{
 		conn: &Connection{},
 	}
 }
