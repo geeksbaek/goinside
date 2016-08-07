@@ -21,8 +21,18 @@ import (
 
 // regex
 var (
-	urlRe           = regexp.MustCompile(`id=([^&]+)(?:&no=(\d+))?`)
+	urlRe = regexp.MustCompile(`id=([^&]+)(?:&no=(\d+))?`)
+)
+
+// errors
+var (
 	errUnknownCause = errors.New("result false with empty cause")
+)
+
+// formatting
+const (
+	mobileGalleryURLFormat = "http://m.dcinside.com/list.php?id=%v"
+	mobileArticleURLFormat = "http://m.dcinside.com/view.php?id=%v&no=%v"
 )
 
 var (
@@ -54,15 +64,21 @@ func _ParseArticleNumber(URL string) string {
 	return ""
 }
 
+func _IDToURL(id string) string {
+	return fmt.Sprintf(mobileGalleryURLFormat, id)
+}
+
+func _IDAndNumberToURL(id, number string) string {
+	return fmt.Sprintf(mobileArticleURLFormat, id, number)
+}
+
 func _MobileURL(URL string) string {
 	if matched := urlRe.FindStringSubmatch(URL); len(matched) > 0 {
 		switch {
 		case len(matched) == 2 || (len(matched) >= 3 && matched[2] == ""):
-			return fmt.Sprintf("http://m.dcinside.com/list.php?id=%s",
-				matched[1])
+			return _IDToURL(matched[1])
 		case len(matched) >= 3:
-			return fmt.Sprintf("http://m.dcinside.com/view.php?id=%s&no=%s",
-				matched[1], matched[2])
+			return _IDAndNumberToURL(matched[1], matched[2])
 		}
 	}
 	return URL
@@ -74,7 +90,7 @@ func _Emptysession() *GuestSession {
 	}
 }
 
-func _NewMobiledDocument(URL string) (*goquery.Document, error) {
+func _NewMobileDocument(URL string) (*goquery.Document, error) {
 	resp, err := get(_Emptysession(), URL)
 	if err != nil {
 		return nil, err
@@ -109,7 +125,6 @@ func _ResponseUnmarshal(data interface{}, resp *http.Response) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(body))
 	body = []byte(strings.Trim(string(body), "[]"))
 	if err := json.Unmarshal(body, data); err != nil {
 		return err

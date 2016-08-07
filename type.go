@@ -3,13 +3,13 @@ package goinside
 import "io"
 
 type session interface {
-	connection() *Connection
 	articleWriteForm(*ArticleDraft) (form io.Reader, contentType string)
 	articleDeleteForm(*Article) (form io.Reader, contentType string)
 	commentWriteForm(*CommentDraft) (form io.Reader, contentType string)
 	commentDeleteForm(*Comment) (form io.Reader, contentType string)
 	actionForm(*Article) (form io.Reader, contentType string)
 	reportForm(string, string) (form io.Reader, contentType string)
+	connector
 }
 
 // AuthorInfo 구조체는 글쓴이의 정보를 표현합니다.
@@ -44,26 +44,6 @@ type GalleryInfo struct {
 type GalleryInfoDetail struct {
 	Name string
 }
-
-// type Comments []*Comment
-
-// func (cs Comments) String() string {
-// 	var buf bytes.Buffer
-// 	for _, c := range cs {
-// 		fmt.Fprintln(&buf, c)
-// 	}
-// 	return buf.String()
-// }
-
-// type Articles []*Article
-
-// func (as Articles) String() string {
-// 	var buf bytes.Buffer
-// 	for _, a := range as {
-// 		fmt.Fprintln(&buf, a)
-// 	}
-// 	return buf.String()
-// }
 
 type _JSONResponse struct {
 	Result bool

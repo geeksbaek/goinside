@@ -37,7 +37,7 @@ func FetchGallerys() (galls []*GalleryInfo, err error) {
 // FetchList 함수는 해당 갤러리의 해당 페이지에 있는 모든 글의 목록을 가져옵니다.
 func FetchList(URL string, page int) (l *List, err error) {
 	URL = fmt.Sprintf("http://m.dcinside.com/list.php?id=%s&page=%d", _ParseGallID(URL), page)
-	doc, err := _NewMobiledDocument(URL)
+	doc, err := _NewMobileDocument(URL)
 	if err != nil {
 		return
 	}
@@ -161,7 +161,7 @@ func _ListArticleCommentCount(s *goquery.Selection) int {
 
 // FetchArticle 함수는 해당 글의 정보를 가져옵니다.
 func FetchArticle(URL string) (a *Article, err error) {
-	doc, err := _NewMobiledDocument(URL)
+	doc, err := _NewMobileDocument(URL)
 	if err != nil {
 		return
 	}
@@ -353,7 +353,7 @@ func _ArticleComments(s *goquery.Selection, gall *GalleryInfo, parents *Article)
 		maxPage, _ = strconv.Atoi(strings.TrimSpace(splited[1]))
 		for i := 2; i <= maxPage; i++ {
 			URL := fmt.Sprintf(`%s?id=%s&no=%s&com_page=%d`, commentMoreURL, gall.ID, parents.Number, i)
-			newS, err := _NewMobiledDocument(URL)
+			newS, err := _NewMobileDocument(URL)
 			if err != nil {
 				continue
 			}
