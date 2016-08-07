@@ -31,8 +31,7 @@ func (gs *GuestSession) connection() *Connection {
 	return gs.conn
 }
 
-// Write 메소드는 쓰기 가능한 객체를 전달받아 작성 요청을 보내고,
-// 삭제 가능한 작성된 객체를 반환합니다.
+// Write 메소드는 쓰기 가능한 객체를 전달받아 작성 요청을 보냅니다.
 func (gs *GuestSession) Write(wa writable) error {
 	return wa.write(gs)
 }
