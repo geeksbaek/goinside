@@ -38,7 +38,7 @@ func (gs *GuestSession) Write(wa writable) error {
 
 func (gs *GuestSession) articleWriteForm(ad *ArticleDraft) (io.Reader, string) {
 	return _MultipartForm(map[string]string{
-		"app_id":   appID,
+		"app_id":   AppID,
 		"mode":     "write",
 		"name":     gs.id,
 		"password": gs.pw,
@@ -50,7 +50,7 @@ func (gs *GuestSession) articleWriteForm(ad *ArticleDraft) (io.Reader, string) {
 
 func (gs *GuestSession) commentWriteForm(cd *CommentDraft) (io.Reader, string) {
 	return _Form(map[string]string{
-		"app_id":       appID,
+		"app_id":       AppID,
 		"comment_nick": gs.id,
 		"comment_pw":   gs.pw,
 		"id":           cd.Target.Gall.ID,
@@ -71,7 +71,7 @@ func (gs *GuestSession) Delete(da deletable) error {
 
 func (gs *GuestSession) articleDeleteForm(a *Article) (io.Reader, string) {
 	return _Form(map[string]string{
-		"app_id":   appID,
+		"app_id":   AppID,
 		"mode":     "board_del",
 		"write_pw": gs.pw,
 		"id":       a.Gall.ID,
@@ -81,7 +81,7 @@ func (gs *GuestSession) articleDeleteForm(a *Article) (io.Reader, string) {
 
 func (gs *GuestSession) commentDeleteForm(c *Comment) (io.Reader, string) {
 	return _Form(map[string]string{
-		"app_id":     appID,
+		"app_id":     AppID,
 		"comment_pw": gs.pw,
 		"id":         c.Parents.Gall.ID,
 		"no":         c.Parents.Number,
@@ -105,7 +105,7 @@ func (gs *GuestSession) ThumbsDown(a *Article) error {
 
 func (gs *GuestSession) actionForm(a *Article) (io.Reader, string) {
 	return _Form(map[string]string{
-		"app_id": appID,
+		"app_id": AppID,
 		"id":     a.Gall.ID,
 		"no":     a.Number,
 	}), nonCharsetContentType
@@ -130,6 +130,6 @@ func (gs *GuestSession) reportForm(URL, memo string) (io.Reader, string) {
 		"memo":     _Must(url.QueryUnescape(memo)),
 		"no":       _ParseArticleNumber(URL),
 		"id":       _ParseGallID(URL),
-		"app_id":   appID,
+		"app_id":   AppID,
 	}), nonCharsetContentType
 }

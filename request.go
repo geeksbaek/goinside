@@ -13,7 +13,7 @@ const (
 
 // api urls
 const (
-	appID            = "blM1T09mWjRhQXlZbE1ML21xbkM3QT09"
+	AppID            = "blM1T09mWjRhQXlZbE1ML21xbkM3QT09"
 	loginAPI         = "https://dcid.dcinside.com/join/mobile_app_login.php"
 	articleWriteAPI  = "http://upload.dcinside.com/_app_write_api.php"
 	articleDeleteAPI = "http://m.dcinside.com/api/gall_del.php"
