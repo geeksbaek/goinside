@@ -2,6 +2,7 @@ package gallog
 
 import (
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -42,14 +43,14 @@ var (
 	}
 )
 
-func api(URL string, form io.Reader) (*http.Response, error) {
+func api(URL string, form io.Reader) *http.Response {
 	return do("POST", URL, nil, form, apiRequestHeader)
 }
 
-func do(method, URL string, cookies []*http.Cookie, form io.Reader, requestHeader map[string]string) (*http.Response, error) {
+func do(method, URL string, cookies []*http.Cookie, form io.Reader, requestHeader map[string]string) *http.Response {
 	req, err := http.NewRequest(method, URL, form)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	for _, cookie := range cookies {
 		req.AddCookie(cookie)
@@ -59,5 +60,13 @@ func do(method, URL string, cookies []*http.Cookie, form io.Reader, requestHeade
 		req.Header.Set(k, v)
 	}
 	client := &http.Client{}
-	return client.Do(req)
+
+	for i := 1; ; i++ {
+		if resp, err := client.Do(req); err == nil {
+			return resp
+		}
+		if i > 100 {
+			log.Println(URL, i, "번 째 시도 중...")
+		}
+	}
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"testing"
 )
 
 type tempAuth struct {
@@ -26,35 +25,23 @@ func readAuth(path string) (auth *tempAuth) {
 	return
 }
 
-func TestGallogLogin(t *testing.T) {
-	auth := readAuth("../auth.json")
-	s, err := Login(auth.ID, auth.PW)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(s.cookies)
-}
+// func TestGallogLogin(t *testing.T) {
+// 	auth := readAuth("../auth.json")
+// 	s, err := Login(auth.ID, auth.PW)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	fmt.Println(s.cookies)
+// }
 
-func TestFetchGallogArticle(t *testing.T) {
-	auth := readAuth("../auth.json")
-	s, err := Login(auth.ID, auth.PW)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	as := s.FetchAllArticle()
-	s.DeleteArticle(as)
-	fmt.Println("done.")
-}
-
-func TestFetchGallogComment(t *testing.T) {
+func ExampleFetch() {
 	auth := readAuth("../auth.json")
 	s, err := Login(auth.ID, auth.PW)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	cs := s.FetchAllComment()
-	s.DeleteComment(cs)
-	fmt.Println("done.")
+	data := s.FetchAll()
+	fmt.Println("article num :", len(data.as))
+	fmt.Println("comment num :", len(data.cs))
 }

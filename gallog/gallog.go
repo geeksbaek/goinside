@@ -1,15 +1,35 @@
 package gallog
 
 import (
-	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
+	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/geeksbaek/goinside"
+)
+
+const (
+	maxConcurrentRequestCount = 100
+
+	articleSelectorQuery = `td[valign='top'] td[colspan='2'] table tr:not(:first-child)`
+	commentSelectorQuery = `td[colspan='2'][align='center'] td[colspan='2'] table tr:not(:first-child)`
+
+	gallogURLFormat = "http://gallog.dcinside.com/inc/_mainGallog.php?gid=%v&page=%v&rpage=%v"
+)
+
+var (
+	gallogArticleURLRe = regexp.MustCompile(`gid=([^&]+)&cid=([^&]+)&page=.*&pno=([^&]+)&logNo=([^&]+)&mode=([^&']+)`)
+	gallogCommentURLRe = regexp.MustCompile(`gid=([^&]+)&cid=.*&id=&no=([^&]+)&c_no=([^&]+)&logNo=([^&]+)&rpage=.*`)
+	gallIDRe           = regexp.MustCompile(`<INPUT TYPE="hidden" NAME="id" value=(?:"|')(.+)(?:"|')>`)
+	secretRe           = regexp.MustCompile(`<INPUT TYPE="hidden" NAME=".*" id=(?:"|')([^'"]+)(?:"|') value=(?:"|')([^'"]{10,})(?:"|')>`)
+	cidRe              = regexp.MustCompile(`<INPUT TYPE="hidden" NAME="cid" value="([^"]+)">`)
 )
 
 // Session 구조체는 갤로그에 접속하기 위한 세션을 표현합니다.
@@ -28,42 +48,155 @@ func Login(id, pw string) (s *Session, err error) {
 		"user_id":  id,
 		"password": pw,
 	})
-	resp, err := do("POST", desktopLoginURL, nil, form, desktopRequestHeader)
-	if err != nil {
-		return
-	}
+	resp := do("POST", desktopLoginURL, nil, form, desktopRequestHeader)
 	ms, err := goinside.Login(id, pw)
 	if err != nil {
-		return
+		log.Fatal(err)
 	}
-	s = &Session{
-		id:                  id,
-		pw:                  pw,
-		cookies:             resp.Cookies(),
-		MemberSessionDetail: ms.MemberSessionDetail,
-	}
+	s = &Session{id, pw, resp.Cookies(), ms.MemberSessionDetail}
 	return
 }
 
 // Logout 함수는 갤로그 세션을 종료합니다.
 func (s *Session) Logout() (err error) {
-	_, err = do("GET", desktopLogoutURL, s.cookies, nil, desktopRequestHeader)
+	do("GET", desktopLogoutURL, s.cookies, nil, desktopRequestHeader)
 	return
 }
 
-// ArticleMicroInfo 구조체는 글 삭제를 위해 필요한 최소한의 정보를 표현합니다.
-type ArticleMicroInfo struct {
+type articleMicroInfo struct {
 	gid, cid, pno, logNo, mode string
 }
 
-func (a *ArticleMicroInfo) delete(s *Session) {
-	// first, get gall dcinside
-	gallID, _, secretKey, secretVal, err := s._FetchDetails(a)
-	if err != nil && err != errParseGallogSecreyKeyPair {
-		return
-	}
+type commentMicroInfo struct {
+	gid, no, cno, logNo string
+}
 
-	// second, delete real article
+type GallogDataSet struct {
+	as []*articleMicroInfo
+	cs []*commentMicroInfo
+}
+
+func _ParseArticle(doc *goquery.Document) (as []*articleMicroInfo) {
+	as = []*articleMicroInfo{}
+	doc.Find(articleSelectorQuery).Each(func(i int, s *goquery.Selection) {
+		data, _ := s.Find(`img`).Attr(`onclick`)
+		if data != "" {
+			as = append(as, _ParseGallogArticleURL(data))
+		}
+	})
+	return
+}
+
+func _ParseGallogArticleURL(URL string) *articleMicroInfo {
+	matched := gallogArticleURLRe.FindStringSubmatch(URL)
+	return &articleMicroInfo{matched[1], matched[2], matched[3], matched[4], matched[5]}
+}
+
+func _ParseComment(doc *goquery.Document) (cs []*commentMicroInfo) {
+	cs = []*commentMicroInfo{}
+	doc.Find(commentSelectorQuery).Each(func(i int, s *goquery.Selection) {
+		data, _ := s.Find(`td[width='22'] span`).Attr(`onclick`)
+		if data != "" {
+			cs = append(cs, _ParseGallogCommentURL(data))
+		}
+	})
+	return
+}
+
+func _ParseGallogCommentURL(URL string) *commentMicroInfo {
+	matched := gallogCommentURLRe.FindStringSubmatch(URL)
+	return &commentMicroInfo{matched[1], matched[2], matched[3], matched[4]}
+}
+
+func _MakeGallogURL(gid string, page int) string {
+	return fmt.Sprintf(gallogURLFormat, gid, page, page)
+}
+
+func _NewGallogDocument(s *Session, URL string) *goquery.Document {
+	resp := do("GET", URL, s.cookies, nil, gallogRequestHeader)
+	doc, err := goquery.NewDocumentFromResponse(resp)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return doc
+}
+
+func (s *Session) FetchAll() (data *GallogDataSet) {
+	max := maxConcurrentRequestCount
+	data = &GallogDataSet{[]*articleMicroInfo{}, []*commentMicroInfo{}}
+
+	// maxConcurrentRequestCount 값만큼 동시에 수행한다.
+	for i := 1; ; i += max {
+		tempASs := make([][]*articleMicroInfo, max)
+		tempCSs := make([][]*commentMicroInfo, max)
+
+		// fetching
+		wg := new(sync.WaitGroup)
+		wg.Add(max)
+		for page := i; page < max+i; page++ {
+			URL := _MakeGallogURL(s.id, page)
+			index := page - i
+			go func() {
+				defer wg.Done()
+				doc := _NewGallogDocument(s, URL)
+				tempASs[index] = _ParseArticle(doc)
+				tempCSs[index] = _ParseComment(doc)
+			}()
+		}
+		wg.Wait()
+
+		// check end of page and append to data
+		articleDone, commentDone := false, false
+		for _, tempAS := range tempASs {
+			if len(tempAS) == 0 {
+				articleDone = true
+				break
+			}
+			data.as = append(data.as, tempAS...)
+		}
+		for _, tempCS := range tempCSs {
+			if len(tempCS) == 0 {
+				commentDone = true
+				break
+			}
+			data.cs = append(data.cs, tempCS...)
+		}
+		if articleDone && commentDone {
+			break
+		}
+	}
+	return
+}
+
+func (s *Session) DeleteAll(data *GallogDataSet) {
+	max := maxConcurrentRequestCount
+	wg := new(sync.WaitGroup)
+	for i, a := range data.as {
+		wg.Add(1)
+		go func(a *articleMicroInfo) {
+			defer wg.Done()
+			a.delete(s)
+		}(a)
+		if i%max == 0 {
+			wg.Wait()
+		}
+	}
+	wg.Wait()
+	for i, c := range data.cs {
+		wg.Add(1)
+		go func(c *commentMicroInfo) {
+			defer wg.Done()
+			c.delete(s)
+		}(c)
+		if i%max == 0 {
+			wg.Wait()
+		}
+	}
+	wg.Wait()
+}
+
+func (a *articleMicroInfo) delete(s *Session) {
+	gallID, _, key, value := s.fetchDetail(a)
 	api(articleDeleteAPI, _Form(map[string]string{
 		"app_id":  goinside.AppID,
 		"user_id": s.UserID,
@@ -71,61 +204,24 @@ func (a *ArticleMicroInfo) delete(s *Session) {
 		"id":      gallID,
 		"mode":    "board_del",
 	}))
-
-	// third, delete article log
-	form := _Form(map[string]string{
-		"rb":      "",
-		"dTp":     "1",
-		"gid":     a.gid,
-		"cid":     a.cid,
-		"page":    "",
-		"pno":     a.pno,
-		"no":      a.pno,
-		"logNo":   a.logNo,
-		"id":      gallID,
-		"nate":    "",
-		secretKey: secretVal,
-	})
-	do("POST", deleteArticleLogURL, s.cookies, form, gallogRequestHeader)
+	do("POST", deleteArticleLogURL, s.cookies, _Form(map[string]string{
+		"dTp":   "1",
+		"gid":   a.gid,
+		"cid":   a.cid,
+		"pno":   a.pno,
+		"no":    a.pno,
+		"logNo": a.logNo,
+		"id":    gallID,
+		key:     value,
+		// "rb":    "",
+		// "page":  "",
+		// "nate":  "",
+	}), gallogRequestHeader)
 }
 
-// FetchAllArticle 함수는 해당 갤로그의 모든 글을 가져옵니다.
-func (s *Session) FetchAllArticle() []*ArticleMicroInfo {
-	ds := s.concurrencyFetch(func(URL string) (ds []deletable) {
-		doc, err := _NewGallogDocument(s, URL)
-		if err != nil {
-			log.Fatal(err)
-		}
-		q := `td[valign='top'] td[colspan='2'] table tr:not(:first-child)`
-		doc.Find(q).Each(func(i int, s *goquery.Selection) {
-			data, _ := s.Find(`img`).Attr(`onclick`)
-			ami, err := _ParseGallogArticleURL(data)
-			if err != nil {
-				return
-			}
-			ds = append(ds, deletable(ami))
-		})
-		return
-	}, _GallogArticlePageURL)
-	as := []*ArticleMicroInfo{}
-	for _, d := range ds {
-		as = append(as, d.(*ArticleMicroInfo))
-	}
-	return as
-}
-
-// CommentMicroInfo 구조체는 댓글 삭제를 위해 필요한 최소한의 정보를 표현합니다.
-type CommentMicroInfo struct {
-	gid, no, cno, logNo string
-}
-
-func (c *CommentMicroInfo) delete(s *Session) {
-	gallID, cid, _, _, err := s._FetchDetails(c)
-	if err != nil && err != errParseGallogSecreyKeyPair {
-		return
-	}
-
-	api(commentDeleteAPI, _Form(map[string]string{
+func (c *commentMicroInfo) delete(s *Session) {
+	gallID, cid, key, value := s.fetchDetail(c)
+	api(articleDeleteAPI, _Form(map[string]string{
 		"app_id":     goinside.AppID,
 		"user_id":    s.UserID,
 		"no":         c.no,
@@ -133,142 +229,64 @@ func (c *CommentMicroInfo) delete(s *Session) {
 		"comment_no": c.cno,
 		"mode":       "comment_del",
 	}))
-
-	form := _Form(map[string]string{
-		"rb":    "",
+	do("POST", deleteCommentLogURL, s.cookies, _Form(map[string]string{
 		"dTp":   "1",
 		"gid":   c.gid,
 		"cid":   cid,
-		"page":  "",
-		"pno":   "",
 		"no":    c.no,
 		"c_no":  c.cno,
 		"logNo": c.logNo,
 		"id":    gallID,
-		"nate":  "",
 		"MTg=":  "MTg=",
-	})
-	fmt.Println(form)
-	do("POST", deleteCommentLogURL, s.cookies, form, gallogRequestHeader)
+		key:     value,
+		// "rb":    "",
+		// "page":  "",
+		// "pno":   "",
+		// "nate":  "",
+	}), gallogRequestHeader)
 }
 
-// FetchAllComment 함수는 해당 갤로그의 모든 댓글을 가져옵니다.
-func (s *Session) FetchAllComment() []*CommentMicroInfo {
-	ds := s.concurrencyFetch(func(URL string) (ds []deletable) {
-		doc, err := _NewGallogDocument(s, URL)
-		if err != nil {
-			log.Fatal(err)
-		}
-		q := `td[colspan='2'][align='center'] td[colspan='2'] table tr:not(:first-child)`
-		doc.Find(q).Each(func(i int, s *goquery.Selection) {
-			data, _ := s.Find(`td[width='22'] span`).Attr(`onclick`)
-			cmi, err := _ParseGallogCommentURL(data)
-			if err != nil {
-				return
-			}
-			ds = append(ds, deletable(cmi))
-		})
-		return
-	}, _GallogCommentPageURL)
-	cs := []*CommentMicroInfo{}
-	for _, d := range ds {
-		cs = append(cs, d.(*CommentMicroInfo))
+type detailer interface {
+	fetchDetail() string
+}
+
+func (a *articleMicroInfo) fetchDetail() (URL string) {
+	format := "http://gallog.dcinside.com/inc/_deleteLog.php?gid=%v&cid=%v&page=&pno=%v&logNo=%v&mode=%v"
+	URL = fmt.Sprintf(format, a.gid, a.cid, a.pno, a.logNo, a.mode)
+	return
+}
+
+func (c *commentMicroInfo) fetchDetail() (URL string) {
+	format := "http://gallog.dcinside.com/inc/_deleteLog.php?gid=%v&cid=%v&page=&pno=%v&logNo=%v&mode=%v"
+	URL = fmt.Sprintf(format, c.gid, c.no, c.cno, c.logNo)
+	return
+}
+
+func (s *Session) fetchDetail(d detailer) (gallID, cid, key, val string) {
+	resp := do("GET", d.fetchDetail(), s.cookies, nil, gallogRequestHeader)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
 	}
-	return cs
-}
-
-const (
-	maxConcurrentRequestCount = 100
-)
-
-func (s *Session) concurrencyFetch(fetcher func(string) []deletable, URL func(string, int) string) (ds []deletable) {
-	ds = []deletable{}
-Loop:
-	for i := 1; ; i += maxConcurrentRequestCount {
-		tempDSS := make([][]deletable, maxConcurrentRequestCount)
-		wg := new(sync.WaitGroup)
-		wg.Add(maxConcurrentRequestCount)
-		for j := i; j < i+maxConcurrentRequestCount; j++ {
-			URL := URL(s.id, j)
-			go func(page int) {
-				defer wg.Done()
-				tempDSS[page-i] = fetcher(URL)
-			}(j)
-		}
-		wg.Wait()
-
-		for _, tempDS := range tempDSS {
-			if len(tempDS) == 0 {
-				break Loop
-			}
-			ds = append(ds, tempDS...)
-		}
+	// gall ID
+	if matched := gallIDRe.FindSubmatch(body); len(matched) == 2 {
+		gallID = string(matched[1])
+	}
+	// secret key, value
+	if matched := secretRe.FindSubmatch(body); len(matched) == 3 {
+		key, val = string(matched[1]), string(matched[2])
+	}
+	// cid
+	if matched := cidRe.FindSubmatch(body); len(matched) == 2 {
+		cid = string(matched[1])
 	}
 	return
 }
 
-type deletable interface {
-	delete(*Session)
-}
-
-// DeleteArticle 함수는 삭제 가능한 객체를 전달받아 모두 삭제합니다.
-func (s *Session) DeleteArticle(as []*ArticleMicroInfo) {
-	wg := new(sync.WaitGroup)
-	wg.Add(len(as))
-	for _, a := range as {
-		go func(a *ArticleMicroInfo) {
-			defer wg.Done()
-			a.delete(s)
-		}(a)
+func _Form(m map[string]string) io.Reader {
+	data := url.Values{}
+	for k, v := range m {
+		data.Set(k, v)
 	}
-	wg.Wait()
-}
-
-// DeleteComment 함수는 삭제 가능한 객체를 전달받아 모두 삭제합니다.
-func (s *Session) DeleteComment(cs []*CommentMicroInfo) {
-	wg := new(sync.WaitGroup)
-	wg.Add(len(cs))
-	for _, c := range cs {
-		go func(c *CommentMicroInfo) {
-			defer wg.Done()
-			c.delete(s)
-		}(c)
-	}
-	wg.Wait()
-}
-
-func (s *Session) _FetchDetails(i interface{}) (id, cid, key, val string, err error) {
-	var URL string
-	switch t := i.(type) {
-	case *ArticleMicroInfo:
-		URL = _GallogArticleDetailURL(t)
-	case *CommentMicroInfo:
-		URL = _GallogCommentDetailURL(t)
-	default:
-		err = errors.New("unknown type")
-		return
-	}
-
-	resp, err := do("GET", URL, s.cookies, nil, gallogRequestHeader)
-	if err != nil {
-		return
-	}
-	_body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-	body := string(_body)
-	id, err = _ParseGallogGallID(body)
-	if err != nil {
-		return
-	}
-	cid, err = _ParseGallogCID(body)
-	if err != nil {
-		return
-	}
-	key, val, err = _ParseGallogSecretKeyPair(body)
-	if err != nil {
-		return
-	}
-	return
+	return strings.NewReader(data.Encode())
 }
