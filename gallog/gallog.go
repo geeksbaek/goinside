@@ -28,7 +28,7 @@ var (
 	gallogArticleURLRe = regexp.MustCompile(`gid=([^&]+)&cid=([^&]+)&page=.*&pno=([^&]+)&logNo=([^&]+)&mode=([^&']+)`)
 	gallogCommentURLRe = regexp.MustCompile(`gid=([^&]+)&cid=.*&id=&no=([^&]+)&c_no=([^&]+)&logNo=([^&]+)&rpage=.*`)
 	gallIDRe           = regexp.MustCompile(`<INPUT TYPE="hidden" NAME="id" value=(?:"|')(.+)(?:"|')>`)
-	secretRe           = regexp.MustCompile(`<INPUT TYPE="hidden" NAME=".*" id=(?:"|')([^'"]+)(?:"|') value=(?:"|')([^'"]{10,})(?:"|')>`)
+	secretRe           = regexp.MustCompile(`<INPUT TYPE="hidden" NAME=".*" id=(?:"|')([^'"]+)(?:"|') value=(?:"|')([^'"]{4,})(?:"|')>`)
 	cidRe              = regexp.MustCompile(`<INPUT TYPE="hidden" NAME="cid" value="([^"]+)">`)
 )
 
@@ -237,7 +237,6 @@ func (c *commentMicroInfo) delete(s *Session) {
 		"c_no":  c.cno,
 		"logNo": c.logNo,
 		"id":    gallID,
-		"MTg=":  "MTg=",
 		key:     value,
 		// "rb":    "",
 		// "page":  "",
@@ -257,7 +256,7 @@ func (a *articleMicroInfo) fetchDetail() (URL string) {
 }
 
 func (c *commentMicroInfo) fetchDetail() (URL string) {
-	format := "http://gallog.dcinside.com/inc/_deleteLog.php?gid=%v&cid=%v&page=&pno=%v&logNo=%v&mode=%v"
+	format := "http://gallog.dcinside.com/inc/_deleteLogRep.php?gid=%v&cid=&id=&no=%v&c_no=%v&logNo=%v&rpage="
 	URL = fmt.Sprintf(format, c.gid, c.no, c.cno, c.logNo)
 	return
 }
