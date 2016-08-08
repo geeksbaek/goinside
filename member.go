@@ -10,10 +10,10 @@ type MemberSession struct {
 	id   string
 	pw   string
 	conn *Connection
-	*memberSessionDetail
+	*MemberSessionDetail
 }
 
-type memberSessionDetail struct {
+type MemberSessionDetail struct {
 	UserID string `json:"user_id"`
 	UserNO string `json:"user_no"`
 	Name   string `json:"name"`
@@ -37,8 +37,8 @@ func Login(id, pw string) (ms *MemberSession, err error) {
 	if err != nil {
 		return
 	}
-	tempMS.memberSessionDetail = &memberSessionDetail{}
-	if err = _ResponseUnmarshal(tempMS.memberSessionDetail, resp); err != nil {
+	tempMS.MemberSessionDetail = &MemberSessionDetail{}
+	if err = _ResponseUnmarshal(tempMS.MemberSessionDetail, resp); err != nil {
 		return
 	}
 	ms = tempMS
