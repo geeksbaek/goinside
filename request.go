@@ -5,13 +5,13 @@ import (
 	"net/http"
 )
 
-// web urls
+// urls
 const (
 	gallerysURL    = "http://m.dcinside.com/category_gall_total.html"
 	commentMoreURL = "http://m.dcinside.com/comment_more_new.php"
 )
 
-// api urls
+// apis
 const (
 	AppID            = "blM1T09mWjRhQXlZbE1ML21xbkM3QT09"
 	loginAPI         = "https://dcid.dcinside.com/join/mobile_app_login.php"
