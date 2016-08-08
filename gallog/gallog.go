@@ -178,7 +178,7 @@ func (s *Session) FetchAllComment() []*CommentMicroInfo {
 }
 
 const (
-	maxConcurrentRequestCount = 10
+	maxConcurrentRequestCount = 100
 )
 
 func (s *Session) concurrencyFetch(fetcher func(string) []deletable, URL func(string, int) string) (ds []deletable) {
@@ -189,12 +189,11 @@ Loop:
 		wg := new(sync.WaitGroup)
 		wg.Add(maxConcurrentRequestCount)
 		for j := i; j < i+maxConcurrentRequestCount; j++ {
-			page := j
 			URL := URL(s.id, j)
-			go func() {
+			go func(page int) {
 				defer wg.Done()
-				tempDSS[page-1] = fetcher(URL)
-			}()
+				tempDSS[page-i] = fetcher(URL)
+			}(j)
 		}
 		wg.Wait()
 

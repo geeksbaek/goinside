@@ -55,7 +55,6 @@ func TestFetchGallogComment(t *testing.T) {
 	}
 
 	cs := s.FetchAllComment()
-	fmt.Println(len(cs))
 	s.DeleteComment(cs)
 	fmt.Println("done.")
 }
