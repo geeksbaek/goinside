@@ -72,8 +72,8 @@ type commentMicroInfo struct {
 }
 
 type GallogDataSet struct {
-	as []*articleMicroInfo
-	cs []*commentMicroInfo
+	As []*articleMicroInfo
+	Cs []*commentMicroInfo
 }
 
 func _ParseArticle(doc *goquery.Document) (as []*articleMicroInfo) {
@@ -152,14 +152,14 @@ func (s *Session) FetchAll() (data *GallogDataSet) {
 				articleDone = true
 				break
 			}
-			data.as = append(data.as, tempAS...)
+			data.As = append(data.As, tempAS...)
 		}
 		for _, tempCS := range tempCSs {
 			if len(tempCS) == 0 {
 				commentDone = true
 				break
 			}
-			data.cs = append(data.cs, tempCS...)
+			data.Cs = append(data.Cs, tempCS...)
 		}
 		if articleDone && commentDone {
 			break
@@ -171,7 +171,7 @@ func (s *Session) FetchAll() (data *GallogDataSet) {
 func (s *Session) DeleteAll(data *GallogDataSet) {
 	max := maxConcurrentRequestCount
 	wg := new(sync.WaitGroup)
-	for i, a := range data.as {
+	for i, a := range data.As {
 		wg.Add(1)
 		go func(a *articleMicroInfo) {
 			defer wg.Done()
@@ -182,7 +182,7 @@ func (s *Session) DeleteAll(data *GallogDataSet) {
 		}
 	}
 	wg.Wait()
-	for i, c := range data.cs {
+	for i, c := range data.Cs {
 		wg.Add(1)
 		go func(c *commentMicroInfo) {
 			defer wg.Done()
