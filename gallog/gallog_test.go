@@ -1,47 +1,31 @@
-package gallog
+package gallog_test
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"log"
+	"time"
+
+	"github.com/geeksbaek/goinside/gallog"
 )
 
-type tempAuth struct {
-	ID, PW string
-}
-
-func readAuth(path string) (auth *tempAuth) {
-	data, err := ioutil.ReadFile(path)
+func Example() {
+	s, err := gallog.Login("ID", "PASSWORD")
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println(s.Name, "님. 로그인에 성공하였습니다.")
 
-	auth = &tempAuth{}
-	err = json.Unmarshal(data, auth)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return
-}
-
-// func TestGallogLogin(t *testing.T) {
-// 	auth := readAuth("../auth.json")
-// 	s, err := Login(auth.ID, auth.PW)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println(s.cookies)
-// }
-
-func ExampleFetch() {
-	auth := readAuth("../auth.json")
-	s, err := Login(auth.ID, auth.PW)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	log.Println("모든 글과 댓글을 불러오는 중입니다. 잠시만 기다려주세요.")
+	start := time.Now()
 	data := s.FetchAll()
-	fmt.Println("article num :", len(data.as))
-	fmt.Println("comment num :", len(data.cs))
+
+	log.Printf("글 %v개, 댓글 %v개 ", len(data.As), len(data.Cs))
+	log.Println("불러오기를 완료하였습니다.")
+	log.Println("불러오는 데 걸린 시간 :", time.Since(start))
+
+	log.Println("삭제를 시작합니다. 잠시만 기다려주세요.")
+	middle := time.Now()
+	s.DeleteAll(data)
+
+	log.Println("삭제가 끝났습니다.")
+	log.Println("삭제하는 데 걸린 시간 :", time.Since(middle))
 }
