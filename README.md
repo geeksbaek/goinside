@@ -5,9 +5,9 @@ API에 대한 설명은 [godoc](https://godoc.org/github.com/geeksbaek/goinside)
 
 `go get -u github.com/geeksbaek/goinside/...`
 
-## 2016-08-08
+## 2016-08-09
 
-현재 갤로그 관련 API를 작업 중에 있습니다.
+`github.com/geeksbaek/goinside/gallog `하위 패키지를 추가하고 갤로그 관련 API를 추가하였습니다.
 
 ## 2016-08-07
 
