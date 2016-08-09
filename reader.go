@@ -310,7 +310,7 @@ func _ArticleImages(s *goquery.Selection) (images []string) {
 	body, _ := s.Find(q).Html()
 	body = html.UnescapeString(body)
 	images = []string{}
-	imageRe := regexp.MustCompile(`img.*src="([^"]+)"`)
+	imageRe := regexp.MustCompile(`img[^>]*src="([^"]+)"`)
 	allMatched := imageRe.FindAllStringSubmatch(body, -1)
 	for _, matched := range allMatched {
 		if len(matched) >= 2 {
