@@ -32,7 +32,6 @@ var (
 	cidRe              = regexp.MustCompile(`<INPUT TYPE="hidden" NAME="cid" value="([^"]+)">`)
 )
 
-// Session 구조체는 갤로그에 접속하기 위한 세션을 표현합니다.
 type Session struct {
 	id      string
 	pw      string
@@ -40,7 +39,6 @@ type Session struct {
 	*goinside.MemberSessionDetail
 }
 
-// Login 함수는 로그인 된 갤로그 세션을 반환합니다.
 func Login(id, pw string) (s *Session, err error) {
 	form := _Form(map[string]string{
 		"s_url":    "http://www.dcinside.com/",
@@ -51,13 +49,12 @@ func Login(id, pw string) (s *Session, err error) {
 	resp := do("POST", desktopLoginURL, nil, form, desktopRequestHeader)
 	ms, err := goinside.Login(id, pw)
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 	s = &Session{id, pw, resp.Cookies(), ms.MemberSessionDetail}
 	return
 }
 
-// Logout 함수는 갤로그 세션을 종료합니다.
 func (s *Session) Logout() (err error) {
 	do("GET", desktopLogoutURL, s.cookies, nil, desktopRequestHeader)
 	return
