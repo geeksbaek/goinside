@@ -26,6 +26,7 @@ type Article struct {
 	Gall         *GalleryInfo
 	ArticleIcon  string
 	HasImage     bool
+	IsBest       bool
 	URL          string
 	Number       string
 	Subject      string
