@@ -188,6 +188,7 @@ func FetchArticle(URL string) (a *Article, err error) {
 		Gall:         gall,
 		ArticleIcon:  _ArticleIcon(s),
 		HasImage:     _ArticleHasImage(s),
+		IsBest:       _ArticleIsBest(s),
 		URL:          _ArticleURL(s),
 		Number:       _ArticleNumber(s),
 		Subject:      _ArticleSubject(s),
@@ -276,7 +277,22 @@ func _ArticleIcon(s *goquery.Selection) string {
 }
 
 func _ArticleHasImage(s *goquery.Selection) bool {
-	if icon := _ArticleIcon(s); strings.Contains(icon, "ico_p") {
+	switch _ArticleIcon(s) {
+	case "ico_p_c":
+		return true
+	case "ico_p_y":
+		return true
+	}
+	return false
+}
+
+func _ArticleIsBest(s *goquery.Selection) bool {
+	switch _ArticleIcon(s) {
+	case "ico_p_c":
+		return true
+	case "ico_t_c":
+		return true
+	case "ico_sc":
 		return true
 	}
 	return false
