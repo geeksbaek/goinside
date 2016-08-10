@@ -50,7 +50,7 @@ func (ms *MemberSession) Logout() (err error) {
 	return
 }
 
-func (ms *MemberSession) connection() *Connection {
+func (ms *MemberSession) Connection() *Connection {
 	return ms.conn
 }
 

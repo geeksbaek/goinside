@@ -43,7 +43,7 @@ var (
 )
 
 type connector interface {
-	connection() *Connection
+	Connection() *Connection
 }
 
 func post(c connector, URL string, cookies []*http.Cookie, form io.Reader, contentType string) (*http.Response, error) {
@@ -74,14 +74,14 @@ func do(c connector, method, URL string, cookies []*http.Cookie, form io.Reader,
 		req.Header.Set(k, v)
 	}
 	client := func() *http.Client {
-		proxy := c.connection().proxy
+		proxy := c.Connection().proxy
 		if proxy != nil {
 			return &http.Client{Transport: &http.Transport{Proxy: proxy}}
 		}
 		return &http.Client{}
 	}()
-	if c.connection().timeout != 0 {
-		client.Timeout = c.connection().timeout
+	if c.Connection().timeout != 0 {
+		client.Timeout = c.Connection().timeout
 	}
 	return client.Do(req)
 }

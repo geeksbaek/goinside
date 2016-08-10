@@ -27,7 +27,7 @@ func Guest(id, pw string) (gs *GuestSession, err error) {
 	return
 }
 
-func (gs *GuestSession) connection() *Connection {
+func (gs *GuestSession) Connection() *Connection {
 	return gs.conn
 }
 
