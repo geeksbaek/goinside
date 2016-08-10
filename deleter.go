@@ -1,7 +1,5 @@
 package goinside
 
-import "fmt"
-
 type deletable interface {
 	delete(s session) error
 }
@@ -17,7 +15,6 @@ func (a *Article) delete(s session) error {
 
 func (c *Comment) delete(s session) error {
 	form, contentType := s.commentDeleteForm(c)
-	fmt.Println(form)
 	resp, err := api(s, commentDeleteAPI, form, contentType)
 	if err != nil {
 		return err
