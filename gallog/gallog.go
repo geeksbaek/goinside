@@ -40,7 +40,7 @@ type Session struct {
 }
 
 func Login(id, pw string) (s *Session, err error) {
-	form := _Form(map[string]string{
+	form := makeForm(map[string]string{
 		"s_url":    "http://www.dcinside.com/",
 		"ssl":      "Y",
 		"user_id":  id,
@@ -194,14 +194,14 @@ func (s *Session) DeleteAll(data *GallogDataSet) {
 
 func (a *articleMicroInfo) delete(s *Session) {
 	gallID, _, key, value := s.fetchDetail(a)
-	api(articleDeleteAPI, _Form(map[string]string{
+	api(articleDeleteAPI, makeForm(map[string]string{
 		"app_id":  goinside.AppID,
 		"user_id": s.UserID,
 		"no":      a.pno,
 		"id":      gallID,
 		"mode":    "board_del",
 	}))
-	do("POST", deleteArticleLogURL, s.cookies, _Form(map[string]string{
+	do("POST", deleteArticleLogURL, s.cookies, makeForm(map[string]string{
 		"dTp":   "1",
 		"gid":   a.gid,
 		"cid":   a.cid,
@@ -218,7 +218,7 @@ func (a *articleMicroInfo) delete(s *Session) {
 
 func (c *commentMicroInfo) delete(s *Session) {
 	gallID, cid, key, value := s.fetchDetail(c)
-	api(articleDeleteAPI, _Form(map[string]string{
+	api(articleDeleteAPI, makeForm(map[string]string{
 		"app_id":     goinside.AppID,
 		"user_id":    s.UserID,
 		"no":         c.no,
@@ -226,7 +226,7 @@ func (c *commentMicroInfo) delete(s *Session) {
 		"comment_no": c.cno,
 		"mode":       "comment_del",
 	}))
-	do("POST", deleteCommentLogURL, s.cookies, _Form(map[string]string{
+	do("POST", deleteCommentLogURL, s.cookies, makeForm(map[string]string{
 		"dTp":   "1",
 		"gid":   c.gid,
 		"cid":   cid,
@@ -279,7 +279,7 @@ func (s *Session) fetchDetail(d detailer) (gallID, cid, key, val string) {
 	return
 }
 
-func _Form(m map[string]string) io.Reader {
+func makeForm(m map[string]string) io.Reader {
 	data := url.Values{}
 	for k, v := range m {
 		data.Set(k, v)

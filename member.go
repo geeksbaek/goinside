@@ -24,7 +24,7 @@ type MemberSessionDetail struct {
 
 // Login 함수는 고정닉 세션을 반환합니다.
 func Login(id, pw string) (ms *MemberSession, err error) {
-	form := _Form(map[string]string{
+	form := makeForm(map[string]string{
 		"user_id": id,
 		"user_pw": pw,
 	})
@@ -38,7 +38,8 @@ func Login(id, pw string) (ms *MemberSession, err error) {
 		return
 	}
 	tempMS.MemberSessionDetail = &MemberSessionDetail{}
-	if err = _ResponseUnmarshal(tempMS.MemberSessionDetail, resp); err != nil {
+	err = responseUnmarshal(tempMS.MemberSessionDetail, resp)
+	if err != nil {
 		return
 	}
 	ms = tempMS
@@ -47,10 +48,14 @@ func Login(id, pw string) (ms *MemberSession, err error) {
 
 // Logout 메소드는 해당 고정닉 세션을 종료합니다.
 func (ms *MemberSession) Logout() (err error) {
+	ms = nil
 	return
 }
 
 func (ms *MemberSession) Connection() *Connection {
+	if ms.conn == nil {
+		ms.conn = &Connection{}
+	}
 	return ms.conn
 }
 
@@ -60,7 +65,7 @@ func (ms *MemberSession) Write(wa writable) error {
 }
 
 func (ms *MemberSession) articleWriteForm(ad *ArticleDraft) (io.Reader, string) {
-	return _MultipartForm(map[string]string{
+	return multipartForm(map[string]string{
 		"app_id":  AppID,
 		"mode":    "write",
 		"user_id": ms.UserID,
@@ -71,7 +76,7 @@ func (ms *MemberSession) articleWriteForm(ad *ArticleDraft) (io.Reader, string) 
 }
 
 func (ms *MemberSession) commentWriteForm(cd *CommentDraft) (io.Reader, string) {
-	return _Form(map[string]string{
+	return makeForm(map[string]string{
 		"app_id":       AppID,
 		"user_id":      ms.UserID,
 		"id":           cd.Target.Gall.ID,
@@ -87,7 +92,7 @@ func (ms *MemberSession) Delete(da deletable) error {
 }
 
 func (ms *MemberSession) articleDeleteForm(a *Article) (io.Reader, string) {
-	return _Form(map[string]string{
+	return makeForm(map[string]string{
 		"app_id":  AppID,
 		"user_id": ms.UserID,
 		"no":      a.Number,
@@ -97,13 +102,13 @@ func (ms *MemberSession) articleDeleteForm(a *Article) (io.Reader, string) {
 }
 
 func (ms *MemberSession) commentDeleteForm(c *Comment) (io.Reader, string) {
-	return _Form(map[string]string{
+	return makeForm(map[string]string{
 		"app_id":     AppID,
 		"user_id":    ms.UserID,
 		"id":         c.Parents.Gall.ID,
 		"no":         c.Parents.Number,
 		"mode":       "comment_del",
-		"comment_no": c.Number, // 아직 고정닉이 작성한 댓글 번호를 가져올 수 없음
+		"comment_no": c.Number,
 	}), defaultContentType
 }
 
@@ -118,7 +123,7 @@ func (ms *MemberSession) ThumbsDown(a *Article) error {
 }
 
 func (ms *MemberSession) actionForm(a *Article) (io.Reader, string) {
-	return _Form(map[string]string{
+	return makeForm(map[string]string{
 		"app_id": AppID,
 		"id":     a.Gall.ID,
 		"no":     a.Number,
@@ -133,16 +138,16 @@ func (ms *MemberSession) Report(a *Article, memo string) error {
 func (ms *MemberSession) reportForm(URL, memo string) (io.Reader, string) {
 	_Must := func(s string, e error) string {
 		if e != nil {
-			panic(e)
+			return ""
 		}
 		return s
 	}
-	return _Form(map[string]string{
+	return makeForm(map[string]string{
 		"confirm_id": ms.UserID,
 		"choice":     "4",
 		"memo":       _Must(url.QueryUnescape(memo)),
-		"no":         _ParseArticleNumber(URL),
-		"id":         _ParseGallID(URL),
+		"no":         articleNumber(URL),
+		"id":         gallID(URL),
 		"app_id":     AppID,
 	}), nonCharsetContentType
 }

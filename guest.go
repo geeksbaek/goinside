@@ -28,6 +28,9 @@ func Guest(id, pw string) (gs *GuestSession, err error) {
 }
 
 func (gs *GuestSession) Connection() *Connection {
+	if gs.conn == nil {
+		gs.conn = &Connection{}
+	}
 	return gs.conn
 }
 
@@ -37,7 +40,7 @@ func (gs *GuestSession) Write(wa writable) error {
 }
 
 func (gs *GuestSession) articleWriteForm(ad *ArticleDraft) (io.Reader, string) {
-	return _MultipartForm(map[string]string{
+	return multipartForm(map[string]string{
 		"app_id":   AppID,
 		"mode":     "write",
 		"name":     gs.id,
@@ -49,7 +52,7 @@ func (gs *GuestSession) articleWriteForm(ad *ArticleDraft) (io.Reader, string) {
 }
 
 func (gs *GuestSession) commentWriteForm(cd *CommentDraft) (io.Reader, string) {
-	return _Form(map[string]string{
+	return makeForm(map[string]string{
 		"app_id":       AppID,
 		"comment_nick": gs.id,
 		"comment_pw":   gs.pw,
@@ -57,10 +60,6 @@ func (gs *GuestSession) commentWriteForm(cd *CommentDraft) (io.Reader, string) {
 		"no":           cd.Target.Number,
 		"comment_memo": cd.Content,
 		"mode":         "comment_nonmember",
-
-		// "best_chk":"N",
-		// "board_id":"whiteking",
-		// "best_comno":"0",
 	}), defaultContentType
 }
 
@@ -70,7 +69,7 @@ func (gs *GuestSession) Delete(da deletable) error {
 }
 
 func (gs *GuestSession) articleDeleteForm(a *Article) (io.Reader, string) {
-	return _Form(map[string]string{
+	return makeForm(map[string]string{
 		"app_id":   AppID,
 		"mode":     "board_del",
 		"write_pw": gs.pw,
@@ -80,17 +79,14 @@ func (gs *GuestSession) articleDeleteForm(a *Article) (io.Reader, string) {
 }
 
 func (gs *GuestSession) commentDeleteForm(c *Comment) (io.Reader, string) {
-	return _Form(map[string]string{
+	return makeForm(map[string]string{
 		"app_id":     AppID,
 		"comment_pw": gs.pw,
 		"id":         c.Parents.Gall.ID,
 		"no":         c.Parents.Number,
 		"mode":       "comment_del",
 		"comment_no": c.Number,
-		// "board_id":   c.Parents.Author.Detail.GallogID,
-		// "best_chk":   "N",
-		// "best_comno": "0",
-	}), nonCharsetContentType
+	}), defaultContentType
 }
 
 // ThumbsUp 메소드는 해당 글에 추천 요청을 보냅니다.
@@ -104,7 +100,7 @@ func (gs *GuestSession) ThumbsDown(a *Article) error {
 }
 
 func (gs *GuestSession) actionForm(a *Article) (io.Reader, string) {
-	return _Form(map[string]string{
+	return makeForm(map[string]string{
 		"app_id": AppID,
 		"id":     a.Gall.ID,
 		"no":     a.Number,
@@ -117,19 +113,19 @@ func (gs *GuestSession) Report(a *Article, memo string) error {
 }
 
 func (gs *GuestSession) reportForm(URL, memo string) (io.Reader, string) {
-	_Must := func(s string, e error) string {
-		if e != nil {
-			panic(e)
+	_Must := func(s string, err error) string {
+		if err != nil {
+			return ""
 		}
 		return s
 	}
-	return _Form(map[string]string{
+	return makeForm(map[string]string{
 		"name":     _Must(url.QueryUnescape(gs.id)),
 		"password": _Must(url.QueryUnescape(gs.pw)),
 		"choice":   "4",
 		"memo":     _Must(url.QueryUnescape(memo)),
-		"no":       _ParseArticleNumber(URL),
-		"id":       _ParseGallID(URL),
+		"no":       articleNumber(URL),
+		"id":       gallID(URL),
 		"app_id":   AppID,
 	}), nonCharsetContentType
 }

@@ -21,7 +21,7 @@ import (
 
 // regex
 var (
-	urlRe = regexp.MustCompile(`id=([^&]+)(?:&no=(\d+))?`)
+	urlRe = regexp.MustCompile(`id=([^&\s]+)(?:&no=([^&\s]+))?(?:&page=([^&\s]+))?`)
 )
 
 // errors
@@ -31,12 +31,14 @@ var (
 
 // formatting
 const (
-	mobileGalleryURLFormat = "http://m.dcinside.com/list.php?id=%v"
-	mobileArticleURLFormat = "http://m.dcinside.com/view.php?id=%v&no=%v"
+	mobileGallURLFormat        = "http://m.dcinside.com/list.php?id=%v"
+	mobileGallURLPageFormat    = "http://m.dcinside.com/list.php?id=%v&page=%v"
+	mobileArticleURLFormat     = "http://m.dcinside.com/view.php?id=%v&no=%v"
+	mobileArticleURLPageFormat = "http://m.dcinside.com/view.php?id=%v&no=%v&page=%v"
 )
 
 var (
-	iconURLMap = map[string]string{
+	ArticleIconURLMap = map[string]string{
 		"ico_p_y": "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_picture.png",
 		"ico_t":   "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_text.png",
 		"ico_p_c": "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_picture_b.png",
@@ -44,61 +46,54 @@ var (
 		"ico_mv":  "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_movie.png",
 		"ico_sc":  "http://nstatic.dcinside.com/dgn/gallery/images/update/sec_icon.png",
 	}
-	gallogIconURLMap = map[string]string{
+	GallogIconURLMap = map[string]string{
 		"fixed": "http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",
 		"flow":  "http://wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif",
 	}
 )
 
-func _ParseGallID(URL string) string {
-	if matched := urlRe.FindStringSubmatch(URL); len(matched) >= 2 {
-		return strings.TrimSpace(matched[1])
-	}
-	return ""
-}
-
-func _ParseArticleNumber(URL string) string {
-	if matched := urlRe.FindStringSubmatch(URL); len(matched) >= 3 {
-		return strings.TrimSpace(matched[2])
-	}
-	return ""
-}
-
-func _IDToURL(id string) string {
-	return fmt.Sprintf(mobileGalleryURLFormat, id)
-}
-
-func _IDAndNumberToURL(id, number string) string {
-	return fmt.Sprintf(mobileArticleURLFormat, id, number)
-}
-
-func _MobileURL(URL string) string {
-	if matched := urlRe.FindStringSubmatch(URL); len(matched) > 0 {
+// ToMobileURL 함수는 주어진 디시인사이드 URL을 모바일 URL로 포맷팅하여 반환합니다.
+func ToMobileURL(URL string) string {
+	if urlRe.MatchString(URL) {
+		matched := urlRe.FindStringSubmatch(URL)
+		id, number, page := matched[1], matched[2], matched[3]
 		switch {
-		case len(matched) == 2 || (len(matched) >= 3 && matched[2] == ""):
-			return _IDToURL(matched[1])
-		case len(matched) >= 3:
-			return _IDAndNumberToURL(matched[1], matched[2])
+		case id != "" && number == "" && page != "": // id, page
+			return fmt.Sprintf(mobileGallURLPageFormat, id, page)
+		case id != "" && number != "" && page == "": // id, number
+			return fmt.Sprintf(mobileArticleURLFormat, id, number)
+		case id != "" && number == "" && page == "": // id
+			return fmt.Sprintf(mobileGallURLFormat, id)
+		case id != "" && number != "" && page != "": // id, number, page
+			return fmt.Sprintf(mobileArticleURLPageFormat, id, number, page)
 		}
 	}
 	return URL
 }
 
-func _Emptysession() *GuestSession {
-	return &GuestSession{
-		conn: &Connection{},
+func gallID(URL string) string {
+	if urlRe.MatchString(URL) == false {
+		return ""
 	}
+	return urlRe.FindStringSubmatch(URL)[1]
 }
 
-func _NewMobileDocument(URL string) (*goquery.Document, error) {
-	resp, err := get(_Emptysession(), URL)
+func articleNumber(URL string) string {
+	if urlRe.MatchString(URL) == false {
+		return ""
+	}
+	return urlRe.FindStringSubmatch(URL)[2]
+}
+
+func newMobileDocument(URL string) (*goquery.Document, error) {
+	resp, err := get(&GuestSession{}, URL)
 	if err != nil {
 		return nil, err
 	}
 	return goquery.NewDocumentFromResponse(resp)
 }
 
-func _Time(s string) time.Time {
+func timeFormatting(s string) time.Time {
 	if len(s) <= 5 {
 		now := time.Now()
 		s = fmt.Sprintf("%04d.%02d.%02d %v", now.Year(), int(now.Month()), now.Day(), s)
@@ -112,15 +107,15 @@ func _Time(s string) time.Time {
 	return time.Time{}
 }
 
-func _CheckResponse(resp *http.Response) error {
+func checkResponse(resp *http.Response) error {
 	jsonResponse := &_JSONResponse{}
-	if err := _ResponseUnmarshal(jsonResponse, resp); err != nil {
+	if err := responseUnmarshal(jsonResponse, resp); err != nil {
 		return err
 	}
-	return _CheckResult(jsonResponse)
+	return checkJSONResult(jsonResponse)
 }
 
-func _ResponseUnmarshal(data interface{}, resp *http.Response) error {
+func responseUnmarshal(data interface{}, resp *http.Response) error {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
@@ -132,7 +127,7 @@ func _ResponseUnmarshal(data interface{}, resp *http.Response) error {
 	return nil
 }
 
-func _CheckResult(jsonResponse *_JSONResponse) error {
+func checkJSONResult(jsonResponse *_JSONResponse) error {
 	if jsonResponse.Result == false {
 		if jsonResponse.Cause != "" {
 			return errors.New(jsonResponse.Cause)
@@ -142,7 +137,7 @@ func _CheckResult(jsonResponse *_JSONResponse) error {
 	return nil
 }
 
-func _Form(m map[string]string) io.Reader {
+func makeForm(m map[string]string) io.Reader {
 	data := url.Values{}
 	for k, v := range m {
 		data.Set(k, v)
@@ -150,18 +145,11 @@ func _Form(m map[string]string) io.Reader {
 	return strings.NewReader(data.Encode())
 }
 
-func _CalcArticleIcon(images []string) string {
-	if len(images) > 0 {
-		return "ico_p_y"
-	}
-	return "ico_t"
-}
-
-func _MultipartForm(m map[string]string, images ...string) (io.Reader, string) {
+func multipartForm(m map[string]string, images ...string) (io.Reader, string) {
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 	if len(images) != 0 {
-		_MultipartImages(w, images...)
+		multipartImages(w, images...)
 		for i := range images {
 			k := fmt.Sprintf("memo_block[%d]", i)
 			m[k] = fmt.Sprintf("Dc_App_Img_%d", i+1)
@@ -170,11 +158,11 @@ func _MultipartForm(m map[string]string, images ...string) (io.Reader, string) {
 	k := fmt.Sprintf("memo_block[%d]", len(images))
 	m[k] = m["content"]
 	delete(m, "content")
-	_MultipartOthers(w, m)
+	multipartOthers(w, m)
 	return &b, w.FormDataContentType()
 }
 
-func _MultipartImages(w *multipart.Writer, images ...string) {
+func multipartImages(w *multipart.Writer, images ...string) {
 	for i, image := range images {
 		h := textproto.MIMEHeader{}
 		h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="upload[%d]"; filename="%s"`, i, image))
@@ -193,7 +181,7 @@ func _MultipartImages(w *multipart.Writer, images ...string) {
 	}
 }
 
-func _MultipartOthers(w *multipart.Writer, m map[string]string) {
+func multipartOthers(w *multipart.Writer, m map[string]string) {
 	for k, v := range m {
 		if fw, err := w.CreateFormField(k); err != nil {
 			continue

@@ -10,7 +10,7 @@ func (a *Article) delete(s session) error {
 	if err != nil {
 		return err
 	}
-	return _CheckResponse(resp)
+	return checkResponse(resp)
 }
 
 func (c *Comment) delete(s session) error {
@@ -19,5 +19,5 @@ func (c *Comment) delete(s session) error {
 	if err != nil {
 		return err
 	}
-	return _CheckResponse(resp)
+	return checkResponse(resp)
 }

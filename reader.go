@@ -27,7 +27,10 @@ func FetchGallerys() (galls []*GalleryInfo, err error) {
 			if ID := a.Text(); ID != "" {
 				// TODO.
 				// GalleryInfoDetail을 가져올 수 있음.
-				galls = append(galls, &GalleryInfo{URL: URL, ID: ID})
+				galls = append(galls, &GalleryInfo{
+					URL: URL,
+					ID:  ID,
+				})
 			}
 		}
 	})
@@ -36,8 +39,8 @@ func FetchGallerys() (galls []*GalleryInfo, err error) {
 
 // FetchList 함수는 해당 갤러리의 해당 페이지에 있는 모든 글의 목록을 가져옵니다.
 func FetchList(URL string, page int) (l *List, err error) {
-	URL = fmt.Sprintf("http://m.dcinside.com/list.php?id=%s&page=%d", _ParseGallID(URL), page)
-	doc, err := _NewMobileDocument(URL)
+	URL = fmt.Sprintf("%v&page=%v", URL, page)
+	doc, err := newMobileDocument(URL)
 	if err != nil {
 		return
 	}
@@ -50,8 +53,8 @@ func FetchList(URL string, page int) (l *List, err error) {
 			Detail:     nil,
 		}
 		gall := &GalleryInfo{
-			URL: _MobileURL(URL),
-			ID:  _ParseGallID(URL),
+			URL: ToMobileURL(URL),
+			ID:  gallID(URL),
 		}
 		article := &Article{
 			Author:       author,
@@ -86,7 +89,7 @@ func _ListAuthorIsGuest(s *goquery.Selection) bool {
 func _ListAuthorGallogIcon(s *goquery.Selection) string {
 	q := `.nick_comm`
 	iconElement := s.Find(q)
-	for key := range gallogIconURLMap {
+	for key := range GallogIconURLMap {
 		if iconElement.HasClass(key) {
 			return key
 		}
@@ -97,7 +100,7 @@ func _ListAuthorGallogIcon(s *goquery.Selection) string {
 func _ListArticleIcon(s *goquery.Selection) string {
 	q := `.ico_pic`
 	iconElement := s.Find(q)
-	for key := range iconURLMap {
+	for key := range ArticleIconURLMap {
 		if iconElement.HasClass(key) {
 			return key
 		}
@@ -150,7 +153,7 @@ func _ListArticleDate(s *goquery.Selection) time.Time {
 	if t == "" {
 		t = s.Find(q2).Text()
 	}
-	return _Time(t)
+	return timeFormatting(t)
 }
 
 func _ListArticleCommentCount(s *goquery.Selection) int {
@@ -161,7 +164,7 @@ func _ListArticleCommentCount(s *goquery.Selection) int {
 
 // FetchArticle 함수는 해당 글의 정보를 가져옵니다.
 func FetchArticle(URL string) (a *Article, err error) {
-	doc, err := _NewMobileDocument(URL)
+	doc, err := newMobileDocument(URL)
 	if err != nil {
 		return
 	}
@@ -239,7 +242,7 @@ func _ArticleAuthorDetailGallogURL(s *goquery.Selection) string {
 func _ArticleAuthorGallogIcon(s *goquery.Selection) string {
 	q := `.gall_content .nick_comm`
 	iconElement := s.Find(q)
-	for key := range gallogIconURLMap {
+	for key := range GallogIconURLMap {
 		if iconElement.HasClass(key) {
 			return key
 		}
@@ -268,7 +271,7 @@ func _ArticleGalleryInfoDetailName(s *goquery.Selection) string {
 func _ArticleIcon(s *goquery.Selection) string {
 	q := `.article_list .on .ico_pic`
 	iconElement := s.Find(q)
-	for key := range iconURLMap {
+	for key := range ArticleIconURLMap {
 		if iconElement.HasClass(key) {
 			return key
 		}
@@ -356,7 +359,7 @@ func _ArticleThumbsDown(s *goquery.Selection) int {
 
 func _ArticleDate(s *goquery.Selection) time.Time {
 	q := `.gall_content .info_edit > span:first-of-type > span:last-of-type`
-	return _Time(s.Find(q).Text())
+	return timeFormatting(s.Find(q).Text())
 }
 
 func _ArticleComments(s *goquery.Selection, gall *GalleryInfo, parents *Article) (cs []*Comment) {
@@ -369,7 +372,7 @@ func _ArticleComments(s *goquery.Selection, gall *GalleryInfo, parents *Article)
 		maxPage, _ = strconv.Atoi(strings.TrimSpace(splited[1]))
 		for i := 2; i <= maxPage; i++ {
 			URL := fmt.Sprintf(`%s?id=%s&no=%s&com_page=%d`, commentMoreURL, gall.ID, parents.Number, i)
-			newS, err := _NewMobileDocument(URL)
+			newS, err := newMobileDocument(URL)
 			if err != nil {
 				continue
 			}
@@ -386,7 +389,7 @@ func _ArticleComments(s *goquery.Selection, gall *GalleryInfo, parents *Article)
 				gallogID = matchedGallogID[1]
 			}
 			iconElement := s.Find(`.nick_comm`)
-			for key := range gallogIconURLMap {
+			for key := range GallogIconURLMap {
 				if iconElement.HasClass(key) {
 					gallogIcon = key
 					break
@@ -415,7 +418,7 @@ func _ArticleComments(s *goquery.Selection, gall *GalleryInfo, parents *Article)
 				Parents: parents,
 				Number:  number,
 				Content: content,
-				Date:    _Time(s.Find(`.date`).Text()),
+				Date:    timeFormatting(s.Find(`.date`).Text()),
 			})
 		})
 	}

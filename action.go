@@ -18,7 +18,7 @@ func (a *Article) action(s session, URL string) error {
 	if err != nil {
 		return err
 	}
-	return _CheckResponse(resp)
+	return checkResponse(resp)
 }
 
 func (a *Article) report(s session, memo string) error {
@@ -27,5 +27,5 @@ func (a *Article) report(s session, memo string) error {
 	if err != nil {
 		return err
 	}
-	return _CheckResponse(resp)
+	return checkResponse(resp)
 }

@@ -51,7 +51,7 @@ func (ad *ArticleDraft) write(s session) error {
 	if err != nil {
 		return err
 	}
-	return _CheckResponse(resp)
+	return checkResponse(resp)
 }
 
 // CommentDraft 구조체는 작성하기 위한 댓글의 초안을 표현합니다.
@@ -82,5 +82,5 @@ func (cd *CommentDraft) write(s session) error {
 	if err != nil {
 		return err
 	}
-	return _CheckResponse(resp)
+	return checkResponse(resp)
 }

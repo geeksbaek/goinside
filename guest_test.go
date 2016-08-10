@@ -70,7 +70,7 @@ func TestGuestCommentDelete(t *testing.T) {
 func TestGuestAction(t *testing.T) {
 	s, _ := Guest("ㅇㅇ", "123")
 
-	list, err := FetchList("http://gall.dcinside.com/board/view/?id=programming", 1)
+	list, err := FetchList("http://gall.dcinside.com/board/view/?id=programming&no=618139&page=1", 1)
 	if err != nil {
 		log.Fatal(err)
 	}
