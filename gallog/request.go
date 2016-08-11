@@ -16,8 +16,8 @@ const (
 
 // apis
 const (
-	articleDeleteAPI = "http://m.dcinside.com/api/gall_del.php"
-	commentDeleteAPI = "http://m.dcinside.com/api/comment_del.php"
+	deleteArticleAPI = "http://m.dcinside.com/api/gall_del.php"
+	deleteCommentAPI = "http://m.dcinside.com/api/comment_del.php"
 )
 
 // content types

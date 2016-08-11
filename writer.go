@@ -47,7 +47,7 @@ type ArticleDetail struct {
 
 func (ad *ArticleDraft) write(s session) error {
 	form, contentType := s.articleWriteForm(ad)
-	resp, err := api(s, articleWriteAPI, form, contentType)
+	resp, err := api(s, writeArticleAPI, form, contentType)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ type Comment struct {
 
 func (cd *CommentDraft) write(s session) error {
 	form, contentType := s.commentWriteForm(cd)
-	resp, err := api(s, commentWriteAPI, form, contentType)
+	resp, err := api(s, writeCommentAPI, form, contentType)
 	if err != nil {
 		return err
 	}

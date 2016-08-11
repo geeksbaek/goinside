@@ -6,7 +6,7 @@ type deletable interface {
 
 func (a *Article) delete(s session) error {
 	form, contentType := s.articleDeleteForm(a)
-	resp, err := api(s, articleDeleteAPI, form, contentType)
+	resp, err := api(s, deleteArticleAPI, form, contentType)
 	if err != nil {
 		return err
 	}
@@ -15,7 +15,7 @@ func (a *Article) delete(s session) error {
 
 func (c *Comment) delete(s session) error {
 	form, contentType := s.commentDeleteForm(c)
-	resp, err := api(s, commentDeleteAPI, form, contentType)
+	resp, err := api(s, deleteCommentAPI, form, contentType)
 	if err != nil {
 		return err
 	}

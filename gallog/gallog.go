@@ -18,10 +18,12 @@ import (
 const (
 	maxConcurrentRequestCount = 100
 
-	articleSelectorQuery = `td[valign='top'] td[colspan='2'] table tr:not(:first-child)`
-	commentSelectorQuery = `td[colspan='2'][align='center'] td[colspan='2'] table tr:not(:first-child)`
+	articleQuery = `td[valign='top'] td[colspan='2'] table tr:not(:first-child)`
+	commentQuery = `td[colspan='2'][align='center'] td[colspan='2'] table tr:not(:first-child)`
 
-	gallogURLFormat = "http://gallog.dcinside.com/inc/_mainGallog.php?gid=%v&page=%v&rpage=%v"
+	gallogURLFormat        = "http://gallog.dcinside.com/inc/_mainGallog.php?gid=%v&page=%v&rpage=%v"
+	articleDetailURLFormat = "http://gallog.dcinside.com/inc/_deleteLog.php?gid=%v&cid=%v&page=&pno=%v&logNo=%v&mode=%v"
+	commentDetailURLFormat = "http://gallog.dcinside.com/inc/_deleteLogRep.php?gid=%v&cid=&id=&no=%v&c_no=%v&logNo=%v&rpage="
 )
 
 var (
@@ -75,7 +77,7 @@ type GallogDataSet struct {
 
 func _ParseArticle(doc *goquery.Document) (as []*articleMicroInfo) {
 	as = []*articleMicroInfo{}
-	doc.Find(articleSelectorQuery).Each(func(i int, s *goquery.Selection) {
+	doc.Find(articleQuery).Each(func(i int, s *goquery.Selection) {
 		data, _ := s.Find(`img`).Attr(`onclick`)
 		if data != "" {
 			as = append(as, _ParseGallogArticleURL(data))
@@ -91,7 +93,7 @@ func _ParseGallogArticleURL(URL string) *articleMicroInfo {
 
 func _ParseComment(doc *goquery.Document) (cs []*commentMicroInfo) {
 	cs = []*commentMicroInfo{}
-	doc.Find(commentSelectorQuery).Each(func(i int, s *goquery.Selection) {
+	doc.Find(commentQuery).Each(func(i int, s *goquery.Selection) {
 		data, _ := s.Find(`td[width='22'] span`).Attr(`onclick`)
 		if data != "" {
 			cs = append(cs, _ParseGallogCommentURL(data))
@@ -194,14 +196,15 @@ func (s *Session) DeleteAll(data *GallogDataSet) {
 
 func (a *articleMicroInfo) delete(s *Session) {
 	gallID, _, key, value := s.fetchDetail(a)
-	api(articleDeleteAPI, makeForm(map[string]string{
+
+	deleteArticleForm := makeForm(map[string]string{
 		"app_id":  goinside.AppID,
 		"user_id": s.UserID,
 		"no":      a.pno,
 		"id":      gallID,
 		"mode":    "board_del",
-	}))
-	do("POST", deleteArticleLogURL, s.cookies, makeForm(map[string]string{
+	})
+	deleteArticleLogForm := makeForm(map[string]string{
 		"dTp":   "1",
 		"gid":   a.gid,
 		"cid":   a.cid,
@@ -213,20 +216,33 @@ func (a *articleMicroInfo) delete(s *Session) {
 		// "rb":    "",
 		// "page":  "",
 		// "nate":  "",
-	}), gallogRequestHeader)
+	})
+
+	wg := new(sync.WaitGroup)
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		api(deleteArticleAPI, deleteArticleForm)
+	}()
+	go func() {
+		defer wg.Done()
+		do("POST", deleteArticleLogURL, s.cookies, deleteArticleLogForm, gallogRequestHeader)
+	}()
+	wg.Wait()
 }
 
 func (c *commentMicroInfo) delete(s *Session) {
 	gallID, cid, key, value := s.fetchDetail(c)
-	api(articleDeleteAPI, makeForm(map[string]string{
+
+	deleteCommentForm := makeForm(map[string]string{
 		"app_id":     goinside.AppID,
 		"user_id":    s.UserID,
 		"no":         c.no,
 		"id":         gallID,
 		"comment_no": c.cno,
 		"mode":       "comment_del",
-	}))
-	do("POST", deleteCommentLogURL, s.cookies, makeForm(map[string]string{
+	})
+	deleteCommentLogForm := makeForm(map[string]string{
 		"dTp":   "1",
 		"gid":   c.gid,
 		"cid":   cid,
@@ -239,23 +255,32 @@ func (c *commentMicroInfo) delete(s *Session) {
 		// "page":  "",
 		// "pno":   "",
 		// "nate":  "",
-	}), gallogRequestHeader)
+	})
+
+	wg := new(sync.WaitGroup)
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		api(deleteCommentAPI, deleteCommentForm)
+	}()
+	go func() {
+		defer wg.Done()
+		do("POST", deleteCommentLogURL, s.cookies, deleteCommentLogForm, gallogRequestHeader)
+	}()
+	wg.Wait()
 }
 
 type detailer interface {
 	fetchDetail() string
 }
 
-func (a *articleMicroInfo) fetchDetail() (URL string) {
-	format := "http://gallog.dcinside.com/inc/_deleteLog.php?gid=%v&cid=%v&page=&pno=%v&logNo=%v&mode=%v"
-	URL = fmt.Sprintf(format, a.gid, a.cid, a.pno, a.logNo, a.mode)
-	return
+func (a *articleMicroInfo) fetchDetail() string {
+	return fmt.Sprintf(articleDetailURLFormat, a.gid, a.cid, a.pno, a.logNo, a.mode)
 }
 
-func (c *commentMicroInfo) fetchDetail() (URL string) {
-	format := "http://gallog.dcinside.com/inc/_deleteLogRep.php?gid=%v&cid=&id=&no=%v&c_no=%v&logNo=%v&rpage="
-	URL = fmt.Sprintf(format, c.gid, c.no, c.cno, c.logNo)
-	return
+func (c *commentMicroInfo) fetchDetail() string {
+	return fmt.Sprintf(commentDetailURLFormat, c.gid, c.no, c.cno, c.logNo)
+
 }
 
 func (s *Session) fetchDetail(d detailer) (gallID, cid, key, val string) {
