@@ -18,8 +18,10 @@ import (
 const (
 	maxConcurrentRequestCount = 100
 
-	articleQuery = `td[valign='top'] td[colspan='2'] table tr:not(:first-child)`
-	commentQuery = `td[colspan='2'][align='center'] td[colspan='2'] table tr:not(:first-child)`
+	articlesQuery = `td[valign='top'] td[colspan='2'] table tr:not(:first-child)`
+	articleQuery  = `img`
+	commentsQuery = `td[colspan='2'][align='center'] td[colspan='2'] table tr:not(:first-child)`
+	commentQuery  = `td[width='22'] span`
 
 	gallogURLFormat        = "http://gallog.dcinside.com/inc/_mainGallog.php?gid=%v&page=%v&rpage=%v"
 	articleDetailURLFormat = "http://gallog.dcinside.com/inc/_deleteLog.php?gid=%v&cid=%v&page=&pno=%v&logNo=%v&mode=%v"
@@ -75,43 +77,43 @@ type GallogDataSet struct {
 	Cs []*commentMicroInfo
 }
 
-func _ParseArticle(doc *goquery.Document) (as []*articleMicroInfo) {
+func parseArticles(doc *goquery.Document) (as []*articleMicroInfo) {
 	as = []*articleMicroInfo{}
-	doc.Find(articleQuery).Each(func(i int, s *goquery.Selection) {
-		data, _ := s.Find(`img`).Attr(`onclick`)
+	doc.Find(articlesQuery).Each(func(i int, s *goquery.Selection) {
+		data, _ := s.Find(articleQuery).Attr(`onclick`)
 		if data != "" {
-			as = append(as, _ParseGallogArticleURL(data))
+			as = append(as, articleURLToArticleMicroInfo(data))
 		}
 	})
 	return
 }
 
-func _ParseGallogArticleURL(URL string) *articleMicroInfo {
+func articleURLToArticleMicroInfo(URL string) *articleMicroInfo {
 	matched := gallogArticleURLRe.FindStringSubmatch(URL)
 	return &articleMicroInfo{matched[1], matched[2], matched[3], matched[4], matched[5]}
 }
 
-func _ParseComment(doc *goquery.Document) (cs []*commentMicroInfo) {
+func parseComments(doc *goquery.Document) (cs []*commentMicroInfo) {
 	cs = []*commentMicroInfo{}
-	doc.Find(commentQuery).Each(func(i int, s *goquery.Selection) {
-		data, _ := s.Find(`td[width='22'] span`).Attr(`onclick`)
+	doc.Find(commentsQuery).Each(func(i int, s *goquery.Selection) {
+		data, _ := s.Find(commentQuery).Attr(`onclick`)
 		if data != "" {
-			cs = append(cs, _ParseGallogCommentURL(data))
+			cs = append(cs, commentURLToCommentMicroInfo(data))
 		}
 	})
 	return
 }
 
-func _ParseGallogCommentURL(URL string) *commentMicroInfo {
+func commentURLToCommentMicroInfo(URL string) *commentMicroInfo {
 	matched := gallogCommentURLRe.FindStringSubmatch(URL)
 	return &commentMicroInfo{matched[1], matched[2], matched[3], matched[4]}
 }
 
-func _MakeGallogURL(gid string, page int) string {
+func gallogURL(gid string, page int) string {
 	return fmt.Sprintf(gallogURLFormat, gid, page, page)
 }
 
-func _NewGallogDocument(s *Session, URL string) *goquery.Document {
+func newGallogDocument(s *Session, URL string) *goquery.Document {
 	resp := do("GET", URL, s.cookies, nil, gallogRequestHeader)
 	doc, err := goquery.NewDocumentFromResponse(resp)
 	if err != nil {
@@ -133,13 +135,13 @@ func (s *Session) FetchAll() (data *GallogDataSet) {
 		wg := new(sync.WaitGroup)
 		wg.Add(max)
 		for page := i; page < max+i; page++ {
-			URL := _MakeGallogURL(s.id, page)
+			URL := gallogURL(s.id, page)
 			index := page - i
 			go func() {
 				defer wg.Done()
-				doc := _NewGallogDocument(s, URL)
-				tempASs[index] = _ParseArticle(doc)
-				tempCSs[index] = _ParseComment(doc)
+				doc := newGallogDocument(s, URL)
+				tempASs[index] = parseArticles(doc)
+				tempCSs[index] = parseComments(doc)
 			}()
 		}
 		wg.Wait()
