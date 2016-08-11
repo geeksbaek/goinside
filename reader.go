@@ -371,7 +371,7 @@ func _ArticleComments(s *goquery.Selection, gall *GalleryInfo, parents *Article)
 	if len(splited) == 2 {
 		maxPage, _ = strconv.Atoi(strings.TrimSpace(splited[1]))
 		for i := 2; i <= maxPage; i++ {
-			URL := fmt.Sprintf(`%s?id=%s&no=%s&com_page=%d`, commentMoreURL, gall.ID, parents.Number, i)
+			URL := mobileCommentPageURL(gall.ID, parents.Number, i)
 			newS, err := newMobileDocument(URL)
 			if err != nil {
 				continue
@@ -383,11 +383,7 @@ func _ArticleComments(s *goquery.Selection, gall *GalleryInfo, parents *Article)
 		s.Find(q).Each(func(i int, s *goquery.Selection) {
 			var gallogID, gallogURL, gallogIcon string
 			gallogURL, _ = s.Find(`a.id`).Attr(`href`)
-			idRe := regexp.MustCompile(`id=(\w+)`)
-			matchedGallogID := idRe.FindStringSubmatch(gallogURL)
-			if len(matchedGallogID) == 2 {
-				gallogID = matchedGallogID[1]
-			}
+			gallogID = gallID(gallogURL)
 			iconElement := s.Find(`.nick_comm`)
 			for key := range GallogIconURLMap {
 				if iconElement.HasClass(key) {
@@ -403,23 +399,26 @@ func _ArticleComments(s *goquery.Selection, gall *GalleryInfo, parents *Article)
 				number = matchedNumber[1]
 			}
 			content, _ = s.Find(`.txt`).Html()
-			cs = append(cs, &Comment{
-				Author: &AuthorInfo{
-					Name:       strings.Trim(s.Find(`.id`).Text(), "[]"),
-					IsGuest:    s.Find(`.nick_comm`).Length() == 0,
-					GallogIcon: gallogIcon,
-					Detail: &AuthorInfoDetail{
-						IP:        s.Find(`.ip`).Text(),
-						GallogID:  gallogID,
-						GallogURL: gallogURL,
-					},
-				},
+			authorDetail := &AuthorInfoDetail{
+				IP:        s.Find(`.ip`).Text(),
+				GallogID:  gallogID,
+				GallogURL: gallogURL,
+			}
+			author := &AuthorInfo{
+				Name:       strings.Trim(s.Find(`.id`).Text(), "[]"),
+				IsGuest:    s.Find(`.nick_comm`).Length() == 0,
+				GallogIcon: gallogIcon,
+				Detail:     authorDetail,
+			}
+			comment := &Comment{
+				Author:  author,
 				Gall:    gall,
 				Parents: parents,
 				Number:  number,
 				Content: content,
 				Date:    timeFormatting(s.Find(`.date`).Text()),
-			})
+			}
+			cs = append(cs, comment)
 		})
 	}
 	return

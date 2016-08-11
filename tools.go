@@ -35,6 +35,7 @@ const (
 	mobileGallURLPageFormat    = "http://m.dcinside.com/list.php?id=%v&page=%v"
 	mobileArticleURLFormat     = "http://m.dcinside.com/view.php?id=%v&no=%v"
 	mobileArticleURLPageFormat = "http://m.dcinside.com/view.php?id=%v&no=%v&page=%v"
+	mobileCommentPageFormat    = "http://m.dcinside.com/comment_more_new.php?id=%v&no=%v&com_page=%v"
 )
 
 var (
@@ -69,6 +70,10 @@ func ToMobileURL(URL string) string {
 		}
 	}
 	return URL
+}
+
+func mobileCommentPageURL(gallID, number string, page int) string {
+	return fmt.Sprintf(mobileCommentPageFormat, gallID, number, page)
 }
 
 func gallID(URL string) string {
