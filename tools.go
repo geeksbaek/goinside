@@ -21,7 +21,8 @@ import (
 
 // regex
 var (
-	urlRe = regexp.MustCompile(`id=([^&\s]+)(?:&no=([^&\s]+))?(?:&page=([^&\s]+))?`)
+	urlRe   = regexp.MustCompile(`id=([^&\s]+)(?:&no=([^&\s]+))?(?:&page=([^&\s]+))?`)
+	imageRe = regexp.MustCompile(`img[^>]+src="([^"]+)"`)
 )
 
 // errors
@@ -70,6 +71,17 @@ func ToMobileURL(URL string) string {
 		}
 	}
 	return URL
+}
+
+func imageElements(body string) []string {
+	images := []string{}
+	matched := imageRe.FindAllStringSubmatch(body, -1)
+	for _, v := range matched {
+		if len(v) >= 2 {
+			images = append(images, v[1])
+		}
+	}
+	return images
 }
 
 func mobileCommentPageURL(gallID, number string, page int) string {
