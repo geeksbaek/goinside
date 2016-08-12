@@ -1,8 +1,13 @@
 package goinside
 
 import (
+	"errors"
 	"io"
 	"net/url"
+)
+
+var (
+	errLoginFailed = errors.New("login failed")
 )
 
 // MemberSession 구조체는 고정닉의 세션을 표현합니다.
@@ -42,8 +47,24 @@ func Login(id, pw string) (ms *MemberSession, err error) {
 	if err != nil {
 		return
 	}
+	if !tempMS.MemberSessionDetail.isSucceed() {
+		err = errLoginFailed
+		return
+	}
 	ms = tempMS
 	return
+}
+
+func (msd *MemberSessionDetail) isSucceed() bool {
+	switch {
+	case msd.Name == "":
+		return false
+	case msd.UserID == "":
+		return false
+	case msd.UserNO == "":
+		return false
+	}
+	return true
 }
 
 // Logout 메소드는 해당 고정닉 세션을 종료합니다.

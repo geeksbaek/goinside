@@ -155,3 +155,10 @@ func TestMemberReport(t *testing.T) {
 		log.Fatal(err)
 	}
 }
+
+func TestLoginFailed(t *testing.T) {
+	_, err := Login("", "")
+	if err != errLoginFailed {
+		t.Error("로그인에 실패하였습니다.")
+	}
+}
