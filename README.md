@@ -8,11 +8,13 @@ API에 대한 설명은 [godoc](https://godoc.org/github.com/geeksbaek/goinside)
 go get -u github.com/geeksbaek/goinside/...
 ```
 
-## 2016-08-09
+## Update
+
+### 2016-08-09
 
 하위 패키지 `github.com/geeksbaek/goinside/gallog ` 를 추가하고 갤로그 관련 API를 추가하였습니다.
 
-## 2016-08-07
+### 2016-08-07
 
 API의 구조가 크게 변경되었습니다. godoc을 확인해주세요.
 
