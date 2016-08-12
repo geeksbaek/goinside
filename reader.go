@@ -152,9 +152,7 @@ func _ListArticleIcon(s *goquery.Selection) string {
 
 func _ListArticleHasImage(s *goquery.Selection) bool {
 	switch _ListArticleIcon(s) {
-	case "ico_p_c":
-		return true
-	case "ico_p_y":
+	case "ico_p_c", "ico_p_y":
 		return true
 	}
 	return false
@@ -301,9 +299,7 @@ func _ArticleIcon(s *goquery.Selection) string {
 
 func _ArticleHasImage(s *goquery.Selection) bool {
 	switch _ArticleIcon(s) {
-	case "ico_p_c":
-		return true
-	case "ico_p_y":
+	case "ico_p_c", "ico_p_y":
 		return true
 	}
 	return false
@@ -311,11 +307,7 @@ func _ArticleHasImage(s *goquery.Selection) bool {
 
 func _ArticleIsBest(s *goquery.Selection) bool {
 	switch _ArticleIcon(s) {
-	case "ico_p_c":
-		return true
-	case "ico_t_c":
-		return true
-	case "ico_sc":
+	case "ico_p_c", "ico_t_c", "ico_sc":
 		return true
 	}
 	return false
