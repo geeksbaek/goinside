@@ -25,7 +25,7 @@ func readAuth(path string) (auth *tempAuth) {
 	return
 }
 
-func ExampleLogin() {
+func ExampleLoginFromAuthJSON() {
 	auth := readAuth("auth.json")
 	s, err := Login(auth.ID, auth.PW)
 	if err != nil {
