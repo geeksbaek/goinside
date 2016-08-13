@@ -1,11 +1,8 @@
 package goinside
 
-import (
-	"log"
-	"testing"
-)
+import "log"
 
-func TestGuestArticleWrite(t *testing.T) {
+func ExampleGuestArticleWrite() {
 	s, _ := Guest("ㅇㅇ", "123")
 
 	draft := NewArticleDraft("programming", "test", "test", `C:\Users\geeks\Pictures\1469023529.jpg`)
@@ -15,8 +12,8 @@ func TestGuestArticleWrite(t *testing.T) {
 	}
 }
 
-func TestGuestArticleDelete(t *testing.T) {
-	TestGuestArticleWrite(t)
+func ExampleGuestArticleDelete() {
+	ExampleGuestArticleWrite()
 
 	s, _ := Guest("ㅇㅇ", "123")
 
@@ -25,13 +22,15 @@ func TestGuestArticleDelete(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	err = s.Delete(list.Articles[0])
-	if err != nil {
-		log.Fatal(err)
+	for _, v := range list.Articles {
+		err = s.Delete(v)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
-func TestGuestCommentWrite(t *testing.T) {
+func ExampleGuestCommentWrite() {
 	s, _ := Guest("ㅇㅇ", "123")
 
 	list, err := FetchList("http://gall.dcinside.com/board/view/?id=programming", 1)
@@ -46,8 +45,8 @@ func TestGuestCommentWrite(t *testing.T) {
 	}
 }
 
-func TestGuestCommentDelete(t *testing.T) {
-	TestGuestCommentWrite(t)
+func ExampleGuestCommentDelete() {
+	ExampleGuestCommentWrite()
 
 	s, _ := Guest("ㅇㅇ", "123")
 
@@ -67,7 +66,7 @@ func TestGuestCommentDelete(t *testing.T) {
 	}
 }
 
-func TestGuestAction(t *testing.T) {
+func ExampleGuestAction() {
 	s, _ := Guest("ㅇㅇ", "123")
 
 	list, err := FetchList("http://gall.dcinside.com/board/view/?id=programming&no=618139&page=1", 1)
@@ -86,7 +85,7 @@ func TestGuestAction(t *testing.T) {
 	}
 }
 
-func TestGuestReport(t *testing.T) {
+func ExampleGuestReport() {
 	auth := readAuth("auth.json")
 	s, err := Login(auth.ID, auth.PW)
 	if err != nil {

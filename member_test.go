@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"testing"
 )
 
 type tempAuth struct {
@@ -26,7 +25,7 @@ func readAuth(path string) (auth *tempAuth) {
 	return
 }
 
-func TestLogin(t *testing.T) {
+func ExampleLogin() {
 	auth := readAuth("auth.json")
 	s, err := Login(auth.ID, auth.PW)
 	if err != nil {
@@ -35,7 +34,7 @@ func TestLogin(t *testing.T) {
 	fmt.Println(s.MemberSessionDetail)
 }
 
-func TestMemberArticleWrite(t *testing.T) {
+func ExampleMemberArticleWrite() {
 	auth := readAuth("auth.json")
 	s, err := Login(auth.ID, auth.PW)
 	if err != nil {
@@ -50,8 +49,8 @@ func TestMemberArticleWrite(t *testing.T) {
 	}
 }
 
-func TestMemberArticleDelete(t *testing.T) {
-	TestMemberArticleWrite(t)
+func ExampleMemberArticleDelete() {
+	ExampleMemberArticleWrite()
 
 	auth := readAuth("auth.json")
 	s, err := Login(auth.ID, auth.PW)
@@ -70,7 +69,7 @@ func TestMemberArticleDelete(t *testing.T) {
 	}
 }
 
-func TestMemberCommentWrite(t *testing.T) {
+func ExampleMemberCommentWrite() {
 	auth := readAuth("auth.json")
 	s, err := Login(auth.ID, auth.PW)
 	if err != nil {
@@ -89,8 +88,8 @@ func TestMemberCommentWrite(t *testing.T) {
 	}
 }
 
-func TestMemberCommentDelete(t *testing.T) {
-	TestMemberCommentWrite(t)
+func ExampleMemberCommentDelete() {
+	ExampleMemberCommentWrite()
 
 	auth := readAuth("auth.json")
 	s, err := Login(auth.ID, auth.PW)
@@ -115,7 +114,7 @@ func TestMemberCommentDelete(t *testing.T) {
 	}
 }
 
-func TestMemberAction(t *testing.T) {
+func ExampleMemberAction() {
 	auth := readAuth("auth.json")
 	s, err := Login(auth.ID, auth.PW)
 	if err != nil {
@@ -138,7 +137,7 @@ func TestMemberAction(t *testing.T) {
 	}
 }
 
-func TestMemberReport(t *testing.T) {
+func ExampleMemberReport() {
 	auth := readAuth("auth.json")
 	s, err := Login(auth.ID, auth.PW)
 	if err != nil {
@@ -156,9 +155,9 @@ func TestMemberReport(t *testing.T) {
 	}
 }
 
-func TestLoginFailed(t *testing.T) {
+func ExampleLoginFailed() {
 	_, err := Login("", "")
 	if err != errLoginFailed {
-		t.Error("로그인에 실패하였습니다.")
+		log.Fatal("로그인에 실패하였습니다.")
 	}
 }
