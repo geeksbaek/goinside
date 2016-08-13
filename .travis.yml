@@ -1,8 +1,13 @@
 language: go
+os:
+  - osx
+  - linux
+  - windows
 go:
   - 1.5
   - 1.6
   - tip
-  - 1.7beta6
+  - 1.7rc5
+  - 1.7rc6
 script:
  - go test -v ./...
