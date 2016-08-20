@@ -112,14 +112,26 @@ type jsonList []struct {
 	} `json:"gall_list"`
 }
 
-// FetchList 함수는 해당 갤러리의 해당 페이지에 있는 모든 글의 목록을 가져옵니다.
+// FetchList 함수는 해당 갤러리의 해당 페이지에 있는 글의 목록을 가져옵니다.
 func FetchList(URL string, page int) (l *List, err error) {
+	return fetchList(URL, page, false)
+}
+
+// FetchBestList 함수는 해당 갤러리의 해당 페이지에 있는 개념글의 목록을 가져옵니다.
+func FetchBestList(URL string, page int) (l *List, err error) {
+	return fetchList(URL, page, true)
+}
+
+func fetchList(URL string, page int, fetchBestPage bool) (l *List, err error) {
 	gallID := gallID(URL)
 	gall := &Gall{ID: gallID, URL: URL}
 	formMap := map[string]string{
 		"app_id": AppID,
 		"id":     gallID,
 		"page":   fmt.Sprint(page),
+	}
+	if fetchBestPage {
+		formMap["recommend"] = "1"
 	}
 	respJSON := make(jsonList, 1)
 	if err = fetchSomething(formMap, readListAPI, &respJSON); err != nil {

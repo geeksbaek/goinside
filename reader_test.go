@@ -6,7 +6,7 @@ func TestFetch(t *testing.T) {
 	URL := "http://gall.dcinside.com/board/lists/?id=baseball_new4"
 	page := 1
 
-	l, err := FetchList(URL, page)
+	l, err := FetchBestList(URL, page)
 	if err != nil {
 		t.Error(err)
 	}
@@ -23,7 +23,7 @@ func TestFetch(t *testing.T) {
 	}
 }
 
-func TestGalleryList(t *testing.T) {
+func TestFetchGalleryList(t *testing.T) {
 	major, err := FetchAllMajorGallery()
 	if err != nil {
 		t.Error(err)
