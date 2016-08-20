@@ -2,27 +2,27 @@ package goinside
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
 	"net/url"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
-
-	"github.com/PuerkitoBio/goquery"
 )
 
 // regex
 var (
-	urlRe   = regexp.MustCompile(`id=([^&\s]+)(?:&no=([^&\s]+))?(?:&page=([^&\s]+))?`)
-	imageRe = regexp.MustCompile(`img[^>]+src="([^"]+)"`)
+	urlRe = regexp.MustCompile(`id=([^&\s]+)(?:&no=([^&\s]+))?(?:&page=([^&\s]+))?`)
 )
 
 // errors
@@ -32,25 +32,26 @@ var (
 
 // formatting
 const (
-	mobileGallURLFormat        = "http://m.dcinside.com/list.php?id=%v"
-	mobileGallURLPageFormat    = "http://m.dcinside.com/list.php?id=%v&page=%v"
-	mobileArticleURLFormat     = "http://m.dcinside.com/view.php?id=%v&no=%v"
-	mobileArticleURLPageFormat = "http://m.dcinside.com/view.php?id=%v&no=%v&page=%v"
-	mobileCommentPageFormat    = "http://m.dcinside.com/comment_more_new.php?id=%v&no=%v&com_page=%v"
+	mobileGallURLFormat     = "http://m.dcinside.com/list.php?id=%v"
+	mobileGallURLPageFormat = "http://m.dcinside.com/list.php?id=%v&page=%v"
+	mobileArticleURLFormat  = "http://m.dcinside.com/view.php?id=%v&no=%v"
+	gallogURLFormat         = "http://gallog.dcinside.com/%v"
+	imageElementFormat      = `<img src="%v">`
+	audioElementFormat      = `<audio controls><source src="%v" type="audio/mpeg">Your browser does not support the audio element.</audio>`
 )
 
 var (
-	ArticleIconURLMap = map[string]string{
-		"ico_p_y": "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_picture.png",
-		"ico_t":   "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_text.png",
-		"ico_p_c": "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_picture_b.png",
-		"ico_t_c": "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_text_b.png",
-		"ico_mv":  "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_movie.png",
-		"ico_sc":  "http://nstatic.dcinside.com/dgn/gallery/images/update/sec_icon.png",
+	ArticleIconURLMap = map[ArticleType]string{
+		TextArticleType:      "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_text.png",
+		TextBestArticleType:  "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_text_b.png",
+		ImageArticleType:     "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_picture.png",
+		ImageBestArticleType: "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_picture_b.png",
+		MovieArticleType:     "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_movie.png",
+		SuperBestArticleType: "http://nstatic.dcinside.com/dgn/gallery/images/update/sec_icon.png",
 	}
-	GallogIconURLMap = map[string]string{
-		"fixed": "http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",
-		"flow":  "http://wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif",
+	GallogIconURLMap = map[MemberType]string{
+		HalfMemberType: "http://wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif",
+		FullMemberType: "http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",
 	}
 )
 
@@ -60,39 +61,43 @@ func ToMobileURL(URL string) string {
 		matched := urlRe.FindStringSubmatch(URL)
 		id, number, page := matched[1], matched[2], matched[3]
 		switch {
+		case id != "" && number == "" && page == "": // id
+			return fmt.Sprintf(mobileGallURLFormat, id)
 		case id != "" && number == "" && page != "": // id, page
 			return fmt.Sprintf(mobileGallURLPageFormat, id, page)
 		case id != "" && number != "" && page == "": // id, number
 			return fmt.Sprintf(mobileArticleURLFormat, id, number)
-		case id != "" && number == "" && page == "": // id
-			return fmt.Sprintf(mobileGallURLFormat, id)
 		case id != "" && number != "" && page != "": // id, number, page
-			return fmt.Sprintf(mobileArticleURLPageFormat, id, number, page)
+			return fmt.Sprintf(mobileArticleURLFormat, id, number)
 		}
 	}
 	return URL
 }
 
-func imageElements(body string) []string {
-	images := []string{}
-	matched := imageRe.FindAllStringSubmatch(body, -1)
-	for _, v := range matched {
-		if len(v) >= 2 {
-			images = append(images, v[1])
-		}
+func articleType(hasImage, isBest string) ArticleType {
+	switch {
+	case hasImage == "Y" && isBest == "Y":
+		return ImageBestArticleType
+	case hasImage == "Y" && isBest == "N":
+		return ImageArticleType
+	case hasImage == "N" && isBest == "Y":
+		return TextBestArticleType
+	case hasImage == "N" && isBest == "N":
+		return TextArticleType
 	}
-	return images
+	return UnknownArticleType
 }
 
-func mobileCommentPageURL(gallID, number string, page int) string {
-	return fmt.Sprintf(mobileCommentPageFormat, gallID, number, page)
-}
-
-func gallID(URL string) string {
-	if urlRe.MatchString(URL) == false {
-		return ""
+func commentType(dccon, voice string) CommentType {
+	switch {
+	case dccon == "" && voice == "":
+		return TextCommentType
+	case dccon != "" && voice == "":
+		return DCconCommentType
+	case dccon == "" && voice != "":
+		return VoiceCommentType
 	}
-	return urlRe.FindStringSubmatch(URL)[1]
+	return UnknownCommentType
 }
 
 func articleNumber(URL string) string {
@@ -102,15 +107,45 @@ func articleNumber(URL string) string {
 	return urlRe.FindStringSubmatch(URL)[2]
 }
 
-func newMobileDocument(URL string) (*goquery.Document, error) {
-	resp, err := get(&GuestSession{}, URL)
-	if err != nil {
-		return nil, err
-	}
-	return goquery.NewDocumentFromResponse(resp)
+func articleURL(id, number string) string {
+	return fmt.Sprintf(mobileArticleURLFormat, id, number)
 }
 
-func timeFormatting(s string) time.Time {
+func gallogURL(id string) string {
+	if id == "" {
+		return ""
+	}
+	return fmt.Sprintf(gallogURLFormat, id)
+}
+
+func gallURL(id string) string {
+	return fmt.Sprintf(mobileGallURLFormat, id)
+}
+
+func gallID(URL string) string {
+	if urlRe.MatchString(URL) == false {
+		return ""
+	}
+	return urlRe.FindStringSubmatch(URL)[1]
+}
+
+func mustAtoi(a string) int {
+	i, err := strconv.Atoi(a)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return i
+}
+
+func toImageElement(c string) string {
+	return fmt.Sprintf(imageElementFormat, c)
+}
+
+func toAudioElement(c string) string {
+	return fmt.Sprintf(audioElementFormat, c)
+}
+
+func dateFormatter(s string) time.Time {
 	if len(s) <= 5 {
 		now := time.Now()
 		s = fmt.Sprintf("%04d.%02d.%02d %v", now.Year(), int(now.Month()), now.Day(), s)
@@ -125,33 +160,56 @@ func timeFormatting(s string) time.Time {
 }
 
 func checkResponse(resp *http.Response) error {
-	jsonResponse := &_JSONResponse{}
-	if err := responseUnmarshal(jsonResponse, resp); err != nil {
+	jsonResp := make(jsonValidation, 1)
+	if err := responseUnmarshal(resp, &jsonResp); err != nil {
 		return err
 	}
-	return checkJSONResult(jsonResponse)
+	return checkJSONResultTight(&jsonResp)
 }
 
-func responseUnmarshal(data interface{}, resp *http.Response) error {
+func responseUnmarshal(resp *http.Response, datas ...interface{}) error {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
-	body = []byte(strings.Trim(string(body), "[]"))
-	if err := json.Unmarshal(body, data); err != nil {
-		return err
+	for _, data := range datas {
+		if err := json.Unmarshal(body, data); err != nil {
+			replaced := bytes.Replace(body, []byte(`\`), []byte(""), -1)
+			if err := json.Unmarshal(replaced, data); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
 
-func checkJSONResult(jsonResponse *_JSONResponse) error {
-	if jsonResponse.Result == false {
-		if jsonResponse.Cause != "" {
-			return errors.New(jsonResponse.Cause)
+func checkJSONResultTight(jsonResp *jsonValidation) error {
+	valid := (*jsonResp)[0]
+	if valid.Result == false {
+		if valid.Cause != "" {
+			return errors.New(valid.Cause)
 		}
 		return errUnknownCause
 	}
 	return nil
+}
+
+func checkJSONResult(jsonResp *jsonValidation) error {
+	valid := (*jsonResp)[0]
+	if valid.Result == false && valid.Cause != "" {
+		return errors.New(valid.Cause)
+	}
+	return nil
+}
+
+func makeRedirectAPI(m map[string]string, originAPI dcinsideAPI) dcinsideAPI {
+	form := []string{}
+	for k, v := range m {
+		form = append(form, k+"="+v)
+	}
+	params := string(originAPI) + "?" + strings.Join(form, "&")
+	encodedParams := base64.StdEncoding.EncodeToString([]byte(params))
+	return dcinsideAPI(fmt.Sprintf("%s?hash=%s", redirectAPI, encodedParams))
 }
 
 func makeForm(m map[string]string) io.Reader {

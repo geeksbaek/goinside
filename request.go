@@ -11,17 +11,44 @@ const (
 	commentMoreURL = "http://m.dcinside.com/comment_more_new.php"
 )
 
+type session interface {
+	articleWriteForm(*ArticleDraft) (form io.Reader, contentType string)
+	articleDeleteForm(*Article) (form io.Reader, contentType string)
+	commentWriteForm(*CommentDraft) (form io.Reader, contentType string)
+	commentDeleteForm(*Comment) (form io.Reader, contentType string)
+	actionForm(*Article) (form io.Reader, contentType string)
+	reportForm(string, string) (form io.Reader, contentType string)
+	connector
+}
+
+type dcinsideAPI string
+
+func (api dcinsideAPI) post(c connector, form io.Reader, contentType string) (*http.Response, error) {
+	return do(c, "POST", string(api), nil, form, contentType, apiRequestHeader)
+}
+
+func (api dcinsideAPI) get() (*http.Response, error) {
+	return do(&GuestSession{}, "GET", string(api), nil, nil, defaultContentType, apiRequestHeader)
+}
+
 // apis
 const (
-	AppID            = "blM1T09mWjRhQXlZbE1ML21xbkM3QT09"
-	loginAPI         = "https://dcid.dcinside.com/join/mobile_app_login.php"
-	writeArticleAPI  = "http://upload.dcinside.com/_app_write_api.php"
-	deleteArticleAPI = "http://m.dcinside.com/api/gall_del.php"
-	writeCommentAPI  = "http://m.dcinside.com/api/comment_ok.php"
-	deleteCommentAPI = "http://m.dcinside.com/api/comment_del.php"
-	recommendUpAPI   = "http://m.dcinside.com/api/_recommend_up.php"
-	recommendDownAPI = "http://m.dcinside.com/api/_recommend_down.php"
-	reportAPI        = "http://m.dcinside.com/api/report_upload.php"
+	AppID = "blM1T09mWjRhQXlZbE1ML21xbkM3QT09"
+
+	loginAPI             dcinsideAPI = "https://dcid.dcinside.com/join/mobile_app_login.php"
+	writeArticleAPI      dcinsideAPI = "http://upload.dcinside.com/_app_write_api.php"
+	deleteArticleAPI     dcinsideAPI = "http://m.dcinside.com/api/gall_del.php"
+	writeCommentAPI      dcinsideAPI = "http://m.dcinside.com/api/comment_ok.php"
+	deleteCommentAPI     dcinsideAPI = "http://m.dcinside.com/api/comment_del.php"
+	recommendUpAPI       dcinsideAPI = "http://m.dcinside.com/api/_recommend_up.php"
+	recommendDownAPI     dcinsideAPI = "http://m.dcinside.com/api/_recommend_down.php"
+	reportAPI            dcinsideAPI = "http://m.dcinside.com/api/report_upload.php"
+	redirectAPI          dcinsideAPI = "http://m.dcinside.com/api/redirect.php"
+	readListAPI          dcinsideAPI = "http://m.dcinside.com/api/gall_list.php"
+	readArticleAPI       dcinsideAPI = "http://m.dcinside.com/api/view2.php"
+	readArticleDetailAPI dcinsideAPI = "http://m.dcinside.com/api/gall_view.php"
+	readArticleImageAPI  dcinsideAPI = "http://m.dcinside.com/api/view_img.php"
+	readCommentAPI       dcinsideAPI = "http://m.dcinside.com/api/comment.php"
 )
 
 // content types
@@ -52,10 +79,6 @@ func post(c connector, URL string, cookies []*http.Cookie, form io.Reader, conte
 
 func get(c connector, URL string) (*http.Response, error) {
 	return do(c, "GET", URL, nil, nil, defaultContentType, mobileRequestHeader)
-}
-
-func api(c connector, URL string, form io.Reader, contentType string) (*http.Response, error) {
-	return do(c, "POST", URL, nil, form, contentType, apiRequestHeader)
 }
 
 func do(c connector, method, URL string, cookies []*http.Cookie, form io.Reader, contentType string, requestHeader map[string]string) (*http.Response, error) {

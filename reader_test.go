@@ -1,22 +1,24 @@
 package goinside
 
-import (
-	"fmt"
-	"testing"
-)
+import "testing"
 
-func ExampleReader(t *testing.T) {
-	a, _ := FetchArticle("http://gall.dcinside.com/board/view/?id=stock_new1&no=3516942&page=1")
+func TestFetch(t *testing.T) {
+	URL := "http://gall.dcinside.com/board/lists/?id=baseball_new4"
+	page := 1
 
-	fmt.Println(a.Detail.Content)
-	fmt.Println(a.Detail.ImageURLs)
-}
-
-func ExampleComments(t *testing.T) {
-	a, _ := FetchArticle("http://gall.dcinside.com/board/view/?id=baseball_new4&no=9509049&page=1&exception_mode=recommend")
-	fmt.Println(a.CommentCount)
-	fmt.Println(len(a.Detail.Comments))
-	for _, v := range a.Detail.Comments {
-		fmt.Printf("%#v %#v\n", v.Author, v.Author.Detail)
+	l, err := FetchList(URL, page)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(l.Items) != 25 {
+		t.Errorf("%v 갤러리의 %v번째 페이지에서 검색된 글이 %v개 입니다. 25개여야 정상입니다.", gallID(URL), page, len(l.Items))
+	}
+	targetArticle := l.Items[0]
+	a, err := targetArticle.Fetch()
+	if err != nil {
+		t.Error(err)
+	}
+	if targetArticle.Subject != a.Subject {
+		t.Errorf("%v 갤러리의 첫 번째 글을 정상적으로 오지 못했습니다", gallID(URL))
 	}
 }
