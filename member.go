@@ -2,7 +2,6 @@ package goinside
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"net/url"
 )
@@ -103,7 +102,7 @@ func (ms *MemberSession) commentWriteForm(cd *CommentDraft) (io.Reader, string) 
 		"app_id":       AppID,
 		"user_id":      ms.UserID,
 		"id":           cd.Target.Gall.ID,
-		"no":           fmt.Sprint(cd.Target.Number),
+		"no":           cd.Target.Number,
 		"comment_memo": cd.Content,
 		"mode":         "comment",
 	}), defaultContentType
@@ -118,7 +117,7 @@ func (ms *MemberSession) articleDeleteForm(a *Article) (io.Reader, string) {
 	return makeForm(map[string]string{
 		"app_id":  AppID,
 		"user_id": ms.UserID,
-		"no":      fmt.Sprint(a.Number),
+		"no":      a.Number,
 		"id":      a.Gall.ID,
 		"mode":    "board_del",
 	}), defaultContentType
@@ -129,9 +128,9 @@ func (ms *MemberSession) commentDeleteForm(c *Comment) (io.Reader, string) {
 		"app_id":     AppID,
 		"user_id":    ms.UserID,
 		"id":         c.Parents.Gall.ID,
-		"no":         fmt.Sprint(c.Parents.Number),
+		"no":         c.Parents.Number,
 		"mode":       "comment_del",
-		"comment_no": fmt.Sprint(c.Number),
+		"comment_no": c.Number,
 	}), defaultContentType
 }
 
@@ -149,7 +148,7 @@ func (ms *MemberSession) actionForm(a *Article) (io.Reader, string) {
 	return makeForm(map[string]string{
 		"app_id": AppID,
 		"id":     a.Gall.ID,
-		"no":     fmt.Sprint(a.Number),
+		"no":     a.Number,
 	}), nonCharsetContentType
 }
 

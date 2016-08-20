@@ -108,7 +108,7 @@ func FetchList(URL string, page int) (l *List, err error) {
 			IP:                 a.IP,
 			CommentLength:      mustAtoi(a.TotalComment),
 			VoiceCommentLength: mustAtoi(a.TotalVoice),
-			Number:             mustAtoi(a.Number),
+			Number:             a.Number,
 			Date:               dateFormatter(a.Date),
 		}
 		l.Items = append(l.Items, item)
@@ -116,10 +116,12 @@ func FetchList(URL string, page int) (l *List, err error) {
 	return
 }
 
+// Fetch 메소드는 해당 글의 세부 정보(본문, 이미지 주소, 댓글)를 가져옵니다.
 func (i *ListItem) Fetch() (*Article, error) {
 	return FetchArticle(i.URL)
 }
 
+// FetchImageURLs 메소드는 해당 글의 이미지 주소의 슬라이스만을 가져옵니다.
 func (i *ListItem) FetchImageURLs() (imageURLs []string, err error) {
 	formMap := map[string]string{
 		"app_id": AppID,
@@ -219,7 +221,7 @@ func FetchArticle(URL string) (a *Article, err error) {
 		ThumbsUp:      mustAtoi(c.ThumbsUp),
 		ThumbsDown:    mustAtoi(c.ThumbsDown),
 		Name:          d.Name,
-		Number:        mustAtoi(d.Number),
+		Number:        d.Number,
 		Level:         MemberType(mustAtoi(d.MemberIcon)).Level(),
 		IP:            d.IP,
 		CommentLength: mustAtoi(d.TotalComment),
@@ -275,7 +277,7 @@ func fetchComment(URL string, parents *Article) (cs []*Comment, err error) {
 		formMap := map[string]string{
 			"app_id":  AppID,
 			"id":      gallID,
-			"no":      fmt.Sprint(parents.Number),
+			"no":      parents.Number,
 			"re_page": fmt.Sprint(commentPage),
 		}
 		respJSON := make(jsonComment, 1)
@@ -293,7 +295,7 @@ func fetchComment(URL string, parents *Article) (cs []*Comment, err error) {
 				GallogURL: gallogURL(c.UserID),
 				Level:     Level(c.Level),
 				IP:        c.IP,
-				Number:    mustAtoi(c.Number),
+				Number:    c.Number,
 				Date:      dateFormatter(c.Date),
 			}
 			comment.Content, comment.HTMLContent = func() (string, string) {

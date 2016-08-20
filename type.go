@@ -103,7 +103,7 @@ type ListItem struct {
 	IP                 string
 	CommentLength      int
 	VoiceCommentLength int
-	Number             int
+	Number             string
 	Date               time.Time
 }
 
@@ -115,7 +115,7 @@ type Article struct {
 	ThumbsUp      int
 	ThumbsDown    int
 	Name          string
-	Number        int
+	Number        string
 	Level         Level
 	IP            string
 	CommentLength int
@@ -147,7 +147,7 @@ type Comment struct {
 	GallogURL   string
 	Level       Level
 	IP          string
-	Number      int
+	Number      string
 	Date        time.Time
 }
 type CommentType int
