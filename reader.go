@@ -120,6 +120,26 @@ func (i *ListItem) Fetch() (*Article, error) {
 	return FetchArticle(i.URL)
 }
 
+func (i *ListItem) FetchImageURLs() (imageURLs []string, err error) {
+	formMap := map[string]string{
+		"app_id": AppID,
+		"id":     i.Gall.ID,
+		"no":     fmt.Sprint(i.Number),
+	}
+	images := make(jsonArticleImages, 1)
+	err = fetchSomething(formMap, readArticleImageAPI, &images)
+	if err != nil {
+		return
+	}
+	imageURLs = func() (ret []string) {
+		for _, v := range images {
+			ret = append(ret, v.Image)
+		}
+		return
+	}()
+	return
+}
+
 type jsonArticleContent []struct {
 	Memo       string `json:"memo"`
 	ThumbsUp   string `json:"recommend"`

@@ -21,4 +21,10 @@ func TestFetch(t *testing.T) {
 	if targetArticle.Subject != a.Subject {
 		t.Errorf("%v 갤러리의 첫 번째 글을 정상적으로 오지 못했습니다", gallID(URL))
 	}
+	for _, v := range l.Items {
+		imageURLs, err := v.FetchImageURLs()
+		if (v.HasImage && err != nil) || (v.HasImage && len(imageURLs) == 0) {
+			t.Errorf("%v 에서 이미지를 정상적으로 가져오지 못했습니다.", v.URL)
+		}
+	}
 }
