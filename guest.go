@@ -35,8 +35,8 @@ func (gs *GuestSession) Connection() *Connection {
 }
 
 // Write 메소드는 쓰기 가능한 객체를 전달받아 작성 요청을 보냅니다.
-func (gs *GuestSession) Write(wa writable) error {
-	return wa.write(gs)
+func (gs *GuestSession) Write(w writable) error {
+	return w.write(gs)
 }
 
 func (gs *GuestSession) articleWriteForm(ad *ArticleDraft) (io.Reader, string) {
@@ -64,51 +64,51 @@ func (gs *GuestSession) commentWriteForm(cd *CommentDraft) (io.Reader, string) {
 }
 
 // Delete 메소드는 삭제 가능한 객체를 전달받아 삭제 요청을 보냅니다.
-func (gs *GuestSession) Delete(da deletable) error {
-	return da.delete(gs)
+func (gs *GuestSession) Delete(d deletable) error {
+	return d.delete(gs)
 }
 
-func (gs *GuestSession) articleDeleteForm(a *Article) (io.Reader, string) {
+func (gs *GuestSession) articleDeleteForm(id, n string) (io.Reader, string) {
 	return makeForm(map[string]string{
 		"app_id":   AppID,
 		"mode":     "board_del",
 		"write_pw": gs.pw,
-		"id":       a.Gall.ID,
-		"no":       a.Number,
+		"id":       id,
+		"no":       n,
 	}), defaultContentType
 }
 
-func (gs *GuestSession) commentDeleteForm(c *Comment) (io.Reader, string) {
+func (gs *GuestSession) commentDeleteForm(id, n, cn string) (io.Reader, string) {
 	return makeForm(map[string]string{
 		"app_id":     AppID,
 		"comment_pw": gs.pw,
-		"id":         c.Parents.Gall.ID,
-		"no":         c.Parents.Number,
+		"id":         id,
+		"no":         n,
 		"mode":       "comment_del",
-		"comment_no": c.Number,
+		"comment_no": cn,
 	}), defaultContentType
 }
 
 // ThumbsUp 메소드는 해당 글에 추천 요청을 보냅니다.
-func (gs *GuestSession) ThumbsUp(a *Article) error {
+func (gs *GuestSession) ThumbsUp(a actionable) error {
 	return a.thumbsUp(gs)
 }
 
 // ThumbsDown 메소드는 해당 글에 비추천 요청을 보냅니다.
-func (gs *GuestSession) ThumbsDown(a *Article) error {
+func (gs *GuestSession) ThumbsDown(a actionable) error {
 	return a.thumbsDown(gs)
 }
 
-func (gs *GuestSession) actionForm(a *Article) (io.Reader, string) {
+func (gs *GuestSession) actionForm(id, n string) (io.Reader, string) {
 	return makeForm(map[string]string{
 		"app_id": AppID,
-		"id":     a.Gall.ID,
-		"no":     a.Number,
+		"id":     id,
+		"no":     n,
 	}), nonCharsetContentType
 }
 
 // Report 메소드는 해당 글에 메모와 함께 신고 요청을 보냅니다.
-func (gs *GuestSession) Report(a *Article, memo string) error {
+func (gs *GuestSession) Report(a actionable, memo string) error {
 	return a.report(gs, memo)
 }
 

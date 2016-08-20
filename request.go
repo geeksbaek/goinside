@@ -13,10 +13,10 @@ const (
 
 type session interface {
 	articleWriteForm(*ArticleDraft) (form io.Reader, contentType string)
-	articleDeleteForm(*Article) (form io.Reader, contentType string)
+	articleDeleteForm(string, string) (form io.Reader, contentType string)
 	commentWriteForm(*CommentDraft) (form io.Reader, contentType string)
-	commentDeleteForm(*Comment) (form io.Reader, contentType string)
-	actionForm(*Article) (form io.Reader, contentType string)
+	commentDeleteForm(string, string, string) (form io.Reader, contentType string)
+	actionForm(string, string) (form io.Reader, contentType string)
 	reportForm(string, string) (form io.Reader, contentType string)
 	connector
 }
