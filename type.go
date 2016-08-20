@@ -151,3 +151,17 @@ type Comment struct {
 	Date        time.Time
 }
 type CommentType int
+
+type MajorGallery struct {
+	ID     string
+	Name   string
+	Number string
+}
+
+type MinorGallery struct {
+	ID          string
+	Name        string
+	Number      string
+	Manager     string
+	SubManagers []string
+}

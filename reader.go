@@ -1,6 +1,9 @@
 package goinside
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func fetchSomething(formMap map[string]string, api dcinsideAPI, data interface{}) (err error) {
 	resp, err := makeRedirectAPI(formMap, api).get()
@@ -17,30 +20,71 @@ func fetchSomething(formMap map[string]string, api dcinsideAPI, data interface{}
 	return
 }
 
-// selectors
-// const (
-// 	gallDivsQuery = `.gallery_catergory1 > div a`
-// )
+type jsonGallery []struct {
+	Category    string `json:"category"`
+	ID          string `json:"name"`
+	Name        string `json:"ko_name"`
+	Number      string `json:"no"`
+	Depth       string `json:"depth"`
+	CanWrite    bool   `json:"no_write"`
+	IsAdultOnly bool   `json:"is_adult"`
+}
 
-// FetchGallerys 함수는 디시인사이드의 모든 갤러리의 정보를 가져옵니다.
-// 마이너 갤러리의 정보는 가져오지 않습니다.
-// func FetchGallerys() (galls []*GalleryInfo, err error) {
-// 	doc, err := newMobileDocument(gallerysURL)
-// 	if err != nil {
-// 		return
-// 	}
-// 	galls = []*GalleryInfo{}
-// 	doc.Find(gallDivsQuery).Each(func(i int, s *goquery.Selection) {
-// 		if URL, ok := s.Attr(`href`); ok {
-// 			galls = append(galls, &GalleryInfo{
-// 				URL:    URL,
-// 				ID:     gallID(URL),
-// 				Detail: &GalleryInfoDetail{Name: s.Text()},
-// 			})
-// 		}
-// 	})
-// 	return
-// }
+// FetchAllGallery 함수는 모든 갤러리의 정보를 가져옵니다.
+func FetchAllMajorGallery() (mg []*MajorGallery, err error) {
+	resp, err := majorGalleryListAPI.get()
+	if err != nil {
+		return
+	}
+	jsonResp := jsonGallery{}
+	if err = responseUnmarshal(resp, &jsonResp); err != nil {
+		return
+	}
+	mg = make([]*MajorGallery, len(jsonResp))
+	for i, v := range jsonResp {
+		mg[i] = &MajorGallery{
+			ID:     v.ID,
+			Name:   v.Name,
+			Number: v.Number,
+		}
+	}
+	return
+}
+
+type jsonMonirGallery []struct {
+	Category    string `json:"category"`
+	ID          string `json:"name"`
+	Name        string `json:"ko_name"`
+	Number      string `json:"no"`
+	Depth       string `json:"depth"`
+	CanWrite    bool   `json:"no_write"`
+	IsAdultOnly bool   `json:"is_adult"`
+	Manager     string `json:"manager"`
+	SubManagers string `json:"submanager"`
+}
+
+// FetchAllMinorGallery 함수는 모든 마이너 갤러리의 정보를 가져옵니다.
+func FetchAllMinorGallery() (mg []*MinorGallery, err error) {
+	resp, err := minorGalleryListAPI.get()
+	if err != nil {
+		return
+	}
+	jsonResp := jsonMonirGallery{}
+	if err = responseUnmarshal(resp, &jsonResp); err != nil {
+		return
+	}
+	mg = make([]*MinorGallery, len(jsonResp))
+	for i, v := range jsonResp {
+		mg[i] = &MinorGallery{
+			ID:          v.ID,
+			Name:        v.Name,
+			Number:      v.Number,
+			Manager:     v.Manager,
+			SubManagers: strings.Split(v.SubManagers, ","),
+		}
+	}
+	return
+}
 
 type jsonList []struct {
 	GallInfo []struct {

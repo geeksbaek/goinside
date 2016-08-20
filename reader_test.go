@@ -22,3 +22,20 @@ func TestFetch(t *testing.T) {
 		t.Errorf("%v 갤러리의 첫 번째 글을 정상적으로 오지 못했습니다", gallID(URL))
 	}
 }
+
+func TestGalleryList(t *testing.T) {
+	major, err := FetchAllMajorGallery()
+	if err != nil {
+		t.Error(err)
+	}
+	if len(major) == 0 {
+		t.Error("메이저 갤러리 목록을 가져올 수 없습니다.")
+	}
+	minor, err := FetchAllMinorGallery()
+	if err != nil {
+		t.Error(err)
+	}
+	if len(minor) == 0 {
+		t.Error("마이너 갤러리 목록을 가져올 수 없습니다.")
+	}
+}

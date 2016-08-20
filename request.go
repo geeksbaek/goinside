@@ -49,6 +49,8 @@ const (
 	readArticleDetailAPI dcinsideAPI = "http://m.dcinside.com/api/gall_view.php"
 	readArticleImageAPI  dcinsideAPI = "http://m.dcinside.com/api/view_img.php"
 	readCommentAPI       dcinsideAPI = "http://m.dcinside.com/api/comment.php"
+	majorGalleryListAPI  dcinsideAPI = "http://json.dcinside.com/App/gall_name.php"
+	minorGalleryListAPI  dcinsideAPI = "http://json.dcinside.com/App/gall_name_sub.php"
 )
 
 // content types
