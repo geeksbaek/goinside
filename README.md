@@ -15,8 +15,10 @@ go get -u github.com/geeksbaek/goinside/...
 
 ## Update
 
-### 2016-08-20
+### 2016-08-22
+디시인사이드가 유효하지 않은 JSON 포맷을 반환하는 경우, 이것을 유효한 JSON 포맷으로 수정해서 처리하도록 하였습니다.
 
+### 2016-08-20
 갤러리 정보를 가져오는 부분을 디시인사이드 API를 통해 가져오도록 수정하였습니다. 이에 따라 `List`, `Article`, `Comment` 구조체가 모두 변경되었습니다. 이제 디시인사이드 API가 제공되지 않는 gallog 패키지를 제외하면 goinside의 모든 기능은 디시인사이드 API를 통해 구현됩니다.
 
 여기서 말하는 디시인사이드 API는, 디시인사이드 공식 App 및 서드파티 App에서 사용되는 HTTP 기반의 API를 말합니다. 기존의 goinside가 디시인사이드 Web을 파싱하여 비공식 API를 제공하는 형태였다면, 이제는 디시인사이드 HTTP API의 Go 버전 Wrapper를 구현하는 형태가 되었습니다.
@@ -26,11 +28,9 @@ go get -u github.com/geeksbaek/goinside/...
 이제 댓글에서 DCcon과 보이스 리플을 구분합니다. `Comment` 구조체는 Type이라는 이름의 `CommentType` 타입이 댓글의 타입을 표현합니다. 또한 Comment의 `HTMLContent` 메소드는 해당 타입에 대응되는 완성된 HTML 코드를 반환합니다. (DCcon일 경우 img, 보이스 리플일 경우 audio element)
 
 ### 2016-08-09
-
 하위 패키지 `github.com/geeksbaek/goinside/gallog ` 를 추가하고 갤로그 관련 API를 추가하였습니다.
 
 ### 2016-08-07
-
 API의 구조가 크게 변경되었습니다. godoc을 확인해주세요.
 
 ## 주의
