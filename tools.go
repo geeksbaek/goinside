@@ -172,10 +172,18 @@ func responseUnmarshal(resp *http.Response, datas ...interface{}) error {
 	if err != nil {
 		return err
 	}
+	body = bytes.Replace(body, []byte(`\'`), []byte(`'`), -1)
 	for _, data := range datas {
 		if err := json.Unmarshal(body, data); err != nil {
-			replaced := bytes.Replace(body, []byte(`\`), []byte(""), -1)
-			replaced = bytes.Replace(replaced, []byte("\t"), []byte(`\t`), -1)
+			r := strings.NewReplacer(
+				"\\", `\\`,
+				"\b", `\b`,
+				"\f", `\f`,
+				"\n", `\n`,
+				"\r", `\r`,
+				"\t", `\t`,
+			)
+			replaced := []byte(r.Replace(string(body)))
 			if err := json.Unmarshal(replaced, data); err != nil {
 				return err
 			}

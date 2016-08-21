@@ -16,7 +16,7 @@ func TestFetch(t *testing.T) {
 	targetArticle := l.Items[0]
 	a, err := targetArticle.Fetch()
 	if err != nil {
-		t.Error(err)
+		t.Error(err, targetArticle.URL)
 	}
 	if targetArticle.Subject != a.Subject {
 		t.Errorf("%v 갤러리의 첫 번째 글을 정상적으로 오지 못했습니다", gallID(URL))
