@@ -175,10 +175,6 @@ func responseUnmarshal(resp *http.Response, datas ...interface{}) error {
 	for _, data := range datas {
 		if err := json.Unmarshal(body, data); err != nil {
 			replaced := bytes.Replace(body, []byte(`\`), []byte(""), -1)
-			replaced = bytes.Replace(replaced, []byte("\b"), []byte(`\b`), -1)
-			replaced = bytes.Replace(replaced, []byte("\f"), []byte(`\f`), -1)
-			replaced = bytes.Replace(replaced, []byte("\n"), []byte(`\n`), -1)
-			replaced = bytes.Replace(replaced, []byte("\r"), []byte(`\r`), -1)
 			replaced = bytes.Replace(replaced, []byte("\t"), []byte(`\t`), -1)
 			if err := json.Unmarshal(replaced, data); err != nil {
 				return err
