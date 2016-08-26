@@ -40,26 +40,26 @@ func (gs *GuestSession) Write(w writable) error {
 	return w.write(gs)
 }
 
-func (gs *GuestSession) articleWriteForm(ad *ArticleDraft) (io.Reader, string) {
+func (gs *GuestSession) articleWriteForm(id, s, c string, is ...string) (io.Reader, string) {
 	return multipartForm(map[string]string{
 		"app_id":   AppID,
 		"mode":     "write",
 		"name":     gs.id,
 		"password": gs.pw,
-		"id":       ad.GallID,
-		"subject":  ad.Subject,
-		"content":  ad.Content,
-	}, ad.Images...)
+		"id":       id,
+		"subject":  s,
+		"content":  c,
+	}, is...)
 }
 
-func (gs *GuestSession) commentWriteForm(cd *CommentDraft) (io.Reader, string) {
+func (gs *GuestSession) commentWriteForm(id, n, c string) (io.Reader, string) {
 	return makeForm(map[string]string{
 		"app_id":       AppID,
 		"comment_nick": gs.id,
 		"comment_pw":   gs.pw,
-		"id":           cd.Target.Gall.ID,
-		"no":           cd.Target.Number,
-		"comment_memo": cd.Content,
+		"id":           id,
+		"no":           n,
+		"comment_memo": c,
 		"mode":         "comment_nonmember",
 	}), defaultContentType
 }

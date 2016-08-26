@@ -132,6 +132,10 @@ type ListItem struct {
 	Date               time.Time
 }
 
+func (i *ListItem) articleInfo() (id, number string) {
+	return i.Gall.ID, i.Number
+}
+
 // Article 구조체는 글의 정보를 나타냅니다. 여기에는 해당 글이 작성된 갤러리의 정보와
 // 해당 글에 달린 댓글들을 모두 포함합니다.
 type Article struct {
@@ -155,6 +159,10 @@ type Article struct {
 	ImageURLs     []string
 	Comments      []*Comment
 	Date          time.Time
+}
+
+func (a *Article) articleInfo() (id, number string) {
+	return a.Gall.ID, a.Number
 }
 
 // ArticleType 은 글의 타입을 나타내는 상수입니다.
