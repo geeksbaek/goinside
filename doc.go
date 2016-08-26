@@ -1,7 +1,6 @@
-// Package goinside 는 Go로 구현한 비공식 디시인사이드 API입니다.
-package goinside
-
 /*
+Package goinside 는 Go로 구현한 비공식 디시인사이드 API입니다.
+
 goinside는 다음 기능을 지원합니다.
 
 1. 유동닉 또는 고정닉으로 글과 댓글의 작성 및 삭제
@@ -65,3 +64,4 @@ http 요청에 타임아웃을 설정할 수도 있습니다.
         s.Connection().SetTimeout(time.Second * 3)
 
 */
+package goinside
