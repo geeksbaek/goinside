@@ -51,12 +51,42 @@ Draft를 생성하기 위해 NewArticleDraft, NewCommentDraft 함수가 있습�
                 log.Fatal(err)
         }
 
+다음은 가져온 목록의 첫 번째 글에 댓글을 작성하는 코드입니다.
+
+        err := goinside.Write(goinside.NewCommentDraft(
+                list.Items[0],
+                "내용",
+        ))
+        if err != nil {
+                log.Fatal(err)
+        }
+
+다음은 가져온 목록의 첫 번째 글을 삭제하는 코드입니다.
+삭제할 때는 해당 세션의 정보로 삭제를 시도합니다.
+유동닉의 경우 닉네임과 비밀번호가 글을 작성할 때 사용했던 것과 일치해야 하며,
+고정닉의 경우 해당 세션의 고정닉으로 작성했던 글이어야 삭제할 수 있습니다.
+일치하지 않는 세션으로 삭제 요청을 할 경우, 오류를 반환합니다.
+
+        if err := s.Delete(list.Items[0]); err != nil {
+                log.Fatal(err)
+        }
+
 가져온 글을 Write 메소드에 넘겨서 바로 재작성 할 수도 있습니다.
 그러나 FetchList, FetchBestList 함수로 가져온 Item들은
 아직 글의 내용을 알 수 없는 상태입니다.
 이 Item이 Write 함수의 인자로 전달될 때는 글의 제목을 그대로 내용으로 쓰도록 되어있습니다.
 
         if err := s.Write(list.Items[0]); err != nil {
+                log.Fatal(err)
+        }
+
+다음은 FetchArticle 함수로 가져온 글을 재작성하는 코드입니다.
+
+        article, err := goinside.FetchArticle(URL)
+        if err != nil {
+                log.Fatal(err)
+        }
+        if err := s.Write(article); err != nil {
                 log.Fatal(err)
         }
 
