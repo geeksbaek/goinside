@@ -195,7 +195,7 @@ type MajorGallery struct {
 
 // MinorGallery 구조체는 마이너 갤러리의 정보를 나타냅니다.
 // 마이너 갤러리는 일반 갤러리와 달리 매니저와 부매니저가 존재합니다.
-// 부매니저는 여러 명일 수 있고, 해당 값은 gallog ID 입니다.
+// 부매니저는 여러 명일 수 있습니다. 해당 값들은 gallog ID 입니다.
 type MinorGallery struct {
 	ID          string
 	Name        string

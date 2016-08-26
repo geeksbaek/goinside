@@ -31,10 +31,11 @@ func (api dcinsideAPI) get() (*http.Response, error) {
 	return do(&GuestSession{}, "GET", string(api), nil, nil, defaultContentType, apiRequestHeader)
 }
 
+// AppID 는 디시인사이드 API 요청에 필요한 Key 값입니다.
+const AppID = "blM1T09mWjRhQXlZbE1ML21xbkM3QT09"
+
 // apis
 const (
-	AppID = "blM1T09mWjRhQXlZbE1ML21xbkM3QT09"
-
 	loginAPI             dcinsideAPI = "https://dcid.dcinside.com/join/mobile_app_login.php"
 	writeArticleAPI      dcinsideAPI = "http://upload.dcinside.com/_app_write_api.php"
 	deleteArticleAPI     dcinsideAPI = "http://m.dcinside.com/api/gall_del.php"
