@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 )
 
 // web urls
@@ -59,7 +60,9 @@ func do(method, URL string, cookies []*http.Cookie, form io.Reader, requestHeade
 	for k, v := range requestHeader {
 		req.Header.Set(k, v)
 	}
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: time.Second * 3,
+	}
 
 	for i := 1; ; i++ {
 		if resp, err := client.Do(req); err == nil {

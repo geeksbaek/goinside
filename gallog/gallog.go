@@ -169,14 +169,28 @@ func (s *Session) FetchAll() (data *GallogDataSet) {
 	return
 }
 
-func (s *Session) DeleteAll(data *GallogDataSet) {
+func (s *Session) DeleteAll(data *GallogDataSet, cb func(i, n int)) {
 	max := maxConcurrentRequestCount
 	wg := new(sync.WaitGroup)
+
+	progressCh := make(chan struct{})
+	doneCh := make(chan struct{})
+	go func() {
+		i := 1
+		n := len(data.As) + len(data.Cs)
+		for _ = range progressCh {
+			cb(i, n)
+			i++
+		}
+		close(doneCh)
+	}()
+
 	for i, a := range data.As {
 		wg.Add(1)
 		go func(a *articleMicroInfo) {
 			defer wg.Done()
 			a.delete(s)
+			progressCh <- struct{}{}
 		}(a)
 		if i%max == 0 {
 			wg.Wait()
@@ -188,12 +202,15 @@ func (s *Session) DeleteAll(data *GallogDataSet) {
 		go func(c *commentMicroInfo) {
 			defer wg.Done()
 			c.delete(s)
+			progressCh <- struct{}{}
 		}(c)
 		if i%max == 0 {
 			wg.Wait()
 		}
 	}
 	wg.Wait()
+	close(progressCh)
+	<-doneCh
 }
 
 func (a *articleMicroInfo) delete(s *Session) {
