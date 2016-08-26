@@ -69,7 +69,7 @@ func do(method, URL string, cookies []*http.Cookie, form io.Reader, requestHeade
 			return resp
 		}
 		if i > 100 {
-			log.Println(URL, i, "번 째 시도 중...")
+			return nil
 		}
 	}
 }
