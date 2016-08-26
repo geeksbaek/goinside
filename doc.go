@@ -1,7 +1,7 @@
 /*
 Package goinside 는 Go로 구현한 비공식 디시인사이드 API입니다.
 
-Future
+Feature
 
 1. 유동닉 또는 고정닉으로 글과 댓글의 작성 및 삭제
 
