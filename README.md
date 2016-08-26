@@ -29,7 +29,7 @@ go get -u github.com/geeksbaek/goinside/...
 
 이제 `FetchList` 함수는 `ListItem` 구조체의 슬라이스을 반환합니다. `ListItem`은 IP 멤버 변수를 가집니다. 디시인사이드 API를 사용하게 되면서 개별 Article을 각각 Fetch하지 않아도 Article Author의 IP를 알 수 있게 되었습니다.
 
-이제 댓글에서 DCcon과 보이스 리플을 구분합니다. `Comment` 구조체는 Type이라는 이름의 `CommentType` 타입이 댓글의 타입을 표현합니다. 또한 Comment의 `HTMLContent` 메소드는 해당 타입에 대응되는 완성된 HTML 코드를 반환합니다. (DCcon일 경우 img, 보이스 리플일 경우 audio element)
+이제 댓글에서 DCcon과 보이스 리플을 구분합니다. `Comment` 구조체는 Type이라는 이름의 `CommentType` 타입이 댓글의 타입을 나타냅니다. 또한 Comment의 `HTMLContent` 메소드는 해당 타입에 대응되는 완성된 HTML 코드를 반환합니다. (DCcon일 경우 img, 보이스 리플일 경우 audio element)
 
 ### 2016-08-09
 하위 패키지 `github.com/geeksbaek/goinside/gallog ` 를 추가하고 갤로그 관련 API를 추가하였습니다.

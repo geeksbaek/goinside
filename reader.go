@@ -30,7 +30,7 @@ type jsonGallery []struct {
 	IsAdultOnly bool   `json:"is_adult"`
 }
 
-// FetchAllGallery 함수는 모든 갤러리의 정보를 가져옵니다.
+// FetchAllMajorGallery 함수는 모든 일반 갤러리의 정보를 가져옵니다.
 func FetchAllMajorGallery() (mg []*MajorGallery, err error) {
 	resp, err := majorGalleryListAPI.get()
 	if err != nil {
@@ -222,8 +222,8 @@ type jsonArticleDetail []struct {
 	PrevArticleSubject string `json:"prev_subject"`
 	NextArticleNumber  string `json:"next_link"`
 	NextArticleSubject string `json:"next_subject"`
-	_                  string `json:"best_chk"` // ?
-	Date               string `json:"date_time"`
+	// _                  string `json:"best_chk"` // ?
+	Date string `json:"date_time"`
 }
 
 type jsonArticleImages []struct {
@@ -354,7 +354,7 @@ func fetchComment(URL string, parents *Article) (cs []*Comment, err error) {
 				Number:    c.Number,
 				Date:      dateFormatter(c.Date),
 			}
-			comment.Content, comment.HTMLContent = func() (string, string) {
+			comment.Content, comment.HTML = func() (string, string) {
 				switch comment.Type {
 				case TextCommentType:
 					return c.Content, c.Content

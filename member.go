@@ -10,7 +10,7 @@ var (
 	errLoginFailed = errors.New("login failed")
 )
 
-// MemberSession 구조체는 고정닉의 세션을 표현합니다.
+// MemberSession 구조체는 고정닉의 세션을 나타냅니다.
 type MemberSession struct {
 	id   string
 	pw   string
@@ -18,6 +18,7 @@ type MemberSession struct {
 	*MemberSessionDetail
 }
 
+// MemberSessionDetail 구조체는 해당 세션의 세부 정보를 나타냅니다.
 type MemberSessionDetail struct {
 	UserID string `json:"user_id"`
 	UserNO string `json:"user_no"`
@@ -74,6 +75,7 @@ func (ms *MemberSession) Logout() (err error) {
 	return
 }
 
+// Connection 메소드는 해당 세션의 Connection 구조체를 반환합니다.
 func (ms *MemberSession) Connection() *Connection {
 	if ms.conn == nil {
 		ms.conn = &Connection{}

@@ -10,7 +10,7 @@ var (
 	errInvalidIDorPW = errors.New("invalid ID or PW")
 )
 
-// GuestSession 구조체는 유동닉 세션을 표현합니다.
+// GuestSession 구조체는 유동닉 세션을 나타냅니다.
 type GuestSession struct {
 	id   string
 	pw   string
@@ -27,6 +27,7 @@ func Guest(id, pw string) (gs *GuestSession, err error) {
 	return
 }
 
+// Connection 메소드는 해당 세션의 Connection 구조체를 반환합니다.
 func (gs *GuestSession) Connection() *Connection {
 	if gs.conn == nil {
 		gs.conn = &Connection{}

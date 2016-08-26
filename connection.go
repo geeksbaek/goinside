@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Connection 구조체는 HTTP 통신에 필요한 정보를 표현합니다.
+// Connection 구조체는 HTTP 통신에 필요한 정보를 나타냅니다.
 type Connection struct {
 	proxy   func(*http.Request) (*url.URL, error)
 	timeout time.Duration

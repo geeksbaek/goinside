@@ -4,7 +4,7 @@ type writable interface {
 	write(s session) error
 }
 
-// ArticleDraft 구조체는 작성하기 위한 글의 초안을 표현합니다.
+// ArticleDraft 구조체는 작성하기 위한 글의 초안을 나타냅니다.
 type ArticleDraft struct {
 	GallID  string
 	Subject string
@@ -27,7 +27,7 @@ func (ad *ArticleDraft) write(s session) error {
 	return checkResponse(resp)
 }
 
-// CommentDraft 구조체는 작성하기 위한 댓글의 초안을 표현합니다.
+// CommentDraft 구조체는 작성하기 위한 댓글의 초안을 나타냅니다.
 type CommentDraft struct {
 	Target  *Article
 	Content string

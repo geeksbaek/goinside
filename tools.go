@@ -40,6 +40,7 @@ const (
 	audioElementFormat      = `<audio controls><source src="%v" type="audio/mpeg">Your browser does not support the audio element.</audio>`
 )
 
+// 해당 Map들은 특정 타입에 대응되는 Icon URL을 나타냅니다.
 var (
 	ArticleIconURLMap = map[ArticleType]string{
 		TextArticleType:      "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_text.png",
