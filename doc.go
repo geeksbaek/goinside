@@ -3,11 +3,17 @@ Package goinside 는 Go로 구현한 비공식 디시인사이드 API입니다.
 
 goinside는 다음 기능을 지원합니다.
 
+
 1. 유동닉 또는 고정닉으로 글과 댓글의 작성 및 삭제
+
 2. 추천과 비추천, 신고
+
 3. 특정 갤러리의 특정 페이지에 있는 게시물 및 댓글 가져오기
+
 4. 모든 일반 갤러리, 마이너 갤러리 정보 가져오기
+
 5. 프록시 모드
+
 
 글이나 댓글을 작성하거나 삭제하려면 우선 세션을 생성해야 합니다.
 
@@ -36,7 +42,7 @@ Draft를 생성하기 위해 NewArticleDraft, NewCommentDraft 함수가 있습�
                 log.Fatal(err)
         }
 
-갤러리의 글을 가져오는데는 세션이 필요하지 않습니다.
+갤러리의 글을 가져오는 데는 세션이 필요하지 않습니다.
 다음 코드는 programming 갤러리의 개념글 목록 1페이지에 있는 글들을 가져옵니다.
 
         URL := "http://gall.dcinside.com/board/lists/?id=programming"
