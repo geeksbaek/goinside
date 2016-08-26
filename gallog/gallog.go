@@ -36,6 +36,7 @@ var (
 	cidRe              = regexp.MustCompile(`<INPUT TYPE="hidden" NAME="cid" value="([^"]+)">`)
 )
 
+// Session 구조체는 갤로그 세션 정보를 나타냅니다.
 type Session struct {
 	id      string
 	pw      string
@@ -43,6 +44,7 @@ type Session struct {
 	*goinside.MemberSessionDetail
 }
 
+// Login 함수는 해당 ID와 PASSWORD로 로그인한 뒤 해당 세션을 반환합니다.
 func Login(id, pw string) (s *Session, err error) {
 	form := makeForm(map[string]string{
 		"s_url":    "http://www.dcinside.com/",
@@ -59,8 +61,10 @@ func Login(id, pw string) (s *Session, err error) {
 	return
 }
 
+// Logout 메소드는 해당 세션을 종료합니다.
 func (s *Session) Logout() (err error) {
 	do("GET", desktopLogoutURL, s.cookies, nil, desktopRequestHeader)
+	s = nil
 	return
 }
 
@@ -72,7 +76,8 @@ type commentMicroInfo struct {
 	gid, no, cno, logNo string
 }
 
-type GallogDataSet struct {
+// DataSet 구조체는 갤로그에 존재하는 글과 댓글의 목록을 나타냅니다.
+type DataSet struct {
 	As []*articleMicroInfo
 	Cs []*commentMicroInfo
 }
@@ -122,14 +127,15 @@ func newGallogDocument(s *Session, URL string) *goquery.Document {
 	return doc
 }
 
-func (s *Session) FetchAll() (data *GallogDataSet) {
+// FetchAll 메소드는 해당 세션의 갤로그에 존재하는 모든 데이터를 가져옵니다.
+func (s *Session) FetchAll() (data *DataSet) {
 	max := maxConcurrentRequestCount
-	data = &GallogDataSet{[]*articleMicroInfo{}, []*commentMicroInfo{}}
+	data = &DataSet{[]*articleMicroInfo{}, []*commentMicroInfo{}}
 
 	// maxConcurrentRequestCount 값만큼 동시에 수행한다.
 	for i := 1; ; i += max {
-		tempASs := make([][]*articleMicroInfo, max)
-		tempCSs := make([][]*commentMicroInfo, max)
+		tempArticleSlice := make([][]*articleMicroInfo, max)
+		tempCommentSlice := make([][]*commentMicroInfo, max)
 
 		// fetching
 		wg := new(sync.WaitGroup)
@@ -140,27 +146,27 @@ func (s *Session) FetchAll() (data *GallogDataSet) {
 			go func() {
 				defer wg.Done()
 				doc := newGallogDocument(s, URL)
-				tempASs[index] = parseArticles(doc)
-				tempCSs[index] = parseComments(doc)
+				tempArticleSlice[index] = parseArticles(doc)
+				tempCommentSlice[index] = parseComments(doc)
 			}()
 		}
 		wg.Wait()
 
 		// check end of page and append to data
 		articleDone, commentDone := false, false
-		for _, tempAS := range tempASs {
-			if len(tempAS) == 0 {
+		for _, tempArticles := range tempArticleSlice {
+			if len(tempArticles) == 0 {
 				articleDone = true
 				break
 			}
-			data.As = append(data.As, tempAS...)
+			data.As = append(data.As, tempArticles...)
 		}
-		for _, tempCS := range tempCSs {
-			if len(tempCS) == 0 {
+		for _, tempComments := range tempCommentSlice {
+			if len(tempComments) == 0 {
 				commentDone = true
 				break
 			}
-			data.Cs = append(data.Cs, tempCS...)
+			data.Cs = append(data.Cs, tempComments...)
 		}
 		if articleDone && commentDone {
 			break
@@ -169,7 +175,10 @@ func (s *Session) FetchAll() (data *GallogDataSet) {
 	return
 }
 
-func (s *Session) DeleteAll(data *GallogDataSet, cb func(i, n int)) {
+// DeleteAll 메소드는 해당 데이터를 모두 삭제합니다.
+// 데이터 삭제 상황을 확인할 수 있도록 콜백 함수를 인자로 받습니다.
+// 해당 콜백 함수는 삭제된 데이터 개수 i과 총 데이터 개수 n을 인자로 받습니다.
+func (s *Session) DeleteAll(data *DataSet, cb func(i, n int)) {
 	max := maxConcurrentRequestCount
 	wg := new(sync.WaitGroup)
 
