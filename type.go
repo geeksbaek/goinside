@@ -161,6 +161,15 @@ type Article struct {
 	Date          time.Time
 }
 
+func (a *Article) write(s session) error {
+	form, contentType := s.articleWriteForm(a.Gall.ID, a.Subject, a.Content)
+	resp, err := writeArticleAPI.post(s, form, contentType)
+	if err != nil {
+		return err
+	}
+	return checkResponse(resp)
+}
+
 func (a *Article) articleInfo() (id, number string) {
 	return a.Gall.ID, a.Number
 }
