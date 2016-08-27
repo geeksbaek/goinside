@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 )
 
 // regex
@@ -40,7 +41,6 @@ const (
 	audioElementFormat      = `<audio controls><source src="%v" type="audio/mpeg">Your browser does not support the audio element.</audio>`
 )
 
-// 해당 Map들은 특정 타입에 대응되는 Icon URL을 나타냅니다.
 var (
 	ArticleIconURLMap = map[ArticleType]string{
 		TextArticleType:      "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_text.png",
@@ -160,6 +160,16 @@ func dateFormatter(s string) time.Time {
 	return time.Time{}
 }
 
+func removeNonPrintableUnicode(b []byte) []byte {
+	buf := bytes.Buffer{}
+	for _, v := range string(b) {
+		if unicode.IsPrint(v) {
+			buf.WriteRune(v)
+		}
+	}
+	return buf.Bytes()
+}
+
 func checkResponse(resp *http.Response) error {
 	jsonResp := make(jsonValidation, 1)
 	if err := responseUnmarshal(resp, &jsonResp); err != nil {
@@ -173,6 +183,7 @@ func responseUnmarshal(resp *http.Response, datas ...interface{}) error {
 	if err != nil {
 		return err
 	}
+	body = removeNonPrintableUnicode(body)
 	body = bytes.Replace(body, []byte(`\'`), []byte(`'`), -1)
 	for _, data := range datas {
 		if err := json.Unmarshal(body, data); err != nil {
