@@ -59,8 +59,6 @@ func Login(id, pw string) (ms *MemberSession, err error) {
 
 func (msd *MemberSessionDetail) isSucceed() bool {
 	switch {
-	case msd.Name == "":
-		return false
 	case msd.UserID == "":
 		return false
 	case msd.UserNO == "":

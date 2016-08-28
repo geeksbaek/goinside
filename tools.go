@@ -183,10 +183,10 @@ func responseUnmarshal(resp *http.Response, datas ...interface{}) error {
 	if err != nil {
 		return err
 	}
+	body = bytes.Replace(body, []byte(`\'`), []byte(`'`), -1)
+	body = removeNonPrintableUnicode(body)
 	for _, data := range datas {
 		if err := json.Unmarshal(body, data); err != nil {
-			body = bytes.Replace(body, []byte(`\'`), []byte(`'`), -1)
-			body = removeNonPrintableUnicode(body)
 			r := strings.NewReplacer(
 				"\\", `\\`,
 				"\b", `\b`,
