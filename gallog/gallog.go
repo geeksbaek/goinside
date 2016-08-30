@@ -129,10 +129,10 @@ func newGallogDocument(s *Session, URL string) *goquery.Document {
 
 // FetchAll 메소드는 해당 세션의 갤로그에 존재하는 모든 데이터를 가져옵니다.
 func (s *Session) FetchAll() (data *DataSet) {
-	max := maxConcurrentRequestCount
+	max := maxConcurrentRequestCount / 10
 	data = &DataSet{[]*articleMicroInfo{}, []*commentMicroInfo{}}
 
-	// maxConcurrentRequestCount 값만큼 동시에 수행한다.
+	// maxConcurrentRequestCount / 10 값만큼 동시에 수행한다.
 	for i := 1; ; i += max {
 		tempArticleSlice := make([][]*articleMicroInfo, max)
 		tempCommentSlice := make([][]*commentMicroInfo, max)
