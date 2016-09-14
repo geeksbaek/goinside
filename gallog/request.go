@@ -51,7 +51,7 @@ func api(URL string, form io.Reader) *http.Response {
 func do(method, URL string, cookies []*http.Cookie, form io.Reader, requestHeader map[string]string) *http.Response {
 	req, err := http.NewRequest(method, URL, form)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("http.NewRequest error :", err)
 	}
 	for _, cookie := range cookies {
 		req.AddCookie(cookie)

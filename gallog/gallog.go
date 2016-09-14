@@ -122,7 +122,7 @@ func newGallogDocument(s *Session, URL string) *goquery.Document {
 	resp := do("GET", URL, s.cookies, nil, gallogRequestHeader)
 	doc, err := goquery.NewDocumentFromResponse(resp)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("goquery.NewDocumentFromResponse error :", err)
 	}
 	return doc
 }
