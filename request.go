@@ -1,8 +1,11 @@
 package goinside
 
 import (
+	"encoding/base64"
+	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 )
 
 // urls
@@ -27,8 +30,15 @@ func (api dcinsideAPI) post(c connector, form io.Reader, contentType string) (*h
 	return do(c, "POST", string(api), nil, form, contentType, apiRequestHeader)
 }
 
-func (api dcinsideAPI) get() (*http.Response, error) {
-	return do(&GuestSession{}, "GET", string(api), nil, nil, defaultContentType, apiRequestHeader)
+func (api dcinsideAPI) get(m map[string]string) (*http.Response, error) {
+	data := url.Values{}
+	for k, v := range m {
+		data.Add(k, v)
+	}
+	params := string(api) + "?" + data.Encode()
+	encodedParams := base64.StdEncoding.EncodeToString([]byte(params))
+	hashedAPI := fmt.Sprintf("%s?hash=%s", redirectAPI, encodedParams)
+	return do(&GuestSession{}, "GET", hashedAPI, nil, nil, defaultContentType, apiRequestHeader)
 }
 
 // AppID 는 디시인사이드 API 요청에 필요한 Key 값입니다.
