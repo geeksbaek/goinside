@@ -6,7 +6,7 @@ import (
 )
 
 func fetchSomething(formMap map[string]string, api dcinsideAPI, data interface{}) (err error) {
-	resp, err := makeRedirectAPI(formMap, api).get()
+	resp, err := api.get(formMap)
 	if err != nil {
 		return
 	}
@@ -32,7 +32,7 @@ type jsonGallery []struct {
 
 // FetchAllMajorGallery 함수는 모든 일반 갤러리의 정보를 가져옵니다.
 func FetchAllMajorGallery() (mg []*MajorGallery, err error) {
-	resp, err := majorGalleryListAPI.get()
+	resp, err := majorGalleryListAPI.get(nil)
 	if err != nil {
 		return
 	}
@@ -65,7 +65,7 @@ type jsonMonirGallery []struct {
 
 // FetchAllMinorGallery 함수는 모든 마이너 갤러리의 정보를 가져옵니다.
 func FetchAllMinorGallery() (mg []*MinorGallery, err error) {
-	resp, err := minorGalleryListAPI.get()
+	resp, err := minorGalleryListAPI.get(nil)
 	if err != nil {
 		return
 	}

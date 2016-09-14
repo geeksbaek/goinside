@@ -2,13 +2,11 @@ package goinside
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -133,7 +131,7 @@ func gallID(URL string) string {
 func mustAtoi(a string) int {
 	i, err := strconv.Atoi(a)
 	if err != nil {
-		log.Fatal(err)
+		return 0
 	}
 	return i
 }
@@ -221,16 +219,6 @@ func checkJSONResult(jsonResp *jsonValidation) error {
 		return errors.New(valid.Cause)
 	}
 	return nil
-}
-
-func makeRedirectAPI(m map[string]string, originAPI dcinsideAPI) dcinsideAPI {
-	form := []string{}
-	for k, v := range m {
-		form = append(form, k+"="+v)
-	}
-	params := string(originAPI) + "?" + strings.Join(form, "&")
-	encodedParams := base64.StdEncoding.EncodeToString([]byte(params))
-	return dcinsideAPI(fmt.Sprintf("%s?hash=%s", redirectAPI, encodedParams))
 }
 
 func makeForm(m map[string]string) io.Reader {
