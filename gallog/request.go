@@ -68,8 +68,8 @@ func do(method, URL string, cookies []*http.Cookie, form io.Reader, requestHeade
 		if resp, err := client.Do(req); err == nil {
 			return resp
 		}
-		if i > 100 {
-			return nil
+		if i > 300 {
+			log.Fatal("디시인사이드 서버가 응답하지 않습니다.")
 		}
 	}
 }

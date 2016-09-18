@@ -119,20 +119,22 @@ func gallogURL(gid string, page int) string {
 }
 
 func newGallogDocument(s *Session, URL string) *goquery.Document {
-	resp := do("GET", URL, s.cookies, nil, gallogRequestHeader)
-	doc, err := goquery.NewDocumentFromResponse(resp)
-	if err != nil {
-		log.Fatal("goquery.NewDocumentFromResponse error :", err)
+	for {
+		resp := do("GET", URL, s.cookies, nil, gallogRequestHeader)
+		doc, err := goquery.NewDocumentFromResponse(resp)
+		if err != nil {
+			continue
+		}
+		return doc
 	}
-	return doc
 }
 
 // FetchAll 메소드는 해당 세션의 갤로그에 존재하는 모든 데이터를 가져옵니다.
 func (s *Session) FetchAll() (data *DataSet) {
-	max := maxConcurrentRequestCount / 10
+	max := maxConcurrentRequestCount
 	data = &DataSet{[]*articleMicroInfo{}, []*commentMicroInfo{}}
 
-	// maxConcurrentRequestCount / 10 값만큼 동시에 수행한다.
+	// maxConcurrentRequestCount 값만큼 동시에 수행한다.
 	for i := 1; ; i += max {
 		tempArticleSlice := make([][]*articleMicroInfo, max)
 		tempCommentSlice := make([][]*commentMicroInfo, max)
