@@ -117,14 +117,12 @@ func gallogURL(gid string, page int) string {
 }
 
 func newGallogDocument(s *Session, URL string) *goquery.Document {
-	for {
-		resp := do("GET", URL, s.cookies, nil, gallogRequestHeader)
-		doc, err := goquery.NewDocumentFromResponse(resp)
-		if err != nil {
-			continue
-		}
-		return doc
+	resp := do("GET", URL, s.cookies, nil, gallogRequestHeader)
+	doc, err := goquery.NewDocumentFromResponse(resp)
+	if err != nil {
+		return nil
 	}
+	return doc
 }
 
 // FetchAll 메소드는 해당 세션의 갤로그에 존재하는 모든 데이터를 가져옵니다.
@@ -144,9 +142,14 @@ func (s *Session) FetchAll(max int) (data *DataSet) {
 			index := page - i
 			go func() {
 				defer wg.Done()
-				doc := newGallogDocument(s, URL)
-				tempArticleSlice[index] = parseArticles(doc)
-				tempCommentSlice[index] = parseComments(doc)
+				if doc := newGallogDocument(s, URL); doc != nil {
+					tempArticleSlice[index] = parseArticles(doc)
+					tempCommentSlice[index] = parseComments(doc)
+				} else {
+					tempArticleSlice[index] = nil
+					tempCommentSlice[index] = nil
+				}
+
 			}()
 		}
 		wg.Wait()
@@ -154,6 +157,9 @@ func (s *Session) FetchAll(max int) (data *DataSet) {
 		// check end of page and append to data
 		articleDone, commentDone := false, false
 		for _, tempArticles := range tempArticleSlice {
+			if tempArticles == nil {
+				continue
+			}
 			if len(tempArticles) == 0 {
 				articleDone = true
 				break
@@ -161,6 +167,9 @@ func (s *Session) FetchAll(max int) (data *DataSet) {
 			data.As = append(data.As, tempArticles...)
 		}
 		for _, tempComments := range tempCommentSlice {
+			if tempComments == nil {
+				continue
+			}
 			if len(tempComments) == 0 {
 				commentDone = true
 				break
