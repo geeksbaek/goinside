@@ -16,8 +16,6 @@ import (
 )
 
 const (
-	maxConcurrentRequestCount = 100
-
 	articlesQuery = `td[valign='top'] td[colspan='2'] table tr:not(:first-child)`
 	articleQuery  = `img`
 	commentsQuery = `td[colspan='2'][align='center'] td[colspan='2'] table tr:not(:first-child)`
@@ -130,11 +128,10 @@ func newGallogDocument(s *Session, URL string) *goquery.Document {
 }
 
 // FetchAll 메소드는 해당 세션의 갤로그에 존재하는 모든 데이터를 가져옵니다.
-func (s *Session) FetchAll() (data *DataSet) {
-	max := maxConcurrentRequestCount
+func (s *Session) FetchAll(max int) (data *DataSet) {
 	data = &DataSet{[]*articleMicroInfo{}, []*commentMicroInfo{}}
 
-	// maxConcurrentRequestCount 값만큼 동시에 수행한다.
+	// max 값만큼 동시에 수행한다.
 	for i := 1; ; i += max {
 		tempArticleSlice := make([][]*articleMicroInfo, max)
 		tempCommentSlice := make([][]*commentMicroInfo, max)
@@ -180,8 +177,7 @@ func (s *Session) FetchAll() (data *DataSet) {
 // DeleteAll 메소드는 해당 데이터를 모두 삭제합니다.
 // 데이터 삭제 상황을 확인할 수 있도록 콜백 함수를 인자로 받습니다.
 // 해당 콜백 함수는 삭제된 데이터 개수 i과 총 데이터 개수 n을 인자로 받습니다.
-func (s *Session) DeleteAll(data *DataSet, cb func(i, n int)) {
-	max := maxConcurrentRequestCount
+func (s *Session) DeleteAll(max int, data *DataSet, cb func(i, n int)) {
 	wg := new(sync.WaitGroup)
 
 	progressCh := make(chan struct{})
