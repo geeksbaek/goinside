@@ -69,7 +69,8 @@ func do(method, URL string, cookies []*http.Cookie, form io.Reader, requestHeade
 			return resp
 		}
 		if i > 300 {
-			log.Fatal("디시인사이드 서버가 응답하지 않습니다.")
+			// log.Fatal("디시인사이드 서버가 응답하지 않습니다.")
+			return nil
 		}
 	}
 }
