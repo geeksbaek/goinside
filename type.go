@@ -177,8 +177,8 @@ func (a *Article) articleInfo() (id, number string) {
 // ArticleType 은 글의 타입을 나타내는 상수입니다.
 type ArticleType int
 
-// IconURL을 메소드는 해당 글 타입의 IconURL을 반환합니다.
-func (a ArticleType) IconURL을() string {
+// IconURL 메소드는 해당 글 타입의 IconURL을 반환합니다.
+func (a ArticleType) IconURL() string {
 	return ArticleIconURLMap[a]
 }
 
