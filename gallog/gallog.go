@@ -81,6 +81,9 @@ type DataSet struct {
 }
 
 func parseArticles(doc *goquery.Document) (as []*articleMicroInfo) {
+	if doc == nil {
+		return nil
+	}
 	as = []*articleMicroInfo{}
 	doc.Find(articlesQuery).Each(func(i int, s *goquery.Selection) {
 		data, _ := s.Find(articleQuery).Attr(`onclick`)
@@ -97,6 +100,9 @@ func articleURLToArticleMicroInfo(URL string) *articleMicroInfo {
 }
 
 func parseComments(doc *goquery.Document) (cs []*commentMicroInfo) {
+	if doc == nil {
+		return nil
+	}
 	cs = []*commentMicroInfo{}
 	doc.Find(commentsQuery).Each(func(i int, s *goquery.Selection) {
 		data, _ := s.Find(commentQuery).Attr(`onclick`)
@@ -142,14 +148,9 @@ func (s *Session) FetchAll(max int) (data *DataSet) {
 			index := page - i
 			go func() {
 				defer wg.Done()
-				if doc := newGallogDocument(s, URL); doc != nil {
-					tempArticleSlice[index] = parseArticles(doc)
-					tempCommentSlice[index] = parseComments(doc)
-				} else {
-					tempArticleSlice[index] = nil
-					tempCommentSlice[index] = nil
-				}
-
+				doc := newGallogDocument(s, URL)
+				tempArticleSlice[index] = parseArticles(doc)
+				tempCommentSlice[index] = parseComments(doc)
 			}()
 		}
 		wg.Wait()
