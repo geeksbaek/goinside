@@ -205,9 +205,10 @@ type CommentType int
 
 // MajorGallery 구조체는 일반 갤러리의 정보를 나타냅니다.
 type MajorGallery struct {
-	ID     string
-	Name   string
-	Number string
+	ID       string
+	Name     string
+	Number   string
+	CanWrite bool
 }
 
 // MinorGallery 구조체는 마이너 갤러리의 정보를 나타냅니다.
@@ -217,6 +218,7 @@ type MinorGallery struct {
 	ID          string
 	Name        string
 	Number      string
+	CanWrite    bool
 	Manager     string
 	SubManagers []string
 }
