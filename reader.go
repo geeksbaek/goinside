@@ -46,7 +46,7 @@ func FetchAllMajorGallery() (mg []*MajorGallery, err error) {
 			ID:       v.ID,
 			Name:     v.Name,
 			Number:   v.Number,
-			CanWrite: v.CanWrite,
+			CanWrite: !v.CanWrite,
 		}
 	}
 	return
@@ -80,7 +80,7 @@ func FetchAllMinorGallery() (mg []*MinorGallery, err error) {
 			ID:          v.ID,
 			Name:        v.Name,
 			Number:      v.Number,
-			CanWrite:    v.CanWrite,
+			CanWrite:    !v.CanWrite,
 			Manager:     v.Manager,
 			SubManagers: strings.Split(v.SubManagers, ","),
 		}
