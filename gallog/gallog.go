@@ -132,7 +132,8 @@ func newGallogDocument(s *Session, URL string) *goquery.Document {
 }
 
 // FetchAll 메소드는 해당 세션의 갤로그에 존재하는 모든 데이터를 가져옵니다.
-func (s *Session) FetchAll(max int) (data *DataSet) {
+func (s *Session) FetchAll(max int, progressCh chan struct{}) (data *DataSet) {
+	defer close(progressCh)
 	data = &DataSet{[]*articleMicroInfo{}, []*commentMicroInfo{}}
 
 	// max 값만큼 동시에 수행한다.
@@ -166,6 +167,7 @@ func (s *Session) FetchAll(max int) (data *DataSet) {
 				break
 			}
 			data.As = append(data.As, tempArticles...)
+			progressCh <- struct{}{}
 		}
 		for _, tempComments := range tempCommentSlice {
 			if tempComments == nil {
@@ -176,6 +178,7 @@ func (s *Session) FetchAll(max int) (data *DataSet) {
 				break
 			}
 			data.Cs = append(data.Cs, tempComments...)
+			progressCh <- struct{}{}
 		}
 		if articleDone && commentDone {
 			break
