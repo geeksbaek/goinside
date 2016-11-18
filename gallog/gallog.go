@@ -30,7 +30,8 @@ var (
 	gallogArticleURLRe = regexp.MustCompile(`gid=([^&]+)&cid=([^&]+)&page=.*&pno=([^&]+)&logNo=([^&]+)&mode=([^&']+)`)
 	gallogCommentURLRe = regexp.MustCompile(`gid=([^&]+)&cid=.*&id=&no=([^&]+)&c_no=([^&]+)&logNo=([^&]+)&rpage=.*`)
 	gallIDRe           = regexp.MustCompile(`<INPUT TYPE="hidden" NAME="id" value=(?:"|')(.+)(?:"|')>`)
-	secretRe           = regexp.MustCompile(`<INPUT TYPE="hidden" NAME=".*" id=(?:"|')([^'"]+)(?:"|') value=(?:"|')([^'"]{4,})(?:"|')>`)
+	secret1Re          = regexp.MustCompile(`<INPUT TYPE="hidden" NAME=".*" id=(?:"|')([^'"]+)(?:"|') value=(?:"|')([^'"]{4,})(?:"|')>`)
+	secret2Re          = regexp.MustCompile(`<INPUT TYPE="hidden" NAME="dcc_key" value="([^"]+)"`)
 	cidRe              = regexp.MustCompile(`<INPUT TYPE="hidden" NAME="cid" value="([^"]+)">`)
 )
 
@@ -233,7 +234,7 @@ func (s *Session) DeleteAll(max int, data *DataSet, cb func(i, n int)) {
 }
 
 func (a *articleMicroInfo) delete(s *Session) {
-	gallID, _, key, value := s.fetchDetail(a)
+	gallID, _, key1, val1, key2, val2 := s.fetchDetail(a)
 
 	deleteArticleForm := makeForm(map[string]string{
 		"app_id":  goinside.AppID,
@@ -250,7 +251,8 @@ func (a *articleMicroInfo) delete(s *Session) {
 		"no":    a.pno,
 		"logNo": a.logNo,
 		"id":    gallID,
-		key:     value,
+		key1:    val1,
+		key2:    val2,
 		// "rb":    "",
 		// "page":  "",
 		// "nate":  "",
@@ -270,7 +272,7 @@ func (a *articleMicroInfo) delete(s *Session) {
 }
 
 func (c *commentMicroInfo) delete(s *Session) {
-	gallID, cid, key, value := s.fetchDetail(c)
+	gallID, cid, key1, val1, key2, val2 := s.fetchDetail(c)
 
 	deleteCommentForm := makeForm(map[string]string{
 		"app_id":     goinside.AppID,
@@ -288,7 +290,8 @@ func (c *commentMicroInfo) delete(s *Session) {
 		"c_no":  c.cno,
 		"logNo": c.logNo,
 		"id":    gallID,
-		key:     value,
+		key1:    val1,
+		key2:    val2,
 		// "rb":    "",
 		// "page":  "",
 		// "pno":   "",
@@ -321,7 +324,7 @@ func (c *commentMicroInfo) fetchDetail() string {
 
 }
 
-func (s *Session) fetchDetail(d detailer) (gallID, cid, key, val string) {
+func (s *Session) fetchDetail(d detailer) (gallID, cid, key1, val1, key2, val2 string) {
 	resp := do("GET", d.fetchDetail(), s.cookies, nil, gallogRequestHeader)
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -332,8 +335,12 @@ func (s *Session) fetchDetail(d detailer) (gallID, cid, key, val string) {
 		gallID = string(matched[1])
 	}
 	// secret key, value
-	if matched := secretRe.FindSubmatch(body); len(matched) == 3 {
-		key, val = string(matched[1]), string(matched[2])
+	if matched := secret1Re.FindSubmatch(body); len(matched) == 3 {
+		key1, val1 = string(matched[1]), string(matched[2])
+	}
+	// secret key, value
+	if matched := secret2Re.FindSubmatch(body); len(matched) == 3 {
+		key2, val2 = string(matched[1]), string(matched[2])
 	}
 	// cid
 	if matched := cidRe.FindSubmatch(body); len(matched) == 2 {
