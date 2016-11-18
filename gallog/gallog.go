@@ -234,7 +234,7 @@ func (s *Session) DeleteAll(max int, data *DataSet, cb func(i, n int)) {
 }
 
 func (a *articleMicroInfo) delete(s *Session) {
-	gallID, _, key1, val1, key2, val2 := s.fetchDetail(a)
+	gallID, _, key1, val1, val2 := s.fetchDetail(a)
 
 	deleteArticleForm := makeForm(map[string]string{
 		"app_id":  goinside.AppID,
@@ -244,15 +244,15 @@ func (a *articleMicroInfo) delete(s *Session) {
 		"mode":    "board_del",
 	})
 	deleteArticleLogForm := makeForm(map[string]string{
-		"dTp":   "1",
-		"gid":   a.gid,
-		"cid":   a.cid,
-		"pno":   a.pno,
-		"no":    a.pno,
-		"logNo": a.logNo,
-		"id":    gallID,
-		key1:    val1,
-		key2:    val2,
+		"dTp":     "1",
+		"gid":     a.gid,
+		"cid":     a.cid,
+		"pno":     a.pno,
+		"no":      a.pno,
+		"logNo":   a.logNo,
+		"id":      gallID,
+		key1:      val1,
+		"dcc_key": val2,
 		// "rb":    "",
 		// "page":  "",
 		// "nate":  "",
@@ -272,7 +272,7 @@ func (a *articleMicroInfo) delete(s *Session) {
 }
 
 func (c *commentMicroInfo) delete(s *Session) {
-	gallID, cid, key1, val1, key2, val2 := s.fetchDetail(c)
+	gallID, cid, key1, val1, val2 := s.fetchDetail(c)
 
 	deleteCommentForm := makeForm(map[string]string{
 		"app_id":     goinside.AppID,
@@ -283,15 +283,15 @@ func (c *commentMicroInfo) delete(s *Session) {
 		"mode":       "comment_del",
 	})
 	deleteCommentLogForm := makeForm(map[string]string{
-		"dTp":   "1",
-		"gid":   c.gid,
-		"cid":   cid,
-		"no":    c.no,
-		"c_no":  c.cno,
-		"logNo": c.logNo,
-		"id":    gallID,
-		key1:    val1,
-		key2:    val2,
+		"dTp":     "1",
+		"gid":     c.gid,
+		"cid":     cid,
+		"no":      c.no,
+		"c_no":    c.cno,
+		"logNo":   c.logNo,
+		"id":      gallID,
+		key1:      val1,
+		"dcc_key": val2,
 		// "rb":    "",
 		// "page":  "",
 		// "pno":   "",
@@ -324,7 +324,7 @@ func (c *commentMicroInfo) fetchDetail() string {
 
 }
 
-func (s *Session) fetchDetail(d detailer) (gallID, cid, key1, val1, key2, val2 string) {
+func (s *Session) fetchDetail(d detailer) (gallID, cid, key1, val1, val2 string) {
 	resp := do("GET", d.fetchDetail(), s.cookies, nil, gallogRequestHeader)
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -340,7 +340,7 @@ func (s *Session) fetchDetail(d detailer) (gallID, cid, key1, val1, key2, val2 s
 	}
 	// secret key, value
 	if matched := secret2Re.FindSubmatch(body); len(matched) == 3 {
-		key2, val2 = string(matched[1]), string(matched[2])
+		val2 = string(matched[1])
 	}
 	// cid
 	if matched := cidRe.FindSubmatch(body); len(matched) == 2 {
