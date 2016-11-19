@@ -339,7 +339,7 @@ func (s *Session) fetchDetail(d detailer) (gallID, cid, key1, val1, val2 string)
 		key1, val1 = string(matched[1]), string(matched[2])
 	}
 	// secret key, value
-	if matched := secret2Re.FindSubmatch(body); len(matched) == 3 {
+	if matched := secret2Re.FindSubmatch(body); len(matched) == 2 {
 		val2 = string(matched[1])
 	}
 	// cid
