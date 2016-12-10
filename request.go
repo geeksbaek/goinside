@@ -2,7 +2,6 @@ package goinside
 
 import (
 	"encoding/base64"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -31,14 +30,26 @@ func (api dcinsideAPI) post(c connector, form io.Reader, contentType string) (*h
 }
 
 func (api dcinsideAPI) get(m map[string]string) (*http.Response, error) {
+	URL, err := url.Parse(string(api))
+	if err != nil {
+		return nil, err
+	}
 	data := url.Values{}
 	for k, v := range m {
 		data.Add(k, v)
 	}
-	params := string(api) + "?" + data.Encode()
-	encodedParams := base64.StdEncoding.EncodeToString([]byte(params))
-	hashedAPI := fmt.Sprintf("%s?hash=%s", redirectAPI, encodedParams)
-	return do(&GuestSession{}, "GET", hashedAPI, nil, nil, defaultContentType, apiRequestHeader)
+	URL.RawQuery = data.Encode()
+	encodedParams := base64.StdEncoding.EncodeToString([]byte(URL.String()))
+
+	URL, err = url.Parse(string(redirectAPI))
+	if err != nil {
+		return nil, err
+	}
+	data = url.Values{}
+	data.Add("hash", encodedParams)
+	URL.RawQuery = data.Encode()
+
+	return do(&GuestSession{}, "GET", URL.String(), nil, nil, defaultContentType, apiRequestHeader)
 }
 
 // AppID 는 디시인사이드 API 요청에 필요한 Key 값입니다.
@@ -73,7 +84,7 @@ const (
 var (
 	apiRequestHeader = map[string]string{
 		"User-Agent": "dcinside.app",
-		"Referer":    "http://m.dcinside.com",
+		"Referer":    "http://www.dcinside.com",
 		"Host":       "m.dcinside.com",
 	}
 	mobileRequestHeader = map[string]string{
@@ -116,6 +127,12 @@ func do(c connector, method, URL string, cookies []*http.Cookie, form io.Reader,
 		}
 		return &http.Client{}
 	}()
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		for k, v := range requestHeader {
+			req.Header.Set(k, v)
+		}
+		return nil
+	}
 	if c.Connection().timeout != 0 {
 		client.Timeout = c.Connection().timeout
 	}
