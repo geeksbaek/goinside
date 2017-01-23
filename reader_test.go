@@ -3,7 +3,7 @@ package goinside
 import "testing"
 
 func TestFetch(t *testing.T) {
-	URL := "http://gall.dcinside.com/board/lists/?id=baseball_new4"
+	URL := "http://gall.dcinside.com/board/lists/?id=baseball_new5"
 	page := 1
 
 	l, err := FetchBestList(URL, page)
