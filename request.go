@@ -53,7 +53,7 @@ func (api dcinsideAPI) get(m map[string]string) (*http.Response, error) {
 }
 
 // AppID 는 디시인사이드 API 요청에 필요한 Key 값입니다.
-const AppID = "blM1T09mWjRhQXlZbE1ML21xbkM3QT09"
+const AppID = "V1hhdDJrV2NmczBQYWcrUk1FOEJ3NTNjaUhscllLVVFadHNXemZCMmlHRT0%3D"
 
 // apis
 const (
