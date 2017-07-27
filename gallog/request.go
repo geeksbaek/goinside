@@ -9,6 +9,7 @@ import (
 
 // web urls
 const (
+	desktopLoginPageURL = "https://dcid.dcinside.com/join/login.php?s_url=http%3A%2F%2Fwww.dcinside.com" // s_url 없으면 에러남
 	desktopLoginURL     = "https://dcid.dcinside.com/join/member_check.php"
 	desktopLogoutURL    = "https://dcid.dcinside.com/join/logout.php"
 	deleteArticleLogURL = "http://gallog.dcinside.com/inc/_deleteArticle.php"

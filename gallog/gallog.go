@@ -16,6 +16,7 @@ import (
 )
 
 const (
+	loginChkQuery = `input[name="url"] + input`
 	articlesQuery = `td[valign='top'] td[colspan='2'] table tr:not(:first-child)`
 	articleQuery  = `img`
 	commentsQuery = `td[colspan='2'][align='center'] td[colspan='2'] table tr:not(:first-child)`
@@ -45,13 +46,24 @@ type Session struct {
 
 // Login 함수는 해당 ID와 PASSWORD로 로그인한 뒤 해당 세션을 반환합니다.
 func Login(id, pw string) (s *Session, err error) {
-	form := makeForm(map[string]string{
+	loginPageResp := do("GET", desktopLoginPageURL, nil, nil, desktopRequestHeader)
+	doc, err := goquery.NewDocumentFromResponse(loginPageResp)
+
+	chk := doc.Find(loginChkQuery)
+	chkName, _ := chk.Attr("name")
+	chkValue, _ := chk.Attr("value")
+
+	f := map[string]string{
 		"s_url":    "http://www.dcinside.com/",
-		"ssl":      "Y",
+		"ssl_chk":  "on",
 		"user_id":  id,
 		"password": pw,
-	})
+	}
+	f[chkName] = chkValue
+
+	form := makeForm(f)
 	resp := do("POST", desktopLoginURL, nil, form, desktopRequestHeader)
+
 	ms, err := goinside.Login(id, pw)
 	if err != nil {
 		return
