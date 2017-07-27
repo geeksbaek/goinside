@@ -12,7 +12,7 @@ import (
 	"sync"
 
 	"github.com/PuerkitoBio/goquery"
-	".."
+	"github.com/geeksbaek/goinside"
 )
 
 const (
