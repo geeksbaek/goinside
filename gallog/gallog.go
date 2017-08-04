@@ -48,6 +48,9 @@ type Session struct {
 func Login(id, pw string) (s *Session, err error) {
 	loginPageResp := do("GET", desktopLoginPageURL, nil, nil, desktopRequestHeader)
 	doc, err := goquery.NewDocumentFromResponse(loginPageResp)
+	if err != nil {
+		return	
+	}
 
 	chk := doc.Find(loginChkQuery)
 	chkName, _ := chk.Attr("name")
