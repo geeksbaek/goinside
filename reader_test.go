@@ -1,9 +1,13 @@
 package goinside
 
-import "testing"
+import (
+	"errors"
+	"log"
+	"testing"
+)
 
 func TestFetch(t *testing.T) {
-	URL := "http://gall.dcinside.com/board/lists/?id=baseball_new5"
+	URL := "http://gall.dcinside.com/board/lists/?id=programming"
 	page := 1
 
 	l, err := FetchBestList(URL, page)
@@ -13,13 +17,22 @@ func TestFetch(t *testing.T) {
 	if len(l.Items) != 25 {
 		t.Errorf("%v 갤러리의 %v번째 페이지에서 검색된 글이 %v개 입니다. 25개여야 정상입니다.", gallID(URL), page, len(l.Items))
 	}
-	targetArticle := l.Items[0]
-	a, err := targetArticle.Fetch()
-	if err != nil {
-		t.Error(err, targetArticle.URL)
-	}
-	if targetArticle.Subject != a.Subject {
-		t.Errorf("%v 갤러리의 첫 번째 글을 정상적으로 오지 못했습니다", gallID(URL))
+
+	for _, v := range l.Items {
+		a, err := v.Fetch()
+		if err != nil {
+			t.Errorf("%v article fetch failed. %v", v.URL, err)
+		}
+		if a.HasImage {
+			i, err := v.FetchImageURLs()
+			if err != nil {
+				t.Errorf("%v article image fetch failed. %v", v.URL, err)
+			}
+			if len(i) == 0 {
+				t.Errorf("%v article image fetch failed. %v", v.URL, errors.New("Empty Article Image"))
+			}
+			log.Println(v.Subject, i)
+		}
 	}
 }
 
