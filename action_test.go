@@ -1,5 +1,8 @@
 package goinside
 
+// This test has been commented out to avoid travis errors.
+// You can not perform this operation with an ip other than Korea.
+
 // import "testing"
 
 // func TestAction(t *testing.T) {
@@ -8,7 +11,7 @@ package goinside
 // 		t.Error(err)
 // 	}
 
-// 	URL := "http://gall.dcinside.com/board/lists/?id=baseball_new4"
+// 	URL := "http://gall.dcinside.com/board/lists/?id=programming"
 // 	page := 1
 
 // 	l, err := FetchList(URL, page)
