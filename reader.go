@@ -1,8 +1,10 @@
 package goinside
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
+	"regexp"
 	"strings"
 )
 
@@ -201,13 +203,23 @@ func (i *ListItem) FetchImageURLs() (imageURLs []ImageURLType, err error) {
 	return
 }
 
-// Fetch 메소드는 해당 이미지 주소를 참조하여 이미지의 []byte를 반환합니다.
-func (i ImageURLType) Fetch() (data []byte, err error) {
+// Fetch 메소드는 해당 이미지 주소를 참조하여 이미지의 []byte와 filename을 반환합니다.
+func (i ImageURLType) Fetch() (data []byte, filename string, err error) {
 	resp, err := doImage(i)
 	if err != nil {
 		return
 	}
 	defer resp.Body.Close()
+
+	filenameRe := regexp.MustCompile(`filename=(.*)`)
+	contentDisposition := resp.Header.Get("Content-Disposition")
+	matched := filenameRe.FindStringSubmatch(contentDisposition)
+	if len(matched) != 2 {
+		err = errors.New("cannot found filename from content-position")
+		return
+	}
+
+	filename = strings.ToLower(matched[1])
 	data, err = ioutil.ReadAll(resp.Body)
 	return
 }
