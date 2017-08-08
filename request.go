@@ -84,6 +84,7 @@ const (
 var (
 	apiRequestHeader = map[string]string{
 		"User-Agent": "dclife",
+		"Referer":    "http://www.dcinside.com",
 		"Host":       "m.dcinside.com",
 	}
 	mobileRequestHeader = map[string]string{
