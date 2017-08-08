@@ -2,6 +2,7 @@ package goinside
 
 import (
 	"fmt"
+	"io/ioutil"
 	"strings"
 )
 
@@ -180,7 +181,7 @@ func (i *ListItem) Fetch() (*Article, error) {
 }
 
 // FetchImageURLs 메소드는 해당 글의 이미지 주소의 슬라이스만을 가져옵니다.
-func (i *ListItem) FetchImageURLs() (imageURLs []string, err error) {
+func (i *ListItem) FetchImageURLs() (imageURLs []ImageURLType, err error) {
 	formMap := map[string]string{
 		"app_id": AppID,
 		"id":     i.Gall.ID,
@@ -191,12 +192,23 @@ func (i *ListItem) FetchImageURLs() (imageURLs []string, err error) {
 	if err != nil {
 		return
 	}
-	imageURLs = func() (ret []string) {
+	imageURLs = func() (ret []ImageURLType) {
 		for _, v := range images {
-			ret = append(ret, v.Image)
+			ret = append(ret, ImageURLType(v.Image))
 		}
 		return
 	}()
+	return
+}
+
+// Fetch 메소드는 해당 이미지 주소를 참조하여 이미지의 []byte를 반환합니다.
+func (i ImageURLType) Fetch() (data []byte, err error) {
+	resp, err := doImage(i)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	data, err = ioutil.ReadAll(resp.Body)
 	return
 }
 
@@ -289,9 +301,9 @@ func FetchArticle(URL string) (a *Article, err error) {
 		GallogID:      d.UserID,
 		GallogURL:     gallogURL(d.UserID),
 		IsBest:        d.IsBest == "Y",
-		ImageURLs: func() (ret []string) {
+		ImageURLs: func() (ret []ImageURLType) {
 			for _, v := range images {
-				ret = append(ret, v.Image)
+				ret = append(ret, ImageURLType(v.Image))
 			}
 			return
 		}(),

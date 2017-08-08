@@ -2,7 +2,6 @@ package goinside
 
 import (
 	"errors"
-	"log"
 	"testing"
 )
 
@@ -19,23 +18,42 @@ func TestFetch(t *testing.T) {
 	}
 
 	for _, v := range l.Items {
-		a, err := v.Fetch()
+		_, err := v.Fetch()
 		if err != nil {
 			t.Errorf("%v article fetch failed. %v", v.URL, err)
-		}
-		if a.HasImage {
-			i, err := v.FetchImageURLs()
-			if err != nil {
-				t.Errorf("%v article image fetch failed. %v", v.URL, err)
-			}
-			if len(i) == 0 {
-				t.Errorf("%v article image fetch failed. %v", v.URL, errors.New("Empty Article Image"))
-			}
-			log.Println(v.Subject, i)
 		}
 	}
 }
 
+func TestImageURLTypeFetch(t *testing.T) {
+	URL := "http://gall.dcinside.com/board/lists/?id=programming"
+	page := 1
+
+	l, err := FetchBestList(URL, page)
+	if err != nil {
+		t.Error(err)
+	}
+	for _, v := range l.Items {
+		if !v.HasImage {
+			continue
+		}
+
+		is, err := v.FetchImageURLs()
+		if err != nil {
+			t.Errorf("%v ListItem.FetchImageURLs() failed. %v", v.URL, err)
+		}
+		if len(is) == 0 {
+			t.Errorf("%v ListItem.FetchImageURLs() failed. %v", v.URL, errors.New("Empty Article Image"))
+		}
+
+		for _, i := range is {
+			if _, err := i.Fetch(); err != nil {
+				t.Errorf("%v ImageURLType.Fetch() failed. %v", v.URL, err)
+			}
+			return
+		}
+	}
+}
 func TestFetchGalleryList(t *testing.T) {
 	major, err := FetchAllMajorGallery()
 	if err != nil {

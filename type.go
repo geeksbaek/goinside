@@ -156,7 +156,7 @@ type Article struct {
 	GallogID      string
 	GallogURL     string
 	IsBest        bool
-	ImageURLs     []string
+	ImageURLs     []ImageURLType
 	Comments      []*Comment
 	Date          time.Time
 }
@@ -222,3 +222,5 @@ type MinorGallery struct {
 	Manager     string
 	SubManagers []string
 }
+
+type ImageURLType string

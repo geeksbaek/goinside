@@ -91,6 +91,9 @@ var (
 		"User-Agent": "Linux Android",
 		"Referer":    "http://m.dcinside.com",
 	}
+	imageRequestHeader = map[string]string{
+		"Referer": "http://www.dcinside.com",
+	}
 )
 
 type connector interface {
@@ -135,6 +138,18 @@ func do(c connector, method, URL string, cookies []*http.Cookie, form io.Reader,
 	}
 	if c.Connection().timeout != 0 {
 		client.Timeout = c.Connection().timeout
+	}
+	return client.Do(req)
+}
+
+func doImage(URL ImageURLType) (*http.Response, error) {
+	req, err := http.NewRequest("GET", string(URL), nil)
+	if err != nil {
+		return nil, err
+	}
+	client := &http.Client{}
+	for k, v := range imageRequestHeader {
+		req.Header.Set(k, v)
 	}
 	return client.Do(req)
 }
