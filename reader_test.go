@@ -47,7 +47,7 @@ func TestImageURLTypeFetch(t *testing.T) {
 		}
 
 		for _, i := range is {
-			if _, err := i.Fetch(); err != nil {
+			if _, _, err := i.Fetch(); err != nil {
 				t.Errorf("%v ImageURLType.Fetch() failed. %v", v.URL, err)
 			}
 			return
