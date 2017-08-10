@@ -1,18 +1,18 @@
-language: go
+# language: go
 
-os:
-  - osx
-  - linux
-  - windows
+# os:
+#   - osx
+#   - linux
+#   - windows
 
-go:
-  - tip
+# go:
+#   - tip
 
-before_install:
-  - go get -t -v ./...
+# before_install:
+#   - go get -t -v ./...
 
-script:
- - go test -race -coverprofile=coverage.txt -covermode=atomic
+# script:
+#  - go test -race -coverprofile=coverage.txt -covermode=atomic
 
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+# after_success:
+#   - bash <(curl -s https://codecov.io/bash)
