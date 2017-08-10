@@ -1,26 +1,23 @@
 package goinside
 
-// import (
-// 	"encoding/json"
-// 	"io/ioutil"
-// 	"testing"
-// )
+import (
+	"encoding/json"
+	"io/ioutil"
+)
 
-// func TestLogin(t *testing.T) {
-// 	authFile, err := ioutil.ReadFile("auth.json")
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	var auth struct {
-// 		ID string
-// 		PW string
-// 	}
-// 	err = json.Unmarshal(authFile, &auth)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	_, err = Login(auth.ID, auth.PW)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// }
+func getTestMemberSession() (ms *MemberSession, err error) {
+	authFile, err := ioutil.ReadFile("auth.json")
+	if err != nil {
+		return
+	}
+	var auth struct {
+		ID string
+		PW string
+	}
+	err = json.Unmarshal(authFile, &auth)
+	if err != nil {
+		return
+	}
+	ms, err = Login(auth.ID, auth.PW)
+	return
+}

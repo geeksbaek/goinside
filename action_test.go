@@ -3,46 +3,86 @@ package goinside
 // This test has been commented out to avoid travis errors.
 // You can not perform this operation with an ip other than Korea.
 
-// import "testing"
+import "testing"
 
-// func TestAction(t *testing.T) {
-// 	s, err := Guest("ㅇㅇ", "123")
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
+func TestMemberAction(t *testing.T) {
+	s, err := getTestMemberSession()
+	if err != nil {
+		t.Error(err)
+	}
 
-// 	URL := "http://gall.dcinside.com/board/lists/?id=programming"
-// 	page := 1
+	l, err := FetchList(testTargetGallID, 1)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(l.Items) == 0 {
+		t.Errorf("empty %v gallery list.", testTargetGallID)
+	}
 
-// 	l, err := FetchList(URL, page)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
+	// test action to ListItem
+	if err := s.ThumbsUp(l.Items[0]); err != nil {
+		t.Error(err)
+	}
+	if err := s.ThumbsDown(l.Items[0]); err != nil {
+		t.Error(err)
+	}
+	if err := s.Report(l.Items[0], "신고"); err != nil {
+		t.Error(err)
+	}
 
-// 	if len(l.Items) != 25 {
-// 		t.Errorf("%v 갤러리의 %v번째 페이지에서 검색된 글이 %v개 입니다. 25개여야 정상입니다.", gallID(URL), page, len(l.Items))
-// 	}
+	// test action to Article
+	a, err := l.Items[1].Fetch()
+	if err != nil {
+		t.Error(err)
+	}
+	if err := s.ThumbsUp(a); err != nil {
+		t.Error(err)
+	}
+	if err := s.ThumbsDown(a); err != nil {
+		t.Error(err)
+	}
+	if err := s.Report(a, "신고"); err != nil {
+		t.Error(err)
+	}
+}
 
-// 	if err := s.ThumbsUp(l.Items[0]); err != nil {
-// 		t.Error(err)
-// 	}
-// 	if err := s.ThumbsDown(l.Items[0]); err != nil {
-// 		t.Error(err)
-// 	}
-// 	if err := s.Report(l.Items[0], "신고"); err != nil {
-// 		t.Error(err)
-// 	}
+func TestGuestAction(t *testing.T) {
+	s, err := getTestGuestSession()
+	if err != nil {
+		t.Error(err)
+	}
 
-// 	a, err := l.Items[0].Fetch()
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
+	l, err := FetchList(testTargetGallID, 1)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(l.Items) == 0 {
+		t.Errorf("empty %v gallery list.", testTargetGallID)
+	}
 
-// 	if a.ThumbsUp == 0 || a.ThumbsDown == 0 {
-// 		t.Error("추천 혹은 비추천이 정상적으로 이루어지지 않았습니다.")
-// 	}
+	// test action to ListItem
+	if err := s.ThumbsUp(l.Items[3]); err != nil {
+		t.Error(err)
+	}
+	if err := s.ThumbsDown(l.Items[3]); err != nil {
+		t.Error(err)
+	}
+	if err := s.Report(l.Items[3], "신고"); err != nil {
+		t.Error(err)
+	}
 
-// 	if err := s.Report(l.Items[0], "신고"); err == nil {
-// 		t.Error("게시물 신고가 정상적으로 이루어지지 않았습니다.")
-// 	}
-// }
+	// test action to Article
+	a, err := l.Items[4].Fetch()
+	if err != nil {
+		t.Error(err)
+	}
+	if err := s.ThumbsUp(a); err != nil {
+		t.Error(err)
+	}
+	if err := s.ThumbsDown(a); err != nil {
+		t.Error(err)
+	}
+	if err := s.Report(a, "신고"); err != nil {
+		t.Error(err)
+	}
+}
