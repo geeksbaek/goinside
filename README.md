@@ -1,7 +1,6 @@
 # goinside
 <!-- [![Build Status](https://travis-ci.org/geeksbaek/goinside.svg?branch=master)](https://travis-ci.org/geeksbaek/goinside) -->
 [![Go Report Card](https://goreportcard.com/badge/github.com/geeksbaek/goinside)](https://goreportcard.com/report/github.com/geeksbaek/goinside)
-[![Codecov](https://img.shields.io/codecov/c/github/geeksbaek/goinside.svg)](https://codecov.io/gh/geeksbaek/goinside)
 [![GoDoc](https://godoc.org/github.com/geeksbaek/goinside?status.svg)](https://godoc.org/github.com/geeksbaek/goinside)
 
 이 라이브러리는 디시인사이드 비공식 API 입니다.
