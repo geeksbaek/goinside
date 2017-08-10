@@ -109,7 +109,6 @@ func get(c connector, URL string) (*http.Response, error) {
 }
 
 func do(c connector, method, URL string, cookies []*http.Cookie, form io.Reader, contentType string, requestHeader map[string]string) (*http.Response, error) {
-	URL = ToMobileURL(URL)
 	req, err := http.NewRequest(method, URL, form)
 	if err != nil {
 		return nil, err

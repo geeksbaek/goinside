@@ -84,7 +84,7 @@ func (lv Level) Type() MemberType {
 
 // IconURL 메소드는 해당 레벨의 멤버 아이콘 URL을 반환합니다.
 func (lv Level) IconURL() string {
-	return GallogIconURLMap[lv.Type()]
+	return gallogIconURLMap[lv.Type()]
 }
 
 // Gall 구조체는 갤러리의 가장 기본적인 정보, ID와 이름을 나타냅니다.
@@ -179,7 +179,7 @@ type ArticleType int
 
 // IconURL 메소드는 해당 글 타입의 IconURL을 반환합니다.
 func (a ArticleType) IconURL() string {
-	return ArticleIconURLMap[a]
+	return articleIconURLMap[a]
 }
 
 // Comment 구조체는 댓글의 정보를 나타냅니다. 여기에는 해당 댓글이 작성된 글의
@@ -223,4 +223,5 @@ type MinorGallery struct {
 	SubManagers []string
 }
 
+// ImageURLType 은 이미지 URL을 나타내는 문자열입니다.
 type ImageURLType string

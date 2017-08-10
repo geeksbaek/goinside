@@ -31,16 +31,15 @@ var (
 
 // formatting
 const (
-	mobileGallURLFormat     = "http://m.dcinside.com/list.php?id=%v"
-	mobileGallURLPageFormat = "http://m.dcinside.com/list.php?id=%v&page=%v"
-	mobileArticleURLFormat  = "http://m.dcinside.com/view.php?id=%v&no=%v"
-	gallogURLFormat         = "http://gallog.dcinside.com/%v"
-	imageElementFormat      = `<img src="%v">`
-	audioElementFormat      = `<audio controls><source src="%v" type="audio/mpeg">Your browser does not support the audio element.</audio>`
+	mobileGallURLFormat    = "http://m.dcinside.com/list.php?id=%v"
+	mobileArticleURLFormat = "http://m.dcinside.com/view.php?id=%v&no=%v"
+	gallogURLFormat        = "http://gallog.dcinside.com/%v"
+	imageElementFormat     = `<img src="%v">`
+	audioElementFormat     = `<audio controls><source src="%v" type="audio/mpeg">Your browser does not support the audio element.</audio>`
 )
 
 var (
-	ArticleIconURLMap = map[ArticleType]string{
+	articleIconURLMap = map[ArticleType]string{
 		TextArticleType:      "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_text.png",
 		TextBestArticleType:  "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_text_b.png",
 		ImageArticleType:     "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_picture.png",
@@ -48,30 +47,11 @@ var (
 		MovieArticleType:     "http://nstatic.dcinside.com/dgn/gallery/images/update/icon_movie.png",
 		SuperBestArticleType: "http://nstatic.dcinside.com/dgn/gallery/images/update/sec_icon.png",
 	}
-	GallogIconURLMap = map[MemberType]string{
+	gallogIconURLMap = map[MemberType]string{
 		HalfMemberType: "http://wstatic.dcinside.com/gallery/skin/gallog/g_fix.gif",
 		FullMemberType: "http://wstatic.dcinside.com/gallery/skin/gallog/g_default.gif",
 	}
 )
-
-// ToMobileURL 함수는 주어진 디시인사이드 URL을 모바일 URL로 포맷팅하여 반환합니다.
-func ToMobileURL(URL string) string {
-	if urlRe.MatchString(URL) {
-		matched := urlRe.FindStringSubmatch(URL)
-		id, number, page := matched[1], matched[2], matched[3]
-		switch {
-		case id != "" && number == "" && page == "": // id
-			return fmt.Sprintf(mobileGallURLFormat, id)
-		case id != "" && number == "" && page != "": // id, page
-			return fmt.Sprintf(mobileGallURLPageFormat, id, page)
-		case id != "" && number != "" && page == "": // id, number
-			return fmt.Sprintf(mobileArticleURLFormat, id, number)
-		case id != "" && number != "" && page != "": // id, number, page
-			return fmt.Sprintf(mobileArticleURLFormat, id, number)
-		}
-	}
-	return URL
-}
 
 func articleType(hasImage, isBest string) ArticleType {
 	switch {
@@ -117,8 +97,8 @@ func gallogURL(id string) string {
 	return fmt.Sprintf(gallogURLFormat, id)
 }
 
-func gallURL(id string) string {
-	return fmt.Sprintf(mobileGallURLFormat, id)
+func gallURL(gallID string) string {
+	return fmt.Sprintf(mobileGallURLFormat, gallID)
 }
 
 func gallID(URL string) string {
@@ -144,6 +124,7 @@ func toAudioElement(c string) string {
 	return fmt.Sprintf(audioElementFormat, c)
 }
 
+// Maybe it's an unnecessary function now. This function was created when fetch data through web parsing.
 func dateFormatter(s string) time.Time {
 	if len(s) <= 5 {
 		now := time.Now()

@@ -118,17 +118,17 @@ type jsonList []struct {
 }
 
 // FetchList 함수는 해당 갤러리의 해당 페이지에 있는 글의 목록을 가져옵니다.
-func FetchList(URL string, page int) (l *List, err error) {
-	return fetchList(URL, page, false)
+func FetchList(gallID string, page int) (l *List, err error) {
+	return fetchList(gallID, page, false)
 }
 
 // FetchBestList 함수는 해당 갤러리의 해당 페이지에 있는 개념글의 목록을 가져옵니다.
-func FetchBestList(URL string, page int) (l *List, err error) {
-	return fetchList(URL, page, true)
+func FetchBestList(gallID string, page int) (l *List, err error) {
+	return fetchList(gallID, page, true)
 }
 
-func fetchList(URL string, page int, fetchBestPage bool) (l *List, err error) {
-	gallID := gallID(URL)
+func fetchList(gallID string, page int, fetchBestPage bool) (l *List, err error) {
+	URL := gallURL(gallID)
 	gall := &Gall{ID: gallID, URL: URL}
 	formMap := map[string]string{
 		"app_id": AppID,
