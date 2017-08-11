@@ -1,5 +1,6 @@
 # goinside
 [![Build Status](https://travis-ci.org/geeksbaek/goinside.svg?branch=master)](https://travis-ci.org/geeksbaek/goinside)
+[![codecov](https://codecov.io/gh/geeksbaek/goinside/branch/master/graph/badge.svg)](https://codecov.io/gh/geeksbaek/goinside)
 [![Go Report Card](https://goreportcard.com/badge/github.com/geeksbaek/goinside)](https://goreportcard.com/report/github.com/geeksbaek/goinside)
 [![GoDoc](https://godoc.org/github.com/geeksbaek/goinside?status.svg)](https://godoc.org/github.com/geeksbaek/goinside)
 
