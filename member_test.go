@@ -1,23 +1,22 @@
 package goinside
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	"net/url"
+	"os"
 )
 
 func getTestMemberSession() (ms *MemberSession, err error) {
-	authFile, err := ioutil.ReadFile("auth.json")
+	id := os.Getenv("GOINSIDE_TEST_ID")
+	pw := os.Getenv("GOINSIDE_TEST_PW")
+	proxyURL := os.Getenv("GOINSIDE_PROXY_URL")
+
+	ms, err = Login(id, pw)
+
+	proxy, err := url.Parse(proxyURL)
 	if err != nil {
 		return
 	}
-	var auth struct {
-		ID string
-		PW string
-	}
-	err = json.Unmarshal(authFile, &auth)
-	if err != nil {
-		return
-	}
-	ms, err = Login(auth.ID, auth.PW)
+
+	ms.Connection().SetTransport(proxy)
 	return
 }
