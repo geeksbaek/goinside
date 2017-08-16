@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -49,7 +48,7 @@ func Login(id, pw string) (s *Session, err error) {
 	loginPageResp := do("GET", desktopLoginPageURL, nil, nil, desktopRequestHeader)
 	doc, err := goquery.NewDocumentFromResponse(loginPageResp)
 	if err != nil {
-		return	
+		return
 	}
 
 	chk := doc.Find(loginChkQuery)
@@ -343,7 +342,11 @@ func (s *Session) fetchDetail(d detailer) (gallID, cid, key1, val1, val2 string)
 	resp := do("GET", d.fetchDetail(), s.cookies, nil, gallogRequestHeader)
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		// Maybe this problem seems to be occurring here.
+		// net/http: request canceled (Client.Timeout exceeded while reading body)
+
+		// log.Fatal(err)
+		return
 	}
 	// gall ID
 	if matched := gallIDRe.FindSubmatch(body); len(matched) == 2 {
