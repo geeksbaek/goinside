@@ -3,6 +3,7 @@ package goinside
 import (
 	"net/url"
 	"os"
+	"time"
 )
 
 func getTestMemberSession() (ms *MemberSession, err error) {
@@ -18,5 +19,6 @@ func getTestMemberSession() (ms *MemberSession, err error) {
 	}
 
 	ms.Connection().SetTransport(proxy)
+	ms.Connection().SetTimeout(time.Second * 5)
 	return
 }

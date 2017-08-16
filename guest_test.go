@@ -3,6 +3,7 @@ package goinside
 import (
 	"net/url"
 	"os"
+	"time"
 )
 
 func getTestGuestSession() (gs *GuestSession, err error) {
@@ -16,6 +17,6 @@ func getTestGuestSession() (gs *GuestSession, err error) {
 	}
 
 	gs.Connection().SetTransport(proxy)
-
+	gs.Connection().SetTimeout(time.Second * 5)
 	return
 }
