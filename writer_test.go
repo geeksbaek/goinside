@@ -5,7 +5,7 @@ import "testing"
 func TestMemberWrite(t *testing.T) {
 	s, err := getTestMemberSession()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// test write article
@@ -17,7 +17,7 @@ func TestMemberWrite(t *testing.T) {
 	// test write comment to ListItem
 	l, err := FetchBestList(testTargetGallID, 1)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	cd := NewCommentDraft(l.Items[0], "..")
 	if err := s.Write(cd); err != nil {
@@ -38,7 +38,7 @@ func TestMemberWrite(t *testing.T) {
 func TestGuestWrite(t *testing.T) {
 	s, err := getTestGuestSession()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// test write article
@@ -50,7 +50,7 @@ func TestGuestWrite(t *testing.T) {
 	// test write comment to ListItem
 	l, err := FetchBestList(testTargetGallID, 1)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	cd := NewCommentDraft(l.Items[0], "..")
 	if err := s.Write(cd); err != nil {

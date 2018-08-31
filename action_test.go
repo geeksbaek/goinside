@@ -5,12 +5,12 @@ import "testing"
 func TestMemberAction(t *testing.T) {
 	s, err := getTestMemberSession()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	l, err := FetchList(testTargetGallID, 1)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if len(l.Items) == 0 {
 		t.Errorf("empty %v gallery list.", testTargetGallID)
@@ -46,12 +46,12 @@ func TestMemberAction(t *testing.T) {
 func TestGuestAction(t *testing.T) {
 	s, err := getTestGuestSession()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	l, err := FetchList(testTargetGallID, 1)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if len(l.Items) == 0 {
 		t.Errorf("empty %v gallery list.", testTargetGallID)

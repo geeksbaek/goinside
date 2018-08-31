@@ -8,7 +8,7 @@ import (
 func TestFetch(t *testing.T) {
 	l, err := FetchBestList(testTargetGallID, 1)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if len(l.Items) == 0 {
 		t.Errorf("empty %v gallery list.", testTargetGallID)
@@ -25,7 +25,7 @@ func TestFetch(t *testing.T) {
 func TestImageURLTypeFetch(t *testing.T) {
 	l, err := FetchBestList(testTargetGallID, 1)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	for _, v := range l.Items {
 		if !v.HasImage {
@@ -51,7 +51,7 @@ func TestImageURLTypeFetch(t *testing.T) {
 func TestFetchGalleryList(t *testing.T) {
 	major, err := FetchAllMajorGallery()
 	if err != nil {
-		t.Errorf("FetchAllMajorGallery() failed. %v", err)
+		t.Fatalf("FetchAllMajorGallery() failed. %v", err)
 	}
 	if len(major) == 0 {
 		t.Errorf("empty major gallery result. %v", err)
