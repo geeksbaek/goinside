@@ -131,7 +131,7 @@ func fetchList(gallID string, page int, fetchBestPage bool) (l *List, err error)
 	URL := gallURL(gallID)
 	gall := &Gall{ID: gallID, URL: URL}
 	formMap := map[string]string{
-		"app_id": AppID,
+		"app_id": GetAppID(RandomGuest()),
 		"id":     gallID,
 		"page":   fmt.Sprint(page),
 	}
@@ -185,7 +185,7 @@ func (i *ListItem) Fetch() (*Article, error) {
 // FetchImageURLs 메소드는 해당 글의 이미지 주소의 슬라이스만을 가져옵니다.
 func (i *ListItem) FetchImageURLs() (imageURLs []ImageURLType, err error) {
 	formMap := map[string]string{
-		"app_id": AppID,
+		"app_id": GetAppID(RandomGuest()),
 		"id":     i.Gall.ID,
 		"no":     fmt.Sprint(i.Number),
 	}
@@ -262,7 +262,7 @@ func FetchArticle(URL string) (a *Article, err error) {
 	gallID := gallID(URL)
 	gall := &Gall{ID: gallID, URL: gallURL(gallID)}
 	formMap := map[string]string{
-		"app_id": AppID,
+		"app_id": GetAppID(RandomGuest()),
 		"id":     gallID,
 		"no":     articleNumber(URL),
 	}
@@ -357,7 +357,7 @@ func fetchComment(URL string, parents *Article) (cs []*Comment, err error) {
 	cs = []*Comment{}
 	for commentPage := 1; ; commentPage++ {
 		formMap := map[string]string{
-			"app_id":  AppID,
+			"app_id":  GetAppID(RandomGuest()),
 			"id":      gallID,
 			"no":      parents.Number,
 			"re_page": fmt.Sprint(commentPage),

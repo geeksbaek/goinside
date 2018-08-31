@@ -88,7 +88,7 @@ func (ms *MemberSession) Write(w writable) error {
 
 func (ms *MemberSession) articleWriteForm(id, s, c string, is ...string) (io.Reader, string) {
 	return multipartForm(map[string]string{
-		"app_id":  AppID,
+		"app_id":  GetAppID(ms),
 		"mode":    "write",
 		"user_id": ms.UserID,
 		"id":      id,
@@ -99,7 +99,7 @@ func (ms *MemberSession) articleWriteForm(id, s, c string, is ...string) (io.Rea
 
 func (ms *MemberSession) commentWriteForm(id, n, c string) (io.Reader, string) {
 	return makeForm(map[string]string{
-		"app_id":       AppID,
+		"app_id":       GetAppID(ms),
 		"user_id":      ms.UserID,
 		"id":           id,
 		"no":           n,
@@ -115,7 +115,7 @@ func (ms *MemberSession) Delete(d deletable) error {
 
 func (ms *MemberSession) articleDeleteForm(id, n string) (io.Reader, string) {
 	return makeForm(map[string]string{
-		"app_id":  AppID,
+		"app_id":  GetAppID(ms),
 		"user_id": ms.UserID,
 		"no":      n,
 		"id":      id,
@@ -125,7 +125,7 @@ func (ms *MemberSession) articleDeleteForm(id, n string) (io.Reader, string) {
 
 func (ms *MemberSession) commentDeleteForm(id, n, cn string) (io.Reader, string) {
 	return makeForm(map[string]string{
-		"app_id":     AppID,
+		"app_id":     GetAppID(ms),
 		"user_id":    ms.UserID,
 		"id":         id,
 		"no":         n,
@@ -146,7 +146,7 @@ func (ms *MemberSession) ThumbsDown(a actionable) error {
 
 func (ms *MemberSession) actionForm(id, n string) (io.Reader, string) {
 	return makeForm(map[string]string{
-		"app_id": AppID,
+		"app_id": GetAppID(ms),
 		"id":     id,
 		"no":     n,
 	}), nonCharsetContentType
@@ -170,6 +170,6 @@ func (ms *MemberSession) reportForm(URL, memo string) (io.Reader, string) {
 		"memo":       _Must(url.QueryUnescape(memo)),
 		"no":         articleNumber(URL),
 		"id":         gallID(URL),
-		"app_id":     AppID,
+		"app_id":     GetAppID(ms),
 	}), nonCharsetContentType
 }

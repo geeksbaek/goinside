@@ -53,26 +53,27 @@ func (api dcinsideAPI) get(m map[string]string) (*http.Response, error) {
 }
 
 // AppID 는 디시인사이드 API 요청에 필요한 Key 값입니다.
-const AppID = "SEMwMFcxYUpsU0Z1cUVidDQvbXV5QT09"
+// const AppID = "SEMwMFcxYUpsU0Z1cUVidDQvbXV5QT09"
 
 // apis
 const (
-	loginAPI             dcinsideAPI = "https://dcid.dcinside.com/join/mobile_app_login.php"
-	writeArticleAPI      dcinsideAPI = "http://upload.dcinside.com/_app_write_api.php"
-	deleteArticleAPI     dcinsideAPI = "http://m.dcinside.com/api/gall_del.php"
-	writeCommentAPI      dcinsideAPI = "http://m.dcinside.com/api/comment_ok.php"
-	deleteCommentAPI     dcinsideAPI = "http://m.dcinside.com/api/comment_del.php"
-	recommendUpAPI       dcinsideAPI = "http://m.dcinside.com/api/_recommend_up.php"
-	recommendDownAPI     dcinsideAPI = "http://m.dcinside.com/api/_recommend_down.php"
-	reportAPI            dcinsideAPI = "http://m.dcinside.com/api/report_upload.php"
-	redirectAPI          dcinsideAPI = "http://m.dcinside.com/api/redirect.php"
-	readListAPI          dcinsideAPI = "http://m.dcinside.com/api/gall_list.php"
-	readArticleAPI       dcinsideAPI = "http://m.dcinside.com/api/view2.php"
-	readArticleDetailAPI dcinsideAPI = "http://m.dcinside.com/api/gall_view.php"
-	readArticleImageAPI  dcinsideAPI = "http://m.dcinside.com/api/view_img.php"
-	readCommentAPI       dcinsideAPI = "http://m.dcinside.com/api/comment.php"
-	majorGalleryListAPI  dcinsideAPI = "http://json.dcinside.com/App/gall_name.php"
-	minorGalleryListAPI  dcinsideAPI = "http://json.dcinside.com/App/gall_name_sub.php"
+	loginAPI              dcinsideAPI = "https://dcid.dcinside.com/join/mobile_app_login.php"
+	appKeyVerificationAPI dcinsideAPI = "https://dcid.dcinside.com/join/mobile_app_key_verification_3rd.php"
+	writeArticleAPI       dcinsideAPI = "http://upload.dcinside.com/_app_write_api.php"
+	deleteArticleAPI      dcinsideAPI = "http://m.dcinside.com/api/gall_del.php"
+	writeCommentAPI       dcinsideAPI = "http://m.dcinside.com/api/comment_ok.php"
+	deleteCommentAPI      dcinsideAPI = "http://m.dcinside.com/api/comment_del.php"
+	recommendUpAPI        dcinsideAPI = "http://m.dcinside.com/api/_recommend_up.php"
+	recommendDownAPI      dcinsideAPI = "http://m.dcinside.com/api/_recommend_down.php"
+	reportAPI             dcinsideAPI = "http://m.dcinside.com/api/report_upload.php"
+	redirectAPI           dcinsideAPI = "http://m.dcinside.com/api/redirect.php"
+	readListAPI           dcinsideAPI = "http://m.dcinside.com/api/gall_list.php"
+	readArticleAPI        dcinsideAPI = "http://m.dcinside.com/api/view2.php"
+	readArticleDetailAPI  dcinsideAPI = "http://m.dcinside.com/api/gall_view.php"
+	readArticleImageAPI   dcinsideAPI = "http://m.dcinside.com/api/view_img.php"
+	readCommentAPI        dcinsideAPI = "http://m.dcinside.com/api/comment.php"
+	majorGalleryListAPI   dcinsideAPI = "http://json.dcinside.com/App/gall_name.php"
+	minorGalleryListAPI   dcinsideAPI = "http://json.dcinside.com/App/gall_name_sub.php"
 )
 
 // content types
@@ -83,8 +84,8 @@ const (
 
 var (
 	apiRequestHeader = map[string]string{
-		"User-Agent": "dclife",
-		"Referer":    "http://www.dcinside.com",
+		"User-Agent": "dcinside.app",
+		"Referer":    "http://m.dcinside.com",
 		"Host":       "m.dcinside.com",
 	}
 	mobileRequestHeader = map[string]string{

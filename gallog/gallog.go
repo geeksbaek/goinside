@@ -212,7 +212,7 @@ func (s *Session) DeleteAll(max int, data *DataSet, cb func(i, n int)) {
 	go func() {
 		i := 1
 		n := len(data.As) + len(data.Cs)
-		for _ = range progressCh {
+		for range progressCh {
 			cb(i, n)
 			i++
 		}
@@ -251,7 +251,7 @@ func (a *articleMicroInfo) delete(s *Session) {
 	gallID, _, key1, val1, val2 := s.fetchDetail(a)
 
 	deleteArticleForm := makeForm(map[string]string{
-		"app_id":  goinside.AppID,
+		"app_id":  goinside.GetAppID(goinside.RandomGuest()),
 		"user_id": s.UserID,
 		"no":      a.pno,
 		"id":      gallID,
@@ -289,7 +289,7 @@ func (c *commentMicroInfo) delete(s *Session) {
 	gallID, cid, key1, val1, val2 := s.fetchDetail(c)
 
 	deleteCommentForm := makeForm(map[string]string{
-		"app_id":     goinside.AppID,
+		"app_id":     goinside.GetAppID(goinside.RandomGuest()),
 		"user_id":    s.UserID,
 		"no":         c.no,
 		"id":         gallID,
