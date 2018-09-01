@@ -11,7 +11,7 @@ func TestFetch(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(l.Items) == 0 {
-		t.Errorf("empty %v gallery list.", testTargetGallID)
+		t.Fatalf("empty %v gallery list.", testTargetGallID)
 	}
 
 	for _, v := range l.Items {
@@ -27,6 +27,10 @@ func TestImageURLTypeFetch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if len(l.Items) == 0 {
+		t.Fatalf("empty %v gallery list.", testTargetGallID)
+	}
+
 	for _, v := range l.Items {
 		if !v.HasImage {
 			continue

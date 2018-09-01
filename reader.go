@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+var (
+	filenameRe = regexp.MustCompile(`image/(.*)`)
+)
+
 func fetchSomething(formMap map[string]string, api dcinsideAPI, data interface{}) (err error) {
 	resp, err := api.get(formMap)
 	if err != nil {
@@ -211,11 +215,10 @@ func (i ImageURLType) Fetch() (data []byte, filename string, err error) {
 	}
 	defer resp.Body.Close()
 
-	filenameRe := regexp.MustCompile(`filename=(.*)`)
-	contentDisposition := resp.Header.Get("Content-Disposition")
-	matched := filenameRe.FindStringSubmatch(contentDisposition)
+	contentType := resp.Header.Get("Content-Type")
+	matched := filenameRe.FindStringSubmatch(contentType)
 	if len(matched) != 2 {
-		err = errors.New("cannot found filename from content-position")
+		err = errors.New("cannot found filename from Content-Type")
 		return
 	}
 

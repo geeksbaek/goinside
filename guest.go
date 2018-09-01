@@ -28,6 +28,7 @@ func Guest(id, pw string) (gs *GuestSession, err error) {
 	return
 }
 
+// RandomGuest 함수는 임의의 유동닉 세션을 반환합니다.
 func RandomGuest() *GuestSession {
 	return &GuestSession{
 		id:   fmt.Sprint(rand.Intn(100)),
