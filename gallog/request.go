@@ -9,7 +9,8 @@ import (
 
 // web urls
 const (
-	desktopLoginPageURL = "https://dcid.dcinside.com/join/login.php?s_url=http%3A%2F%2Fwww.dcinside.com" // s_url 없으면 에러남
+	desktopLoginPageURL = "https://www.dcinside.com" // s_url 없으면 에러남
+	desktopSSOIframeURL = "https://dcid.dcinside.com/join/sso_iframe.php"
 	desktopLoginURL     = "https://dcid.dcinside.com/join/member_check.php"
 	desktopLogoutURL    = "https://dcid.dcinside.com/join/logout.php"
 	deleteArticleLogURL = "http://gallog.dcinside.com/inc/_deleteArticle.php"
@@ -29,19 +30,34 @@ const (
 
 var (
 	apiRequestHeader = map[string]string{
-		"User-Agent": "dcinside.app",
-		"Referer":    "http://m.dcinside.com",
-		"Host":       "m.dcinside.com",
+		"User-Agent":   "dcinside.app",
+		"Referer":      "http://m.dcinside.com",
+		"Host":         "m.dcinside.com",
+		"Content-Type": nonCharsetContentType,
 	}
 	gallogRequestHeader = map[string]string{
-		"User-Agent": "Mozilla/5.0",
-		"Referer":    "http://gallog.dcinside.com",
-		"Host":       "gallog.dcinside.com",
+		"User-Agent":   "Mozilla/5.0",
+		"Referer":      "http://gallog.dcinside.com",
+		"Host":         "gallog.dcinside.com",
+		"Content-Type": nonCharsetContentType,
 	}
 	desktopRequestHeader = map[string]string{
-		"User-Agent": "Mozilla/5.0",
-		"Referer":    "http://www.dcinside.com",
-		"Host":       "dcid.dcinside.com",
+		"User-Agent":   "Mozilla/5.0",
+		"Referer":      "https://www.dcinside.com",
+		"Host":         "dcid.dcinside.com",
+		"Content-Type": nonCharsetContentType,
+	}
+	ssoRequestHeader = map[string]string{
+		"Accept":                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+		"Accept-Encoding":           "gzip, deflate, br",
+		"Accept-Language":           "en-US,en;q=0.9,ko-KR;q=0.8,ko;q=0.7",
+		"Cache-Control":             "no-cache",
+		"Connection":                "keep-alive",
+		"DNT":                       "1",
+		"Host":                      "dcid.dcinside.com",
+		"Pragma":                    "no-cache",
+		"Upgrade-Insecure-Requests": "1",
+		"User-Agent":                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36",
 	}
 )
 
@@ -57,12 +73,14 @@ func do(method, URL string, cookies []*http.Cookie, form io.Reader, requestHeade
 	for _, cookie := range cookies {
 		req.AddCookie(cookie)
 	}
-	req.Header.Set("Content-Type", nonCharsetContentType)
 	for k, v := range requestHeader {
 		req.Header.Set(k, v)
 	}
 	client := &http.Client{
 		Timeout: time.Second * 3,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
 	}
 
 	for i := 1; ; i++ {

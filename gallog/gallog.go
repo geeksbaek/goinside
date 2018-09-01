@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	loginChkQuery = `input[name="url"] + input`
+	loginChkQuery = `input[type="hidden"]:nth-child(3)`
 	articlesQuery = `td[valign='top'] td[colspan='2'] table tr:not(:first-child)`
 	articleQuery  = `img`
 	commentsQuery = `td[colspan='2'][align='center'] td[colspan='2'] table tr:not(:first-child)`
@@ -56,15 +56,17 @@ func Login(id, pw string) (s *Session, err error) {
 	chkValue, _ := chk.Attr("value")
 
 	f := map[string]string{
-		"s_url":    "http://www.dcinside.com/",
-		"ssl_chk":  "on",
+		"s_url":    "//www.dcinside.com/",
+		"ssl":      "Y",
 		"user_id":  id,
 		"password": pw,
 	}
 	f[chkName] = chkValue
 
+	ssoResp := do("GET", desktopSSOIframeURL, nil, nil, ssoRequestHeader)
+
 	form := makeForm(f)
-	resp := do("POST", desktopLoginURL, nil, form, desktopRequestHeader)
+	resp := do("POST", desktopLoginURL, ssoResp.Cookies(), form, desktopRequestHeader)
 
 	ms, err := goinside.Login(id, pw)
 	if err != nil {
