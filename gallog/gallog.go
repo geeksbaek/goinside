@@ -16,9 +16,9 @@ import (
 
 const (
 	loginChkQuery = `input[type="hidden"]:nth-child(3)`
-	articlesQuery = `td[valign='top'] td[colspan='2'] table tr:not(:first-child)`
+	articlesQuery = `td[valign='top'] td[colspan='2'] table tr:nth-child(even):not(:last-child)`
 	articleQuery  = `img`
-	commentsQuery = `td[colspan='2'][align='center'] td[colspan='2'] table tr:not(:first-child)`
+	commentsQuery = `td[colspan='2'][align='center'] td[colspan='2'] table tr:not(:first-child):not(:last-child)`
 	commentQuery  = `td[width='22'] span`
 
 	gallogURLFormat        = "http://gallog.dcinside.com/inc/_mainGallog.php?gid=%v&page=%v&rpage=%v"
@@ -72,7 +72,16 @@ func Login(id, pw string) (s *Session, err error) {
 	if err != nil {
 		return
 	}
-	s = &Session{id, pw, resp.Cookies(), ms.MemberSessionDetail}
+
+	cookies := []*http.Cookie{}
+	for _, v := range resp.Cookies() {
+		if v.Value != "deleted" {
+			cookies = append(cookies, v)
+			fmt.Println(v)
+		}
+	}
+
+	s = &Session{id, pw, cookies, ms.MemberSessionDetail}
 	return
 }
 
