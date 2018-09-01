@@ -3,7 +3,6 @@ package goinside
 import (
 	"errors"
 	"io"
-	"net/url"
 )
 
 var (
@@ -153,23 +152,23 @@ func (ms *MemberSession) actionForm(id, n string) (io.Reader, string) {
 }
 
 // Report 메소드는 해당 글에 메모와 함께 신고 요청을 보냅니다.
-func (ms *MemberSession) Report(a actionable, memo string) error {
-	return a.report(ms, memo)
-}
+// func (ms *MemberSession) Report(a actionable, memo string) error {
+// 	return a.report(ms, memo)
+// }
 
-func (ms *MemberSession) reportForm(URL, memo string) (io.Reader, string) {
-	_Must := func(s string, e error) string {
-		if e != nil {
-			return ""
-		}
-		return s
-	}
-	return makeForm(map[string]string{
-		"confirm_id": ms.UserID,
-		"choice":     "4",
-		"memo":       _Must(url.QueryUnescape(memo)),
-		"no":         articleNumber(URL),
-		"id":         gallID(URL),
-		"app_id":     GetAppID(ms),
-	}), nonCharsetContentType
-}
+// func (ms *MemberSession) reportForm(URL, memo string) (io.Reader, string) {
+// 	_Must := func(s string, e error) string {
+// 		if e != nil {
+// 			return ""
+// 		}
+// 		return s
+// 	}
+// 	return makeForm(map[string]string{
+// 		"confirm_id": ms.UserID,
+// 		"choice":     "4",
+// 		"memo":       _Must(url.QueryUnescape(memo)),
+// 		"no":         articleNumber(URL),
+// 		"id":         gallID(URL),
+// 		"app_id":     GetAppID(ms),
+// 	}), nonCharsetContentType
+// }

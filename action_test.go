@@ -23,9 +23,9 @@ func TestMemberAction(t *testing.T) {
 	if err := s.ThumbsDown(l.Items[0]); err != nil {
 		t.Error(err)
 	}
-	if err := s.Report(l.Items[0], "신고"); err != nil {
-		t.Error(err)
-	}
+	// if err := s.Report(l.Items[0], "신고"); err != nil {
+	// 	t.Error(err)
+	// }
 
 	// test action to Article
 	a, err := l.Items[1].Fetch()
@@ -38,9 +38,9 @@ func TestMemberAction(t *testing.T) {
 	if err := s.ThumbsDown(a); err != nil {
 		t.Error(err)
 	}
-	if err := s.Report(a, "신고"); err != nil {
-		t.Error(err)
-	}
+	// if err := s.Report(a, "신고"); err != nil {
+	// 	t.Error(err)
+	// }
 }
 
 func TestGuestAction(t *testing.T) {
@@ -58,18 +58,18 @@ func TestGuestAction(t *testing.T) {
 	}
 
 	// test action to ListItem
-	if err := s.ThumbsUp(l.Items[3]); err != nil {
+	if err := s.ThumbsUp(l.Items[len(l.Items)-2]); err != nil {
 		t.Error(err)
 	}
-	if err := s.ThumbsDown(l.Items[3]); err != nil {
+	if err := s.ThumbsDown(l.Items[len(l.Items)-2]); err != nil {
 		t.Error(err)
 	}
-	if err := s.Report(l.Items[3], "신고"); err != nil {
-		t.Error(err)
-	}
+	// if err := s.Report(l.Items[len(l.Items)-2], "신고"); err != nil {
+	// 	t.Error(err)
+	// }
 
 	// test action to Article
-	a, err := l.Items[4].Fetch()
+	a, err := l.Items[len(l.Items)-1].Fetch()
 	if err != nil {
 		t.Error(err)
 	}
@@ -79,7 +79,7 @@ func TestGuestAction(t *testing.T) {
 	if err := s.ThumbsDown(a); err != nil {
 		t.Error(err)
 	}
-	if err := s.Report(a, "신고"); err != nil {
-		t.Error(err)
-	}
+	// if err := s.Report(a, "신고"); err != nil {
+	// 	t.Error(err)
+	// }
 }

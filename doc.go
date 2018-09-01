@@ -23,7 +23,7 @@ Usage
 빈 문자열을 인자로 넘길 경우 에러를 반환합니다.
 
         s, err := goinside.Guest("ㅇㅇ", "123")
-        err != nil {
+        if err != nil {
                 log.Fatal(err)
         }
 
@@ -31,7 +31,7 @@ Usage
 로그인에 실패할 경우 에러를 반환합니다.
 
         s, err := goinside.Login("ID", "PASSWORD")
-        err != nil {
+        if err != nil {
                 log.Fatal(err)
         }
 

@@ -1,7 +1,6 @@
 package goinside
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -10,9 +9,7 @@ func TestGetAppID(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	appID := GetAppID(gs)
-	if appID == "" {
+	if appID := GetAppID(gs); appID == "" {
 		t.Fatal("could not get app id")
 	}
-	fmt.Println(appID)
 }

@@ -7,7 +7,7 @@ var errReportResultFalseWithEmptyCause = errors.New("Report Result False With Em
 type actionable interface {
 	thumbsUp(session) error
 	thumbsDown(session) error
-	report(session, string) error
+	// report(session, string) error
 }
 
 func (a *Article) thumbsUp(s session) error {
@@ -27,14 +27,14 @@ func (a *Article) action(s session, api dcinsideAPI) error {
 	return checkResponse(resp)
 }
 
-func (a *Article) report(s session, memo string) error {
-	form, contentType := s.reportForm(a.URL, memo)
-	resp, err := reportAPI.post(s, form, contentType)
-	if err != nil {
-		return err
-	}
-	return checkResponse(resp)
-}
+// func (a *Article) report(s session, memo string) error {
+// 	form, contentType := s.reportForm(a.URL, memo)
+// 	resp, err := reportAPI.post(s, form, contentType)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return checkResponse(resp)
+// }
 
 func (i *ListItem) thumbsUp(s session) error {
 	return i.action(s, recommendUpAPI)
@@ -53,11 +53,11 @@ func (i *ListItem) action(s session, api dcinsideAPI) error {
 	return checkResponse(resp)
 }
 
-func (i *ListItem) report(s session, memo string) error {
-	form, contentType := s.reportForm(i.URL, memo)
-	resp, err := reportAPI.post(s, form, contentType)
-	if err != nil {
-		return err
-	}
-	return checkResponse(resp)
-}
+// func (i *ListItem) report(s session, memo string) error {
+// 	form, contentType := s.reportForm(i.URL, memo)
+// 	resp, err := reportAPI.post(s, form, contentType)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return checkResponse(resp)
+// }

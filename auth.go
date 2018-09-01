@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -34,7 +33,9 @@ func GetAppID(s session) (appID string) {
 	defer res.Body.Close()
 	appIDResponse := AppIDResponse{}
 	if err := json.NewDecoder(res.Body).Decode(&appIDResponse); err != nil {
-		log.Println(err)
+		return ""
+	}
+	if len(appIDResponse) == 0 || appIDResponse[0].Result == false {
 		return ""
 	}
 	appID = appIDResponse[0].AppID
