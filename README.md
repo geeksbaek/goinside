@@ -16,6 +16,13 @@ go get -u github.com/geeksbaek/goinside/...
 - [goinside-image-crawler](https://github.com/geeksbaek/goinside-image-crawler)
 - [goinside-gallog-cleaner](https://github.com/geeksbaek/goinside-gallog-cleaner)
 
+## Special thanks to
+
+goinside는 아래 라이브러리들의 코드를 일부 참고하였습니다.
+
+- [pyinside](https://github.com/jeongsj/pyinside)
+- [nodeinside](https://github.com/leechanee1/nodeinside)
+
 ## Warning
 
 현재 개발 중이며 언제든지 API 구조가 변경될 수 있습니다.
