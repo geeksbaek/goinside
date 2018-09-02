@@ -77,7 +77,6 @@ func Login(id, pw string) (s *Session, err error) {
 	for _, v := range resp.Cookies() {
 		if v.Value != "deleted" {
 			cookies = append(cookies, v)
-			fmt.Println(v)
 		}
 	}
 
