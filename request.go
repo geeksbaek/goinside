@@ -67,7 +67,7 @@ const (
 	recommendDownAPI      dcinsideAPI = "http://m.dcinside.com/api/_recommend_down.php"
 	reportAPI             dcinsideAPI = "http://m.dcinside.com/api/report_upload.php"
 	redirectAPI           dcinsideAPI = "http://m.dcinside.com/api/redirect.php"
-	readListAPI           dcinsideAPI = "http://m.dcinside.com/api/gall_list.php"
+	readListAPI           dcinsideAPI = "http://m.dcinside.com/api/gall_list_new.php"
 	readArticleAPI        dcinsideAPI = "http://m.dcinside.com/api/view2.php"
 	readArticleDetailAPI  dcinsideAPI = "http://m.dcinside.com/api/gall_view.php"
 	readArticleImageAPI   dcinsideAPI = "http://m.dcinside.com/api/view_img.php"
