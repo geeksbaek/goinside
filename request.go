@@ -16,7 +16,7 @@ const (
 type session interface {
 	articleWriteForm(string, string, string, ...string) (form io.Reader, contentType string)
 	articleDeleteForm(string, string) (form io.Reader, contentType string)
-	commentWriteForm(string, string, string) (form io.Reader, contentType string)
+	commentWriteForm(string, string, string, ...string) (form io.Reader, contentType string)
 	commentDeleteForm(string, string, string) (form io.Reader, contentType string)
 	actionForm(string, string) (form io.Reader, contentType string)
 	// reportForm(string, string) (form io.Reader, contentType string)
@@ -52,6 +52,14 @@ func (api dcinsideAPI) get(m map[string]string) (*http.Response, error) {
 	return do(&GuestSession{}, "GET", URL.String(), nil, nil, defaultContentType, apiRequestHeader)
 }
 
+func (api dcinsideAPI) getWithoutHash() (*http.Response, error) {
+	URL, err := url.Parse(string(api))
+	if err != nil {
+		return nil, err
+	}
+	return do(&GuestSession{}, "GET", URL.String(), nil, nil, defaultContentType, apiRequestHeader)
+}
+
 // AppID 는 디시인사이드 API 요청에 필요한 Key 값입니다.
 // const AppID = "SEMwMFcxYUpsU0Z1cUVidDQvbXV5QT09"
 
@@ -71,7 +79,7 @@ const (
 	readArticleAPI        dcinsideAPI = "http://m.dcinside.com/api/view2.php"
 	readArticleDetailAPI  dcinsideAPI = "http://m.dcinside.com/api/gall_view.php"
 	readArticleImageAPI   dcinsideAPI = "http://m.dcinside.com/api/view_img.php"
-	readCommentAPI        dcinsideAPI = "http://m.dcinside.com/api/comment.php"
+	readCommentAPI        dcinsideAPI = "http://m.dcinside.com/api/comment_new.php"
 	majorGalleryListAPI   dcinsideAPI = "http://json.dcinside.com/App/gall_name.php"
 	minorGalleryListAPI   dcinsideAPI = "http://json.dcinside.com/App/gall_name_sub.php"
 )

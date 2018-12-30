@@ -6,7 +6,7 @@ import (
 )
 
 func TestFetch(t *testing.T) {
-	l, err := FetchBestList(testTargetGallID, 1)
+	l, err := FetchList(testTargetGallID, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -52,6 +52,7 @@ func TestImageURLTypeFetch(t *testing.T) {
 		}
 	}
 }
+
 func TestFetchGalleryList(t *testing.T) {
 	major, err := FetchAllMajorGallery()
 	if err != nil {

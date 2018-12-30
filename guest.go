@@ -62,16 +62,16 @@ func (gs *GuestSession) articleWriteForm(id, s, c string, is ...string) (io.Read
 	}, is...)
 }
 
-func (gs *GuestSession) commentWriteForm(id, n, c string) (io.Reader, string) {
-	return makeForm(map[string]string{
+func (gs *GuestSession) commentWriteForm(id, n, c string, is ...string) (io.Reader, string) {
+	return multipartForm(map[string]string{
 		"app_id":       GetAppID(gs),
 		"comment_nick": gs.id,
 		"comment_pw":   gs.pw,
 		"id":           id,
 		"no":           n,
 		"comment_memo": c,
-		"mode":         "comment_nonmember",
-	}), defaultContentType
+		"mode":         "com_write",
+	}, is...)
 }
 
 // Delete 메소드는 삭제 가능한 객체를 전달받아 삭제 요청을 보냅니다.

@@ -39,7 +39,7 @@ type jsonGallery []struct {
 
 // FetchAllMajorGallery 함수는 모든 일반 갤러리의 정보를 가져옵니다.
 func FetchAllMajorGallery() (mg []*MajorGallery, err error) {
-	resp, err := majorGalleryListAPI.get(nil)
+	resp, err := majorGalleryListAPI.getWithoutHash()
 	if err != nil {
 		return
 	}
@@ -73,7 +73,7 @@ type jsonMonirGallery []struct {
 
 // FetchAllMinorGallery 함수는 모든 마이너 갤러리의 정보를 가져옵니다.
 func FetchAllMinorGallery() (mg []*MinorGallery, err error) {
-	resp, err := minorGalleryListAPI.get(nil)
+	resp, err := minorGalleryListAPI.getWithoutHash()
 	if err != nil {
 		return
 	}
@@ -227,32 +227,39 @@ func (i ImageURLType) Fetch() (data []byte, filename string, err error) {
 	return
 }
 
-type jsonArticleContent []struct {
-	Memo       string `json:"memo"`
-	ThumbsUp   string `json:"recommend"`
-	ThumbsDown string `json:"nonrecommend"`
-}
-
-type jsonArticleDetail []struct {
-	Subject            string `json:"subject"`
-	Number             string `json:"no"`
-	Name               string `json:"name"`
-	MemberIcon         string `json:"member_icon"`
-	IP                 string `json:"ip"`
-	TotalComment       string `json:"total_comment"`
-	HasImage           string `json:"img_chk"`
-	IsBest             string `json:"recommend_chk"`
-	IsWinnerta         string `json:"winnerta_chk"`
-	Page               string `json:"page"`
-	Hit                string `json:"hit"`
-	WriteType          string `json:"write_type"`
-	UserID             string `json:"user_id"`
-	PrevArticleNumber  string `json:"prev_link"`
-	PrevArticleSubject string `json:"prev_subject"`
-	NextArticleNumber  string `json:"next_link"`
-	NextArticleSubject string `json:"next_subject"`
-	// _                  string `json:"best_chk"` // ?
-	Date string `json:"date_time"`
+type jsonArticle []struct {
+	ViewInfo struct {
+		GallTitle          string `json:"galltitle"`
+		Category           string `json:"category"`
+		Subject            string `json:"subject"`
+		Number             string `json:"no"`
+		Name               string `json:"name"`
+		Level              string `json:"level"`
+		MemberIcon         string `json:"member_icon"`
+		TotalComment       string `json:"total_comment"`
+		IP                 string `json:"ip"`
+		HasImage           string `json:"img_chk"`
+		IsBest             string `json:"recommend_chk"`
+		IsWinnerta         string `json:"winnerta_chk"`
+		HasVoice           string `json:"voice_chk"`
+		Hit                string `json:"hit"`
+		WriteType          string `json:"write_type"`
+		UserID             string `json:"user_id"`
+		PrevArticleNumber  string `json:"prev_link"`
+		PrevArticleSubject string `json:"prev_subject"`
+		HeadTitle          string `json:"headtitle"`
+		NextArticleNumber  string `json:"next_link"`
+		NextArticleSubject string `json:"next_subject"`
+		BestCheck          string `json:"best_chk"` // ?
+		IsNotice           string `json:"isNotice"`
+		Date               string `json:"date_time"`
+	} `json:"view_info"`
+	ViewMain struct {
+		Memo           string `json:"memo"`
+		ThumbsUp       string `json:"recommend"`
+		ThumbsUpMember string `json:"recommend_member"`
+		ThumbsDown     string `json:"nonrecommend"`
+	} `json:"view_main"`
 }
 
 type jsonArticleImages []struct {
@@ -270,17 +277,13 @@ func FetchArticle(URL string) (a *Article, err error) {
 		"no":     articleNumber(URL),
 	}
 
-	content := make(jsonArticleContent, 1)
-	detail := make(jsonArticleDetail, 1)
+	view := make(jsonArticle, 1)
 	images := make(jsonArticleImages, 1)
 
 	ch := func() <-chan error {
 		ch := make(chan error)
 		go func() {
-			ch <- fetchSomething(formMap, readArticleAPI, &content)
-		}()
-		go func() {
-			ch <- fetchSomething(formMap, readArticleDetailAPI, &detail)
+			ch <- fetchSomething(formMap, readArticleAPI, &view)
 		}()
 		go func() {
 			fetchSomething(formMap, readArticleImageAPI, &images)
@@ -289,33 +292,32 @@ func FetchArticle(URL string) (a *Article, err error) {
 		return ch
 	}()
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 2; i++ {
 		if err := <-ch; err != nil {
 			return nil, err
 		}
 	}
 
-	c := content[0]
-	d := detail[0]
+	v := view[0]
 
 	article := &Article{
 		Gall:          gall,
-		URL:           articleURL(gallID, d.Number),
-		Subject:       d.Subject,
-		Content:       c.Memo,
-		ThumbsUp:      mustAtoi(c.ThumbsUp),
-		ThumbsDown:    mustAtoi(c.ThumbsDown),
-		Name:          d.Name,
-		Number:        d.Number,
-		Level:         MemberType(mustAtoi(d.MemberIcon)).Level(),
-		IP:            d.IP,
-		CommentLength: mustAtoi(d.TotalComment),
-		HasImage:      d.HasImage == "Y",
-		Hit:           mustAtoi(d.Hit),
-		ArticleType:   articleType(d.HasImage, d.IsBest),
-		GallogID:      d.UserID,
-		GallogURL:     gallogURL(d.UserID),
-		IsBest:        d.IsBest == "Y",
+		URL:           articleURL(gallID, v.ViewInfo.Number),
+		Subject:       v.ViewInfo.Subject,
+		Content:       v.ViewMain.Memo,
+		ThumbsUp:      mustAtoi(v.ViewMain.ThumbsUp) + mustAtoi(v.ViewMain.ThumbsUpMember),
+		ThumbsDown:    mustAtoi(v.ViewMain.ThumbsDown),
+		Name:          v.ViewInfo.Name,
+		Number:        v.ViewInfo.Number,
+		Level:         MemberType(mustAtoi(v.ViewInfo.MemberIcon)).Level(),
+		IP:            v.ViewInfo.IP,
+		CommentLength: mustAtoi(v.ViewInfo.TotalComment),
+		HasImage:      v.ViewInfo.HasImage == "Y",
+		Hit:           mustAtoi(v.ViewInfo.Hit),
+		ArticleType:   articleType(v.ViewInfo.HasImage, v.ViewInfo.IsBest),
+		GallogID:      v.ViewInfo.UserID,
+		GallogURL:     gallogURL(v.ViewInfo.UserID),
+		IsBest:        v.ViewInfo.IsBest == "Y",
 		ImageURLs: func() (ret []ImageURLType) {
 			for _, v := range images {
 				ret = append(ret, ImageURLType(v.Image))
@@ -323,13 +325,16 @@ func FetchArticle(URL string) (a *Article, err error) {
 			return
 		}(),
 		Comments: []*Comment{},
-		Date:     dateFormatter(d.Date),
+		Date:     dateFormatter(v.ViewInfo.Date),
 	}
 	if article.CommentLength > 0 {
 		article.Comments, err = fetchComment(URL, article)
 		if err != nil {
 			return
 		}
+	}
+	if article.Subject == "" {
+		return nil, errors.New("본문을 가져올 수 없음")
 	}
 	return article, nil
 }
@@ -339,15 +344,11 @@ type jsonComment []struct {
 	TotalPage    string `json:"total_page"`
 	NowPage      string `json:"re_page"`
 	Comments     []struct {
+		MemberIcon string `json:"member_icon"`
+		IP         string `json:"ipData"`
 		Name       string `json:"name"`
 		UserID     string `json:"user_id"`
-		UserNO     string `json:"user_no"`
-		Level      string `json:"level"`
-		MemberIcon string `json:"member_icon"`
 		Content    string `json:"comment_memo"`
-		IP         string `json:"ipData"`
-		Voice      string `json:"voice"`
-		DCcon      string `json:"dccon"`
 		Number     string `json:"comment_no"`
 		Date       string `json:"date_time"`
 	} `json:"comment_list"`
@@ -374,26 +375,14 @@ func fetchComment(URL string, parents *Article) (cs []*Comment, err error) {
 			comment := &Comment{
 				Gall:      gall,
 				Parents:   parents,
-				Type:      commentType(c.DCcon, c.Voice),
 				Name:      c.Name,
 				GallogID:  c.UserID,
 				GallogURL: gallogURL(c.UserID),
-				Level:     Level(c.Level),
 				IP:        c.IP,
 				Number:    c.Number,
 				Date:      dateFormatter(c.Date),
 			}
-			comment.Content, comment.HTML = func() (string, string) {
-				switch comment.Type {
-				case TextCommentType:
-					return c.Content, c.Content
-				case DCconCommentType:
-					return c.DCcon, toImageElement(c.DCcon)
-				case VoiceCommentType:
-					return c.Voice, toAudioElement(c.Voice)
-				}
-				return c.Content, c.Content
-			}()
+			comment.Content, comment.HTML = c.Content, c.Content
 			cs = append(cs, comment)
 		}
 		if mustAtoi(r.NowPage) >= mustAtoi(r.TotalPage) {

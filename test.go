@@ -1,3 +1,3 @@
 package goinside
 
-const testTargetGallID = "baseball_new7"
+const testTargetGallID = "ib_new"

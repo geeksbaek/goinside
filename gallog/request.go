@@ -19,8 +19,7 @@ const (
 
 // apis
 const (
-	deleteArticleAPI = "http://m.dcinside.com/api/gall_del.php"
-	deleteCommentAPI = "http://m.dcinside.com/api/comment_del.php"
+	deleteAPI = "http://gallog.dcinside.com/goinside1/ajax/log_list_ajax/delete"
 )
 
 // content types
