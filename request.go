@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 // urls
@@ -155,7 +156,9 @@ func doImage(URL ImageURLType) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: time.Second * 3,
+	}
 	for k, v := range imageRequestHeader {
 		req.Header.Set(k, v)
 	}
