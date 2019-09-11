@@ -94,8 +94,9 @@ const (
 var (
 	apiRequestHeader = map[string]string{
 		"User-Agent": "dcinside.app",
-		"Referer":    "http://m.dcinside.com",
-		"Host":       "m.dcinside.com",
+		"Referer":    "http://www.dcinside.com",
+		"Host":       "upload.dcinside.com",
+		"Connection": "Keep-Alive",
 	}
 	mobileRequestHeader = map[string]string{
 		"User-Agent": "Linux Android",

@@ -9,7 +9,7 @@ func TestMemberWrite(t *testing.T) {
 	}
 
 	// test write article
-	ad := NewArticleDraft(testTargetGallID, ".", "goinside build testing..", "test.jpg")
+	ad := NewArticleDraft(testTargetGallID, "ㅋㅋㅋㅋ", "ㅋㅋㅋㅋㅋㅋ", "test.jpg")
 	if err := s.Write(ad); err != nil {
 		t.Error(err)
 	}
@@ -42,7 +42,7 @@ func TestGuestWrite(t *testing.T) {
 	}
 
 	// test write article
-	ad := NewArticleDraft(testTargetGallID, ".", "goinside build testing..", "test.jpg")
+	ad := NewArticleDraft(testTargetGallID, "ㅋㅋㅋㅋ", "ㅋㅋㅋㅋㅋㅋ", "test.jpg")
 	if err := s.Write(ad); err != nil {
 		t.Error(err)
 	}
