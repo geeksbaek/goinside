@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
+	"time"
 )
 
 var (
 	errInvalidIDorPW = errors.New("invalid ID or PW")
 )
+
+var dummyGuest = RandomGuest()
 
 // GuestSession 구조체는 유동닉 세션을 나타냅니다.
 type GuestSession struct {
@@ -25,18 +28,26 @@ func Guest(id, pw string) (gs *GuestSession, err error) {
 		err = errInvalidIDorPW
 		return
 	}
-	gs = &GuestSession{id: id, pw: pw, conn: &Connection{}, app: &App{}}
+	gs = &GuestSession{
+		id:   id,
+		pw:   pw,
+		conn: &Connection{timeout: time.Second * 5},
+	}
+	valueToken, appID := fetchAppID(gs)
+	gs.app = &App{Token: valueToken, ID: appID}
 	return
 }
 
 // RandomGuest 함수는 임의의 유동닉 세션을 반환합니다.
 func RandomGuest() *GuestSession {
-	return &GuestSession{
+	gs := &GuestSession{
 		id:   fmt.Sprint(rand.Intn(100)),
 		pw:   fmt.Sprint(rand.Intn(100)),
-		conn: &Connection{},
-		app:  &App{},
+		conn: &Connection{timeout: time.Second * 5},
 	}
+	valueToken, appID := fetchAppID(gs)
+	gs.app = &App{Token: valueToken, ID: appID}
+	return gs
 }
 
 // Connection 메소드는 해당 세션의 Connection 구조체를 반환합니다.
@@ -148,6 +159,7 @@ func (gs *GuestSession) getAppID() string {
 	if gs.app.Token == valueToken {
 		return gs.app.ID
 	}
-	gs.app = &App{Token: valueToken, ID: fetchAppID(gs, valueToken)}
+	valueToken, appID := fetchAppID(gs)
+	gs.app = &App{Token: valueToken, ID: appID}
 	return gs.app.ID
 }

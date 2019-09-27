@@ -3,6 +3,7 @@ package goinside
 import (
 	"errors"
 	"io"
+	"time"
 )
 
 var (
@@ -37,8 +38,7 @@ func Login(id, pw string) (ms *MemberSession, err error) {
 	tempMS := &MemberSession{
 		id:   id,
 		pw:   pw,
-		conn: &Connection{},
-		app:  &App{},
+		conn: &Connection{timeout: time.Second * 5},
 	}
 	resp, err := loginAPI.post(tempMS, form, defaultContentType)
 	if err != nil {
@@ -54,6 +54,10 @@ func Login(id, pw string) (ms *MemberSession, err error) {
 		return
 	}
 	tempMS.MemberSessionDetail = &((*tempMSD)[0])
+
+	valueToken, appID := fetchAppID(tempMS)
+	tempMS.app = &App{Token: valueToken, ID: appID}
+
 	ms = tempMS
 	return
 }
@@ -180,6 +184,7 @@ func (ms *MemberSession) getAppID() string {
 	if ms.app.Token == valueToken {
 		return ms.app.ID
 	}
-	ms.app = &App{Token: valueToken, ID: fetchAppID(ms, valueToken)}
+	valueToken, appID := fetchAppID(ms)
+	ms.app = &App{Token: valueToken, ID: appID}
 	return ms.app.ID
 }

@@ -19,7 +19,8 @@ type AppIDResponse []struct {
 	AppID  string `json:"app_id"`
 }
 
-func fetchAppID(s session, valueToken string) (appID string) {
+func fetchAppID(s session) (valueToken, appID string) {
+	valueToken = generateValueToken()
 	r, ct := multipartForm(map[string]string{
 		"value_token": valueToken,
 		"signature":   "ReOo4u96nnv8Njd7707KpYiIVYQ3FlcKHDJE046Pg6s=",
@@ -29,18 +30,19 @@ func fetchAppID(s session, valueToken string) (appID string) {
 	})
 	res, err := appKeyVerificationAPI.post(s, r, ct)
 	if err != nil {
-		return ""
+		return "", ""
 	}
 	defer res.Body.Close()
 	appIDResponse := AppIDResponse{}
 	if err := json.NewDecoder(res.Body).Decode(&appIDResponse); err != nil {
-		return ""
+		return "", ""
 	}
 	if len(appIDResponse) == 0 || appIDResponse[0].Result == false {
-		return ""
+		return "", ""
 	}
 	appID = appIDResponse[0].AppID
-	<-time.After(time.Second * 5)
+
+	time.Sleep(time.Second * 5)
 	return
 }
 
