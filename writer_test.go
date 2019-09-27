@@ -47,23 +47,23 @@ func TestGuestWrite(t *testing.T) {
 		t.Error(err)
 	}
 
-	// // test write comment to ListItem
-	// l, err := FetchBestList(testTargetGallID, 1)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
-	// cd := NewCommentDraft(l.Items[0], "..")
-	// if err := s.Write(cd); err != nil {
-	// 	t.Error(err)
-	// }
+	// test write comment to ListItem
+	l, err := FetchBestList(testTargetGallID, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cd := NewCommentDraft(l.Items[0], "..")
+	if err := s.Write(cd); err != nil {
+		t.Error(err)
+	}
 
-	// // test write comment to Article
-	// a, err := l.Items[0].Fetch()
-	// if err != nil {
-	// 	t.Error(err)
-	// }
-	// cd = NewCommentDraft(a, ".")
-	// if err := s.Write(cd); err != nil {
-	// 	t.Error(err)
-	// }
+	// test write comment to Article
+	a, err := l.Items[0].Fetch()
+	if err != nil {
+		t.Error(err)
+	}
+	cd = NewCommentDraft(a, ".")
+	if err := s.Write(cd); err != nil {
+		t.Error(err)
+	}
 }
