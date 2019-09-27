@@ -15,6 +15,7 @@ type MemberSession struct {
 	pw   string
 	conn *Connection
 	*MemberSessionDetail
+	app *App
 }
 
 // MemberSessionDetail 구조체는 해당 세션의 세부 정보를 나타냅니다.
@@ -37,6 +38,7 @@ func Login(id, pw string) (ms *MemberSession, err error) {
 		id:   id,
 		pw:   pw,
 		conn: &Connection{},
+		app:  &App{},
 	}
 	resp, err := loginAPI.post(tempMS, form, defaultContentType)
 	if err != nil {
@@ -87,7 +89,7 @@ func (ms *MemberSession) Write(w writable) error {
 
 func (ms *MemberSession) articleWriteForm(id, s, c string, is ...string) (io.Reader, string) {
 	return multipartForm(map[string]string{
-		"app_id":  GetAppID(ms),
+		"app_id":  ms.getAppID(),
 		"mode":    "write",
 		"user_id": ms.UserID,
 		"id":      id,
@@ -98,7 +100,7 @@ func (ms *MemberSession) articleWriteForm(id, s, c string, is ...string) (io.Rea
 
 func (ms *MemberSession) commentWriteForm(id, n, c string, is ...string) (io.Reader, string) {
 	return multipartForm(map[string]string{
-		"app_id":       GetAppID(ms),
+		"app_id":       ms.getAppID(),
 		"user_id":      ms.UserID,
 		"id":           id,
 		"no":           n,
@@ -114,7 +116,7 @@ func (ms *MemberSession) Delete(d deletable) error {
 
 func (ms *MemberSession) articleDeleteForm(id, n string) (io.Reader, string) {
 	return makeForm(map[string]string{
-		"app_id":  GetAppID(ms),
+		"app_id":  ms.getAppID(),
 		"user_id": ms.UserID,
 		"no":      n,
 		"id":      id,
@@ -124,7 +126,7 @@ func (ms *MemberSession) articleDeleteForm(id, n string) (io.Reader, string) {
 
 func (ms *MemberSession) commentDeleteForm(id, n, cn string) (io.Reader, string) {
 	return makeForm(map[string]string{
-		"app_id":     GetAppID(ms),
+		"app_id":     ms.getAppID(),
 		"user_id":    ms.UserID,
 		"id":         id,
 		"no":         n,
@@ -145,7 +147,7 @@ func (ms *MemberSession) ThumbsDown(a actionable) error {
 
 func (ms *MemberSession) actionForm(id, n string) (io.Reader, string) {
 	return makeForm(map[string]string{
-		"app_id": GetAppID(ms),
+		"app_id": ms.getAppID(),
 		"id":     id,
 		"no":     n,
 	}), nonCharsetContentType
@@ -169,6 +171,15 @@ func (ms *MemberSession) actionForm(id, n string) (io.Reader, string) {
 // 		"memo":       _Must(url.QueryUnescape(memo)),
 // 		"no":         articleNumber(URL),
 // 		"id":         gallID(URL),
-// 		"app_id":     GetAppID(ms),
+// 		"app_id":     ms.getAppID(),
 // 	}), nonCharsetContentType
 // }
+
+func (ms *MemberSession) getAppID() string {
+	valueToken := generateValueToken()
+	if ms.app.Token == valueToken {
+		return ms.app.ID
+	}
+	ms.app = &App{Token: valueToken, ID: fetchAppID(ms, valueToken)}
+	return ms.app.ID
+}

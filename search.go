@@ -5,7 +5,7 @@ import "fmt"
 func search(id, keyword, searchType string, page int) (l *List, err error) {
 	gall := &Gall{ID: id, URL: gallURL(id)}
 	formMap := map[string]string{
-		"app_id": GetAppID(RandomGuest()),
+		"app_id": RandomGuest().getAppID(),
 		"id":     id,
 		"s_type": searchType,
 		"page":   fmt.Sprint(page),

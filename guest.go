@@ -16,6 +16,7 @@ type GuestSession struct {
 	id   string
 	pw   string
 	conn *Connection
+	app  *App
 }
 
 // Guest 함수는 유동닉 세션을 반환합니다.
@@ -24,7 +25,7 @@ func Guest(id, pw string) (gs *GuestSession, err error) {
 		err = errInvalidIDorPW
 		return
 	}
-	gs = &GuestSession{id: id, pw: pw, conn: &Connection{}}
+	gs = &GuestSession{id: id, pw: pw, conn: &Connection{}, app: &App{}}
 	return
 }
 
@@ -34,6 +35,7 @@ func RandomGuest() *GuestSession {
 		id:   fmt.Sprint(rand.Intn(100)),
 		pw:   fmt.Sprint(rand.Intn(100)),
 		conn: &Connection{},
+		app:  &App{},
 	}
 }
 
@@ -52,7 +54,7 @@ func (gs *GuestSession) Write(w writable) error {
 
 func (gs *GuestSession) articleWriteForm(id, s, c string, is ...string) (io.Reader, string) {
 	return multipartForm(map[string]string{
-		"app_id":   GetAppID(gs),
+		"app_id":   gs.getAppID(),
 		"mode":     "write",
 		"name":     gs.id,
 		"password": gs.pw,
@@ -64,7 +66,7 @@ func (gs *GuestSession) articleWriteForm(id, s, c string, is ...string) (io.Read
 
 func (gs *GuestSession) commentWriteForm(id, n, c string, is ...string) (io.Reader, string) {
 	return multipartForm(map[string]string{
-		"app_id":       GetAppID(gs),
+		"app_id":       gs.getAppID(),
 		"comment_nick": gs.id,
 		"comment_pw":   gs.pw,
 		"id":           id,
@@ -81,7 +83,7 @@ func (gs *GuestSession) Delete(d deletable) error {
 
 func (gs *GuestSession) articleDeleteForm(id, n string) (io.Reader, string) {
 	return makeForm(map[string]string{
-		"app_id":   GetAppID(gs),
+		"app_id":   gs.getAppID(),
 		"mode":     "board_del",
 		"write_pw": gs.pw,
 		"id":       id,
@@ -91,7 +93,7 @@ func (gs *GuestSession) articleDeleteForm(id, n string) (io.Reader, string) {
 
 func (gs *GuestSession) commentDeleteForm(id, n, cn string) (io.Reader, string) {
 	return makeForm(map[string]string{
-		"app_id":     GetAppID(gs),
+		"app_id":     gs.getAppID(),
 		"comment_pw": gs.pw,
 		"id":         id,
 		"no":         n,
@@ -112,7 +114,7 @@ func (gs *GuestSession) ThumbsDown(a actionable) error {
 
 func (gs *GuestSession) actionForm(id, n string) (io.Reader, string) {
 	return makeForm(map[string]string{
-		"app_id": GetAppID(gs),
+		"app_id": gs.getAppID(),
 		"id":     id,
 		"no":     n,
 	}), nonCharsetContentType
@@ -137,6 +139,15 @@ func (gs *GuestSession) actionForm(id, n string) (io.Reader, string) {
 // 		"memo":     _Must(url.QueryUnescape(memo)),
 // 		"no":       articleNumber(URL),
 // 		"id":       gallID(URL),
-// 		"app_id":   GetAppID(gs),
+// 		"app_id":   gs.getAppID(),
 // 	}), nonCharsetContentType
 // }
+
+func (gs *GuestSession) getAppID() string {
+	valueToken := generateValueToken()
+	if gs.app.Token == valueToken {
+		return gs.app.ID
+	}
+	gs.app = &App{Token: valueToken, ID: fetchAppID(gs, valueToken)}
+	return gs.app.ID
+}

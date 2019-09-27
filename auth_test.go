@@ -9,7 +9,9 @@ func TestGetAppID(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if appID := GetAppID(gs); appID == "" {
+	if appID := gs.getAppID(); appID == "" {
 		t.Fatal("could not get app id")
+	} else {
+		t.Log(appID)
 	}
 }

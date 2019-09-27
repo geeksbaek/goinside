@@ -14,56 +14,6 @@ const (
 	commentMoreURL = "http://m.dcinside.com/comment_more_new.php"
 )
 
-type session interface {
-	articleWriteForm(string, string, string, ...string) (form io.Reader, contentType string)
-	articleDeleteForm(string, string) (form io.Reader, contentType string)
-	commentWriteForm(string, string, string, ...string) (form io.Reader, contentType string)
-	commentDeleteForm(string, string, string) (form io.Reader, contentType string)
-	actionForm(string, string) (form io.Reader, contentType string)
-	// reportForm(string, string) (form io.Reader, contentType string)
-	connector
-}
-
-type dcinsideAPI string
-
-func (api dcinsideAPI) post(c connector, form io.Reader, contentType string) (*http.Response, error) {
-	return do(c, "POST", string(api), nil, form, contentType, apiRequestHeader)
-}
-
-func (api dcinsideAPI) get(m map[string]string) (*http.Response, error) {
-	URL, err := url.Parse(string(api))
-	if err != nil {
-		return nil, err
-	}
-	data := url.Values{}
-	for k, v := range m {
-		data.Add(k, v)
-	}
-	URL.RawQuery = data.Encode()
-	encodedParams := base64.StdEncoding.EncodeToString([]byte(URL.String()))
-
-	URL, err = url.Parse(string(redirectAPI))
-	if err != nil {
-		return nil, err
-	}
-	data = url.Values{}
-	data.Add("hash", encodedParams)
-	URL.RawQuery = data.Encode()
-
-	return do(&GuestSession{}, "GET", URL.String(), nil, nil, defaultContentType, apiRequestHeader)
-}
-
-func (api dcinsideAPI) getWithoutHash() (*http.Response, error) {
-	URL, err := url.Parse(string(api))
-	if err != nil {
-		return nil, err
-	}
-	return do(&GuestSession{}, "GET", URL.String(), nil, nil, defaultContentType, apiRequestHeader)
-}
-
-// AppID 는 디시인사이드 API 요청에 필요한 Key 값입니다.
-// const AppID = "SEMwMFcxYUpsU0Z1cUVidDQvbXV5QT09"
-
 // apis
 const (
 	loginAPI              dcinsideAPI = "https://dcid.dcinside.com/join/mobile_app_login.php"
@@ -106,6 +56,54 @@ var (
 		"Referer": "http://www.dcinside.com",
 	}
 )
+
+type session interface {
+	articleWriteForm(string, string, string, ...string) (form io.Reader, contentType string)
+	articleDeleteForm(string, string) (form io.Reader, contentType string)
+	commentWriteForm(string, string, string, ...string) (form io.Reader, contentType string)
+	commentDeleteForm(string, string, string) (form io.Reader, contentType string)
+	actionForm(string, string) (form io.Reader, contentType string)
+	// reportForm(string, string) (form io.Reader, contentType string)
+	getAppID() string
+	connector
+}
+
+type dcinsideAPI string
+
+func (api dcinsideAPI) post(c connector, form io.Reader, contentType string) (*http.Response, error) {
+	return do(c, "POST", string(api), nil, form, contentType, apiRequestHeader)
+}
+
+func (api dcinsideAPI) get(m map[string]string) (*http.Response, error) {
+	URL, err := url.Parse(string(api))
+	if err != nil {
+		return nil, err
+	}
+	data := url.Values{}
+	for k, v := range m {
+		data.Add(k, v)
+	}
+	URL.RawQuery = data.Encode()
+	encodedParams := base64.StdEncoding.EncodeToString([]byte(URL.String()))
+
+	URL, err = url.Parse(string(redirectAPI))
+	if err != nil {
+		return nil, err
+	}
+	data = url.Values{}
+	data.Add("hash", encodedParams)
+	URL.RawQuery = data.Encode()
+
+	return do(&GuestSession{}, "GET", URL.String(), nil, nil, defaultContentType, apiRequestHeader)
+}
+
+func (api dcinsideAPI) getWithoutHash() (*http.Response, error) {
+	URL, err := url.Parse(string(api))
+	if err != nil {
+		return nil, err
+	}
+	return do(&GuestSession{}, "GET", URL.String(), nil, nil, defaultContentType, apiRequestHeader)
+}
 
 type connector interface {
 	Connection() *Connection
