@@ -2,7 +2,7 @@ package goinside
 
 import "testing"
 
-func TestMemberWrite(t *testing.T) {
+func TestMemberWriteArticle(t *testing.T) {
 	s, err := getTestMemberSession()
 	if err != nil {
 		t.Fatal(err)
@@ -12,6 +12,12 @@ func TestMemberWrite(t *testing.T) {
 	ad := NewArticleDraft(testTargetGallID, "ㅋㅋㅋㅋ", "ㅋㅋㅋㅋㅋㅋ", "test.jpg")
 	if err := s.Write(ad); err != nil {
 		t.Error(err)
+	}
+}
+func TestMemberWriteComment(t *testing.T) {
+	s, err := getTestMemberSession()
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	// test write comment to ListItem
@@ -35,7 +41,7 @@ func TestMemberWrite(t *testing.T) {
 	}
 }
 
-func TestGuestWrite(t *testing.T) {
+func TestGuestWriteArticle(t *testing.T) {
 	s, err := getTestGuestSession()
 	if err != nil {
 		t.Fatal(err)
@@ -45,6 +51,13 @@ func TestGuestWrite(t *testing.T) {
 	ad := NewArticleDraft(testTargetGallID, "ㅋㅋㅋㅋ", "ㅋㅋㅋㅋㅋㅋ", "test.jpg")
 	if err := s.Write(ad); err != nil {
 		t.Error(err)
+	}
+}
+
+func TestGuestWriteComment(t *testing.T) {
+	s, err := getTestGuestSession()
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	// test write comment to ListItem
