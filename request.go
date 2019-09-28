@@ -63,7 +63,6 @@ type session interface {
 	commentWriteForm(string, string, string, ...string) (form io.Reader, contentType string)
 	commentDeleteForm(string, string, string) (form io.Reader, contentType string)
 	actionForm(string, string) (form io.Reader, contentType string)
-	// reportForm(string, string) (form io.Reader, contentType string)
 	getAppID() string
 	connector
 }

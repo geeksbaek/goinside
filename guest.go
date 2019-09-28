@@ -131,29 +131,6 @@ func (gs *GuestSession) actionForm(id, n string) (io.Reader, string) {
 	}), nonCharsetContentType
 }
 
-// Report 메소드는 해당 글에 메모와 함께 신고 요청을 보냅니다.
-// func (gs *GuestSession) Report(a actionable, memo string) error {
-// 	return a.report(gs, memo)
-// }
-
-// func (gs *GuestSession) reportForm(URL, memo string) (io.Reader, string) {
-// 	_Must := func(s string, err error) string {
-// 		if err != nil {
-// 			return ""
-// 		}
-// 		return s
-// 	}
-// 	return makeForm(map[string]string{
-// 		"name":     _Must(url.QueryUnescape(gs.id)),
-// 		"password": _Must(url.QueryUnescape(gs.pw)),
-// 		"choice":   "4",
-// 		"memo":     _Must(url.QueryUnescape(memo)),
-// 		"no":       articleNumber(URL),
-// 		"id":       gallID(URL),
-// 		"app_id":   gs.getAppID(),
-// 	}), nonCharsetContentType
-// }
-
 func (gs *GuestSession) getAppID() string {
 	valueToken := generateValueToken()
 	if gs.app.Token == valueToken {
