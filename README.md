@@ -8,7 +8,7 @@ API에 대한 설명은 [godoc](https://godoc.org/github.com/geeksbaek/goinside)
 
 ## Install
 ```
-go get -u github.com/geeksbaek/goinside/...
+go get -u github.com/geeksbaek/goinside
 ```
 
 ## See also
