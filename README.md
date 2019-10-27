@@ -22,6 +22,7 @@ goinside는 아래 라이브러리들의 코드를 일부 참고하였습니다.
 
 - [pyinside](https://github.com/jeongsj/pyinside)
 - [nodeinside](https://github.com/leechanee1/nodeinside)
+- [KotlinInside](https://github.com/organization/KotlinInside)
 
 ## Warning
 
