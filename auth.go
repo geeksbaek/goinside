@@ -56,12 +56,12 @@ func generateValueToken() (string, error) {
 		return "", err
 	}
 	body := []map[string]string{}
-	json.NewDecoder(resp.Body).Decode(&body)
-
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		return "", err
+	}
 	if len(body) != 1 {
 		return "", errors.New("unknown app check response")
 	}
-
 	appKey := fmt.Sprintf("dcArdchk_%s", body[0]["date"])
 	hashedAppKey := sha256.Sum256([]byte(appKey))
 	return fmt.Sprintf("%x", hashedAppKey), nil
