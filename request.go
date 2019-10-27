@@ -18,6 +18,7 @@ const (
 const (
 	loginAPI              dcinsideAPI = "https://dcid.dcinside.com/join/mobile_app_login.php"
 	appKeyVerificationAPI dcinsideAPI = "https://dcid.dcinside.com/join/mobile_app_key_verification_3rd.php"
+	appCheckAPI           dcinsideAPI = "http://json2.dcinside.com/json0/app_check_A_rina.php"
 	writeArticleAPI       dcinsideAPI = "http://upload.dcinside.com/_app_write_api.php"
 	deleteArticleAPI      dcinsideAPI = "http://m.dcinside.com/api/gall_del.php"
 	writeCommentAPI       dcinsideAPI = "http://m.dcinside.com/api/comment_ok.php"

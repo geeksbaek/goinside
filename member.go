@@ -55,7 +55,10 @@ func Login(id, pw string) (ms *MemberSession, err error) {
 	}
 	tempMS.MemberSessionDetail = &((*tempMSD)[0])
 
-	valueToken, appID := fetchAppID(tempMS)
+	valueToken, appID, err := fetchAppID(tempMS)
+	if err != nil {
+		return nil, err
+	}
 	tempMS.app = &App{Token: valueToken, ID: appID}
 
 	ms = tempMS
@@ -158,11 +161,17 @@ func (ms *MemberSession) actionForm(id, n string) (io.Reader, string) {
 }
 
 func (ms *MemberSession) getAppID() string {
-	valueToken := generateValueToken()
+	valueToken, err := generateValueToken()
+	if err != nil {
+		return ""
+	}
 	if ms.app.Token == valueToken {
 		return ms.app.ID
 	}
-	valueToken, appID := fetchAppID(ms)
+	valueToken, appID, err := fetchAppID(ms)
+	if err != nil {
+		return ""
+	}
 	ms.app = &App{Token: valueToken, ID: appID}
 	return ms.app.ID
 }

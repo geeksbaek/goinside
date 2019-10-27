@@ -3,6 +3,7 @@ package goinside
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -19,8 +20,11 @@ type AppIDResponse []struct {
 	AppID  string `json:"app_id"`
 }
 
-func fetchAppID(s session) (valueToken, appID string) {
-	valueToken = generateValueToken()
+func fetchAppID(s session) (valueToken, appID string, err error) {
+	valueToken, err = generateValueToken()
+	if err != nil {
+		return "", "", err
+	}
 	r, ct := multipartForm(map[string]string{
 		"value_token": valueToken,
 		"signature":   "ReOo4u96nnv8Njd7707KpYiIVYQ3FlcKHDJE046Pg6s=",
@@ -30,15 +34,15 @@ func fetchAppID(s session) (valueToken, appID string) {
 	})
 	res, err := appKeyVerificationAPI.post(s, r, ct)
 	if err != nil {
-		return "", ""
+		return "", "", nil
 	}
 	defer res.Body.Close()
 	appIDResponse := AppIDResponse{}
 	if err := json.NewDecoder(res.Body).Decode(&appIDResponse); err != nil {
-		return "", ""
+		return "", "", nil
 	}
 	if len(appIDResponse) == 0 || appIDResponse[0].Result == false {
-		return "", ""
+		return "", "", nil
 	}
 	appID = appIDResponse[0].AppID
 
@@ -46,10 +50,19 @@ func fetchAppID(s session) (valueToken, appID string) {
 	return
 }
 
-func generateValueToken() string {
-	now := time.Now()
-	appKey := fmt.Sprintf("dcArdchk_%04d%02d%02d%02d",
-		now.Year(), now.Month(), now.Day(), now.Hour())
+func generateValueToken() (string, error) {
+	resp, err := appCheckAPI.getWithoutHash()
+	if err != nil {
+		return "", err
+	}
+	body := []map[string]string{}
+	json.NewDecoder(resp.Body).Decode(&body)
+
+	if len(body) != 1 {
+		return "", errors.New("unknown app check response")
+	}
+
+	appKey := fmt.Sprintf("dcArdchk_%s", body[0]["date"])
 	hashedAppKey := sha256.Sum256([]byte(appKey))
-	return fmt.Sprintf("%x", hashedAppKey)
+	return fmt.Sprintf("%x", hashedAppKey), nil
 }
