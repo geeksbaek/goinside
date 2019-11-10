@@ -1,13 +1,9 @@
 package goinside
 
 import (
-	"errors"
+	"fmt"
 	"io"
 	"time"
-)
-
-var (
-	errLoginFailed = errors.New("login failed")
 )
 
 // MemberSession 구조체는 고정닉의 세션을 나타냅니다.
@@ -25,8 +21,10 @@ type MemberSessionDetail struct {
 	UserNO string `json:"user_no"`
 	Name   string `json:"name"`
 	Stype  string `json:"stype"`
-	// IsAdult    bool   `json:"is_adult"`
-	// IsDormancy bool   `json:"is_dormancy"`
+
+	Result bool   `json:"result"`
+	Cause  string `json:"cause"`
+	IsBot  bool   `json:"is_bot"`
 }
 
 // Login 함수는 고정닉 세션을 반환합니다.
@@ -50,7 +48,7 @@ func Login(id, pw string) (ms *MemberSession, err error) {
 		return
 	}
 	if !(*tempMSD)[0].isSucceed() {
-		err = errLoginFailed
+		err = fmt.Errorf("login fail: %v", (*tempMSD)[0].Cause)
 		return
 	}
 	tempMS.MemberSessionDetail = &((*tempMSD)[0])
