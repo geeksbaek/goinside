@@ -53,11 +53,12 @@ func fetchAppID(s session) (valueToken, appID string, err error) {
 func generateValueToken() (string, error) {
 	resp, err := appCheckAPI.getWithoutHash()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("appCheckAPI.getWithoutHash fail: %v", err)
 	}
-	body := []map[string]string{}
+	body := []map[string]interface{}{}
+
 	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
-		return "", err
+		return "", fmt.Errorf("appCheckAPI json decode fail: %v", err)
 	}
 	if len(body) != 1 {
 		return "", errors.New("unknown app check response")

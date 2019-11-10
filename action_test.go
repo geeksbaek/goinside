@@ -23,10 +23,6 @@ func TestMemberAction(t *testing.T) {
 	if err := s.ThumbsDown(l.Items[0]); err != nil {
 		t.Error(err)
 	}
-	// if err := s.Report(l.Items[0], "신고"); err != nil {
-	// 	t.Error(err)
-	// }
-
 	// test action to Article
 	a, err := l.Items[1].Fetch()
 	if err != nil {
@@ -38,9 +34,6 @@ func TestMemberAction(t *testing.T) {
 	if err := s.ThumbsDown(a); err != nil {
 		t.Error(err)
 	}
-	// if err := s.Report(a, "신고"); err != nil {
-	// 	t.Error(err)
-	// }
 }
 
 func TestGuestAction(t *testing.T) {
