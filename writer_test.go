@@ -14,6 +14,7 @@ func TestMemberWriteArticle(t *testing.T) {
 		t.Error(err)
 	}
 }
+
 func TestMemberWriteComment(t *testing.T) {
 	s, err := getTestMemberSession()
 	if err != nil {
