@@ -34,15 +34,15 @@ func fetchAppID(s session) (valueToken, appID string, err error) {
 	})
 	res, err := appKeyVerificationAPI.post(s, r, ct)
 	if err != nil {
-		return "", "", nil
+		return "", "", err
 	}
 	defer res.Body.Close()
 	appIDResponse := AppIDResponse{}
 	if err := json.NewDecoder(res.Body).Decode(&appIDResponse); err != nil {
-		return "", "", nil
+		return "", "", err
 	}
 	if len(appIDResponse) == 0 || appIDResponse[0].Result == false {
-		return "", "", nil
+		return "", "", errors.New("could not fetch app id")
 	}
 	appID = appIDResponse[0].AppID
 
