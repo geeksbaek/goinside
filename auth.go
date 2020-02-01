@@ -18,6 +18,7 @@ type App struct {
 type AppIDResponse []struct {
 	Result bool   `json:"result"`
 	AppID  string `json:"app_id"`
+	Cause  string `json:"cause"`
 }
 
 func fetchAppID(s session) (valueToken, appID string, err error) {
@@ -42,7 +43,7 @@ func fetchAppID(s session) (valueToken, appID string, err error) {
 		return "", "", err
 	}
 	if len(appIDResponse) == 0 || appIDResponse[0].Result == false {
-		return "", "", errors.New("could not fetch app id")
+		return "", "", fmt.Errorf("could not fetch app id: %v", appIDResponse[0].Cause)
 	}
 	appID = appIDResponse[0].AppID
 
