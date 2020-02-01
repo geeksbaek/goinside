@@ -1,6 +1,8 @@
 package goinside
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestMemberAction(t *testing.T) {
 	s, err := getTestMemberSession()

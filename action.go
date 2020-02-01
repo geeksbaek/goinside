@@ -7,7 +7,6 @@ var errReportResultFalseWithEmptyCause = errors.New("Report Result False With Em
 type actionable interface {
 	thumbsUp(session) error
 	thumbsDown(session) error
-	// report(session, string) error
 }
 
 func (a *Article) thumbsUp(s session) error {
